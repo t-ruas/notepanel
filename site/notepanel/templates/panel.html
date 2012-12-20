@@ -39,7 +39,7 @@
                     $('#div_auth').show();
                     $('#a_login').on('click.notepanel', function (e) {
                         $('#div_login_result').empty();
-                        $.ajax({url: '/login', type: 'POST', dataType: 'json', data: $('#div_auth :input').serialize()}).done(function (data) {
+                        $.ajax({url: '{{ url_for("login") }}', type: 'POST', dataType: 'json', data: $('#div_auth :input').serialize()}).done(function (data) {
                             if (data.identified) {
                                 notepanel.user = data;
                                 me.disable();
@@ -152,7 +152,7 @@
                     
                     $('#a_logout').on('click.notepanel', function (e) {
                         me.disable();
-                        $.ajax({url: '/logout'}).done(function (data) {
+                        $.ajax({url: '{{ url_for("logout") }}'}).done(function (data) {
                             notepanel.user = null;
                             notepanel.views.login.enable();
                         });
@@ -240,7 +240,7 @@
                 notepanel.views.login.disable();
                 notepanel.views.panel.disable();
                 
-                $.ajax({url: '/identify', dataType: 'json'}).done(function (data) {
+                $.ajax({url: '{{ url_for("identify") }}', dataType: 'json'}).done(function (data) {
                     if (data.identified) {
                         notepanel.views.panel.enable();
                     } else {
