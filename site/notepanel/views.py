@@ -1,17 +1,39 @@
 
-import ConfigParser
-import os
-import inspect
 import flask
 
 from . import app
 
-# get root directory
-script_path = os.path.dirname(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)) + "\\"
+@app.route("/login", methods=["POST"])
+def login():
+    if flask.request.form["username"] == "":
+        return flask.jsonify(identified=False)
+    else:
+        # TODO: db check
+        flask.session["username"] = flask.request.form["username"]
+        return flask.jsonify(
+            identified=True,
+            username=flask.session["username"],
+            email=None,
+            id=None,
+            boards=None)
 
-# read the configuration file
-config = ConfigParser.RawConfigParser()
-config.read(script_path + "notepanel.conf")
+@app.route("/logout", methods=["GET"])
+def logout():
+    flask.session.pop("username", None)
+    return flask.jsonify(identified=False)
+
+@app.route("/identify", methods=["GET"])
+def identify():
+    # TODO: db select
+    if "username" in flask.session:
+        return flask.jsonify(
+            identified=True,
+            username=flask.session["username"],
+            email=None,
+            id=None,
+            boards=None)
+    else:
+        return flask.jsonify(identified=False)
 
 @app.route("/", methods=["GET"])
 def main():

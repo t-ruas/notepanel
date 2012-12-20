@@ -4,3 +4,24 @@ html, body {
     height: 100%;
     margin: 0px;
 }
+
+#div_menu {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20em;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
+#div_auth {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30em;
+    height: 20em;
+    margin-top: -10em;
+    margin-left: -15em;
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+}
