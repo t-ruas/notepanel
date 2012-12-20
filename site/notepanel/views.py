@@ -4,7 +4,7 @@ import os
 import inspect
 import flask
 
-from notepanel import app
+from . import app
 
 # get root directory
 script_path = os.path.dirname(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)) + "\\"
