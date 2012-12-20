@@ -1,0 +1,152 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="static/style.css" />
+        <script type="text/javascript" src="static/jquery-1.8.3.min.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas_board" style="float: left;">
+        </canvas>
+        <div id="div_menu" style="float: right;">
+            <a href="#" id="a_add_note">Add a new note</a>
+        </div>
+        <script type="text/javascript">
+
+            var app = {
+                noteWidth: 175,
+                noteHeight: 100,
+                notes: [],
+                boardX: 0,
+                boardY: 0,
+                modes: {
+                    still: 0,
+                    board: 1,
+                    note: 2
+                },
+                mode: 0,
+                note: null,
+                lastX: 0,
+                lastY: 0
+            };
+
+            app.start = function () {
+                var $canvas = $('#canvas_board');
+                var context = $canvas.get(0).getContext('2d');
+                window.setInterval(function () {app.draw(context);}, 50);
+                
+                $canvas.on('mousedown', function (e) {
+                    var note = app.hitTest(e.clientX, e.clientY);
+                    if (note) {
+                        app.mode = app.modes.note;
+                        app.note = note;
+                    } else {
+                        app.mode = app.modes.board;
+                    }
+                    app.lastX = e.clientX;
+                    app.lastY = e.clientY;
+                });
+
+                $canvas.on('mousemove', function (e) {
+                    if (app.mode === app.modes.still) {
+                        if (e.clientX > window.innerWidth - 10) {
+                            app.showMenu();
+                        }
+                    } else {
+                        $canvas.css('cursor', 'pointer');
+                        var deltaX = e.clientX - app.lastX;
+                        var deltaY = e.clientY - app.lastY;
+                        if (app.mode === app.modes.board) {
+                            app.boardX += deltaX;
+                            app.boardY += deltaY;
+                        } else if (app.mode === app.modes.note) {
+                            app.note.x += deltaX;
+                            app.note.y += deltaY;
+                        }
+                        app.lastX = e.clientX;
+                        app.lastY = e.clientY;
+                    }
+                });
+
+                $canvas.on('mouseup', function (e) {
+                    $canvas.css('cursor', 'default');
+                    app.mode = 0;
+                    app.note = null;
+                });
+
+                $('#a_add_note').on('click', function (e) {
+                    app.addNote(50, 50);
+                    $('#div_menu').hide();
+                });
+            };
+
+            app.showMenu = function () {
+                $('#div_menu').show();
+            };
+
+            app.hitTest = function (x, y) {
+                for (var i = 0, imax = app.notes.length; i < imax; i++) {
+                    var note = app.notes[i];
+                    if (x > note.x + app.boardX
+                        && x < note.x + app.noteWidth + app.boardX
+                        && y > note.y + app.boardY
+                        && y < note.y + app.noteHeight + app.boardY) {
+                        return note;
+                    }
+                }
+            };
+
+            app.addNote = function (x, y) {
+                app.notes.push({
+                    text: 'new sticky note',
+                    color: '#66aaee',
+                    x: x,
+                    y: y
+                });
+            };
+
+            app.draw = function (context) {
+                context.canvas.width  = window.innerWidth;
+                context.canvas.height = window.innerHeight;
+                context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                app.drawBoard(context);
+                app.drawNotes(context);
+            };
+
+            app.drawNotes = function (context) {
+                for (var i = 0, imax = app.notes.length; i < imax; i++) {
+                    var note = app.notes[i];
+                    context.beginPath();
+                    context.moveTo(note.x + app.boardX, note.y + app.boardY);
+                    context.lineTo(note.x + app.noteWidth + app.boardX, note.y + app.boardY);
+                    context.lineTo(note.x + app.noteWidth + app.boardX, note.y + app.noteHeight + app.boardY);
+                    context.lineTo(note.x + app.boardX, note.y + app.noteHeight + app.boardY);
+                    context.closePath();
+                    if (app.mode === app.modes.note && app.note === note) {
+                        context.strokeStyle = '#444444';
+                        context.fillStyle = note.color;
+                    } else {
+                        context.strokeStyle = '#888888';
+                        context.fillStyle = note.color;
+                    }
+                    context.stroke();
+                    context.fill();
+                }
+            };
+
+            app.drawBoard = function (context) {
+                context.beginPath();
+                context.moveTo(10, 10);
+                context.lineTo(context.canvas.width - 10, 10);
+                context.lineTo(context.canvas.width - 10, context.canvas.height - 10);
+                context.lineTo(10, context.canvas.height - 10);
+                context.closePath();
+                context.strokeStyle = '#888888';
+                context.stroke();
+                context.fillStyle = '#ffffee';
+                context.fill();
+            };
+
+            app.start();
+
+        </script>
+    </body>
+</html>
