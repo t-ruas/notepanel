@@ -36,5 +36,5 @@ def identify():
         return flask.jsonify(identified=False)
 
 @app.route("/", methods=["GET"])
-def main():
+def index():
     return flask.render_template("panel.html")
