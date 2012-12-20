@@ -17,3 +17,5 @@ config.read(script_path + "notepanel.conf")
 
 # secret for session cookie encryption
 app.secret_key = config.get("session", "secret")
+
+app.run()
