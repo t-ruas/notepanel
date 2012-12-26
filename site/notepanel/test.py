@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from model import Board
+from entities.model import Board, User
+from services.userservice import UserService
+from services.boardservice import BoardService
  
+'''
 engine = create_engine('mysql://root@localhost/notepanel', echo=True)
  
 # create a Session
@@ -17,5 +20,14 @@ session.commit()
 query = session.query(Board)
 board = query.first()
 session.commit()
+'''
 
-print board.name
+#board = BoardService().GetFirstBoard()
+#print board.name
+
+if UserService().CheckUser('Freddy', 'ysance'):
+    print "OK"
+else:
+    print "KO"
+
+
