@@ -3,9 +3,10 @@ import flask
 
 from . import app
 
+'''
 import services
 from services.userservice import *
-
+'''
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -16,7 +17,7 @@ def login():
         return flask.jsonify(identified=False)
     else:
         # TODO: db check*
-        if UserService().login(flask.request.form["username"], flask.request.form["password"]):
+        if 0==1:
             flask.session["username"] = flask.request.form["username"]
             return flask.jsonify(
                 identified=True,
@@ -29,7 +30,7 @@ def login():
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    UserService().logout(flask.session["username"])
+    #UserService().logout(flask.session["username"])
     flask.session.pop("username", None)
     return flask.render_template("panel.html")
 
