@@ -49,3 +49,13 @@ def identify():
 @app.route("/", methods=["GET"])
 def index():
     return flask.render_template("panel.html")
+
+@app.route("/test", methods=["GET"])
+def test():
+    import os
+    if 'MongoIP' in os.environ:
+        envvar = os.environ['MongoIP'] 
+    else:
+        envvar = 'Tata' 
+    return flask.render_template('test.html', myvar=envvar)
+
