@@ -22,6 +22,9 @@ board = query.first()
 session.commit()
 '''
 
+script_path = os.path.dirname(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)) + "\\"
+print script_path
+
 #board = BoardService().GetFirstBoard()
 #print board.name
 

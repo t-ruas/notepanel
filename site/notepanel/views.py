@@ -3,10 +3,8 @@ import flask
 
 from . import app
 
-'''
 import services
 from services.userservice import *
-'''
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -17,7 +15,7 @@ def login():
         return flask.jsonify(identified=False)
     else:
         # TODO: db check*
-        if 0==1:
+        if UserService().login(username, password):
             flask.session["username"] = flask.request.form["username"]
             return flask.jsonify(
                 identified=True,
@@ -54,9 +52,9 @@ def index():
 @app.route("/test", methods=["GET"])
 def test():
     import os
-    if 'MongoIP' in os.environ:
-        envvar = os.environ['MongoIP'] 
+    if 'WeAreInTheCloud' in os.environ:
+        envvar = os.environ['WeAreInTheCloud'] 
     else:
-        envvar = 'Tata' 
+        envvar = 'WeAreInLocal'
     return flask.render_template('test.html', myvar=envvar)
 
