@@ -3,6 +3,10 @@ import inspect
 from abc import ABCMeta
 import ConfigParser
 
+# TODO : a better way
+import logging
+logger = logging.getLogger('ysance.utils')
+
 
 class ConfigurationManager(object):
     
@@ -12,7 +16,9 @@ class ConfigurationManager(object):
         self.config_file_dir_path = config_dir_path
 
     def getConfigFilePath(self):
-        return self.config_file_dir_path + "notepanel.conf"
+        config_file_path = self.config_file_dir_path + "\\notepanel.local.conf"
+        logger.info("configuration file path : %s" % config_file_path)
+        return config_file_path
     
     @staticmethod
     def weAreInTheCloud():        

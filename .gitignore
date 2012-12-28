@@ -33,3 +33,14 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Local configuration
+*.local.conf
+
+# Test files
+test.py
+
+# Log files
+*.log
+*.log.*
+
