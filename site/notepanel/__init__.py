@@ -28,7 +28,7 @@ env = 'local';
 if ConfigurationManager.weAreInTheCloud():
     env = ConfigurationManager.getEnv()
 
-
+'''
 logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
 logs_path = root_path + '\\logs\\'
 # flask app logging
@@ -71,7 +71,10 @@ site_logger.addHandler(site_log_file_handler)
 utils_logger = logging.getLogger('ysance.utils')
 utils_logger.setLevel(logging.INFO)
 utils_logger.addHandler(site_log_file_handler)
+'''
 
+#from . import views
 
-from . import views
+# for test
+from . import test.py
 
