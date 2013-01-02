@@ -14,8 +14,9 @@ def login():
     if  username == "" or password == "":
         return flask.jsonify(identified=False)
     else:
-        # TODO: db check*
-        if UserService().login(username, password):
+        # TODO: db check
+        #if UserService().login(username, password):
+        if 1 == 0:
             flask.session["username"] = flask.request.form["username"]
             return flask.jsonify(
                 identified=True,
@@ -52,8 +53,8 @@ def index():
 @app.route("/test", methods=["GET"])
 def test():
     import os
-    if 'WeAreInTheCloud' in os.environ:
-        envvar = os.environ['WeAreInTheCloud'] 
+    if 'MYSQLCONNSTR_APP' in os.environ:
+        envvar = 'WeAreInThecloud'
     else:
         envvar = 'WeAreInLocal'
     return flask.render_template('test.html', myvar=envvar)

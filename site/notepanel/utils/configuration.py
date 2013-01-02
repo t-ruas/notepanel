@@ -21,11 +21,17 @@ class ConfigurationManager(object):
         return config_file_path
     
     @staticmethod
-    def weAreInTheCloud():        
+    def weAreInTheCloud():
         if "WeAreInTheCloud" in os.environ:
             return True
         else:
             return False
+    
+    @staticmethod
+    def getEnvironment():
+        if ConfigurationManager.weAreInTheCloud():
+            env = os.environ["WeAreInTheCloud"] # should be 'rec' or 'prd'
+        return env
         
     def getConfiguration(self):
         if ConfigurationManager.weAreInTheCloud():
