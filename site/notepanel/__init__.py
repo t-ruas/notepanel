@@ -17,10 +17,12 @@ conf_manager = ConfigurationManager(app.root_path);
 env_conf = conf_manager.getConfiguration()
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
+'''
 # connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
+'''
 
 app.envconf = env_conf
 
@@ -77,5 +79,5 @@ utils_logger.addHandler(site_log_file_handler)
 #from . import views
 
 # for test
-from . import test.py
+from . import test
 
