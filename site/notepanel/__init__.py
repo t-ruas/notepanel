@@ -5,10 +5,11 @@ from notepanel.utils.configuration import *
 
 app = flask.Flask(__name__)
 
+
+'''
 import logging
 from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 import logging.config
-
 
 # get root directory
 root_path = app.root_path + "\\"
@@ -17,12 +18,12 @@ conf_manager = ConfigurationManager(app.root_path);
 env_conf = conf_manager.getConfiguration()
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
-'''
+
 # connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
-'''
+
 
 app.envconf = env_conf
 
@@ -30,7 +31,7 @@ env = 'local';
 if ConfigurationManager.weAreInTheCloud():
     env = ConfigurationManager.getEnv()
 
-'''
+
 #logging
 logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
 logs_path = root_path + '\\logs\\'
