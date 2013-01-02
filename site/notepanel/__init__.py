@@ -29,6 +29,7 @@ if ConfigurationManager.weAreInTheCloud():
     env = ConfigurationManager.getEnv()
 
 '''
+#logging
 logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
 logs_path = root_path + '\\logs\\'
 # flask app logging
