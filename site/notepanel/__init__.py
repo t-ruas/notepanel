@@ -29,8 +29,7 @@ app.env = env
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
     
-
-# connection string
+# retrieving connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
@@ -38,9 +37,11 @@ svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 
 logs_path = root_path + '\\logs\\'
 
+'''
 import logging
 from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 import logging.config
+'''
 
 #logging
 #logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
