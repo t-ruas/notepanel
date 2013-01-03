@@ -1,0 +1,20 @@
+<html>
+    <head>
+		<link rel="shortcut icon" href="static/favicon.ico" />
+    </head>
+    <body>
+		<h1>Logs</h1>
+		<div>
+			<table width="100%">				
+				{% for log in logs %}
+					<tr>
+						<td>{{ log.PartitionKey }}</td>
+						<td>{{ log.RowKey }}</td>
+						<td>{{ log.level }}</td>
+						<td>{{ log.description }}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>		
+	</body>
+</html>

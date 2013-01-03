@@ -38,3 +38,11 @@ def test():
     else:
         myvar = 'local'
     return flask.render_template('test.html', myvar=myvar)
+
+@app.route("/logs", methods=["GET"])
+def logs():
+    from azure.storage import *
+    table_service = TableService(app.env_conf.getSetting('azaccount'), app.env_conf.getSetting('azkey'))
+    table_service.set_proxy('localhost', '3127')
+    logs = table_service.query_entities('logs', filter="PartitionKey eq 'notepanel.site'", top="10")
+    return flask.render_template('logs.html', logs=logs)
