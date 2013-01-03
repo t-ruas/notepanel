@@ -23,6 +23,7 @@ app.secret_key = env_conf.getSetting('secret')
 env = 'local';
 if ConfigurationManager.weAreInTheCloud():  
     env = ConfigurationManager.getCloudEnvironment()
+app.env = env
 
 # setting path to packages
 if env == 'local':
@@ -48,12 +49,14 @@ import logging.config
 #logging
 logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
 
+'''
 # flask app logging
 if ConfigurationManager.weAreInTheCloud():
     app_log_file_name = logs_path + 'flask.log'
     app_log_file_handler = TimedRotatingFileHandler(filename=app_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
     app_log_file_handler.setLevel(logging.WARN)
     app.logger.addHandler(app_log_file_handler)
+'''
 
 '''
 # sqlalchemy logging

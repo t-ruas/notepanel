@@ -32,8 +32,5 @@ def identify():
 @app.route("/test", methods=["GET"])
 def test():
     import os
-    if 'MYSQLCONNSTR_APP' in os.environ:
-        envvar = 'WeAreInThecloud'
-    else:
-        envvar = 'WeAreInLocal'
-    return flask.render_template('test.html', myvar=envvar)
+    myvar = app.env 
+    return flask.render_template('test.html', myvar=myvar)
