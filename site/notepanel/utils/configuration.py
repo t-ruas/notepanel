@@ -108,7 +108,7 @@ class AzureConfiguration(Configuration):
             raise Exception("setting key %s not found" % key)
             
     def getMySQLConnectionString(self, connection_string_name):
-        return self.GetSetting("MYSQLCONNSTR_" + connection_string_name)
+        return self.getSetting("MYSQLCONNSTR_" + connection_string_name)
 
 # FileConfiguration implements Configuration
 Configuration.register(FileConfiguration)
