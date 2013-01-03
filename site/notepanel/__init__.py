@@ -28,15 +28,27 @@ app.env = env
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
 
+# site logs azure table handler
+from notepanel.utils.azuretablehandler import AzureTableHandler
+site_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
+site_log_aztable_handler.setLevel(logging.INFO)
+if env == 'local':
+    site_log_aztable_handler.set_proxy('localhost', '3127')
+site_log_aztable_handler.create_table()
+
+# site logging 
+site_logger = logging.getLogger('notepanel.site')
+site_logger.setLevel(logging.INFO)
+site_logger.addHandler(site_log_aztable_handler)
+
 # retrieving connection string
-'''
 try:
     from notepanel.services.serviceconfiguration import ServiceConfiguration
     svc_conf = ServiceConfiguration()
     svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 except Exception, e:
-'''
-
+    site_logger.error(str(e))
+    
 #logs_path = root_path + '\\logs\\'
 
 '''
