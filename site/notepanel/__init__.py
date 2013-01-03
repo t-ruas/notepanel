@@ -14,7 +14,6 @@ root_path = app.root_path + "\\"
 # init configuration
 conf_manager = ConfigurationManager(app.root_path);
 env_conf = conf_manager.getConfiguration()
-app.envconf = env_conf
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
 
