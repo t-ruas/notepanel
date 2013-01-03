@@ -28,12 +28,10 @@ if ConfigurationManager.weAreInTheCloud():
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
 
-'''
 # retrieving connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
-'''
 
 #logs_path = root_path + '\\logs\\'
 
@@ -55,6 +53,8 @@ if ConfigurationManager.weAreInTheCloud():
     app.logger.addHandler(app_log_file_handler)
 '''
 
+
+
 '''
 # sqlalchemy logging
 from logging import getLogger
@@ -69,8 +69,11 @@ sqlalchemy_log_file_handler.setLevel(logging.WARN)
 sqlalchemy_logger.addHandler(sqlalchemy_log_file_handler)
 
 # site logs file handler 
-site_log_file_name = logs_path + 'site.log'
-site_log_file_handler = TimedRotatingFileHandler(filename=site_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
+
+from notepanel.utils.azuretablehandler import AzureTableHandler
+site_log_file_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs'))
+#site_log_file_name = logs_path + 'site.log'
+#site_log_file_handler = TimedRotatingFileHandler(filename=site_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
 site_log_file_handler.setLevel(logging.INFO)
 site_log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 site_log_file_handler.setFormatter(site_log_formatter)
