@@ -47,7 +47,7 @@ from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 import logging.config
 
 #logging
-logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
+#logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
 
 '''
 # flask app logging
