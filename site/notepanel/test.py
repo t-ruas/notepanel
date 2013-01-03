@@ -32,5 +32,8 @@ def identify():
 @app.route("/test", methods=["GET"])
 def test():
     import os
-    myvar = app.env 
+    if 'WeAreInTheCloud' in os.environ:  
+        myvar = ConfigurationManager.getCloudEnvironment()
+    else:
+        myvar = 'local'
     return flask.render_template('test.html', myvar=myvar)

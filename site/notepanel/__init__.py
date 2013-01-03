@@ -22,7 +22,7 @@ app.secret_key = env_conf.getSetting('secret')
 env = 'local';
 if ConfigurationManager.weAreInTheCloud():  
     env = ConfigurationManager.getCloudEnvironment()
-app.env = env
+#app.env = env
 
 # setting path to packages for local environment
 if env == 'local':
