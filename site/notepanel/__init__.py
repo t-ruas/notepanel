@@ -35,7 +35,7 @@ for path in sys.path:
 # connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
-#svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
+svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 
 
 '''
