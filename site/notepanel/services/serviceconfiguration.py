@@ -2,8 +2,13 @@
 
 class ServiceConfiguration(object):
     
-    #__metaclass__ = Singleton   
+    #__metaclass__ = Singleton
     
     mysqlenginestring = ''
-    logger_name = 'services'    
+    logger_name = 'services' 
+    
+    def __init__(self):
+        pass
+    
+       
     
