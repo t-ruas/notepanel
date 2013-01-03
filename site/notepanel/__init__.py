@@ -8,31 +8,34 @@ from notepanel.utils.configuration import *
 app = flask.Flask(__name__)
 
 
-#for path in sys.path:
-#    print path
+
 
 # get root directory
 root_path = app.root_path + "\\"
 # init configuration
 conf_manager = ConfigurationManager(app.root_path);
 env_conf = conf_manager.getConfiguration()
+app.envconf = env_conf
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
 
+# setting environment
 env = 'local';
 if ConfigurationManager.weAreInTheCloud():  
     env = ConfigurationManager.getCloudEnvironment()
 
 # setting path to packages
 if env == 'local':
-    sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')) + '\\')
+    sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
+
+    
+for path in sys.path:
+    print path
 
 # connection string
-from notepanel.services.serviceconfiguration import ServiceConfiguration
+from services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
-
-app.envconf = env_conf
 
 
 '''
@@ -92,7 +95,6 @@ log_monitor.addFile(logs_path + 'site.log')
 log_monitor.addFile(logs_path + 'sqlalchemy.log')
 log_monitor.copyAllFiles()
 '''
-
 
 
 #from . import views
