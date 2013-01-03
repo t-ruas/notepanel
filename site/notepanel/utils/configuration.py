@@ -28,7 +28,7 @@ class ConfigurationManager(object):
             return False
     
     @staticmethod
-    def getEnvironment():
+    def getCloudEnvironment():
         if ConfigurationManager.weAreInTheCloud():
             env = os.environ["WeAreInTheCloud"] # should be 'rec' or 'prd'
         return env

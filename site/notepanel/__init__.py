@@ -8,8 +8,6 @@ from notepanel.utils.configuration import *
 app = flask.Flask(__name__)
 
 
-
-
 #for path in sys.path:
 #    print path
 
@@ -21,17 +19,14 @@ env_conf = conf_manager.getConfiguration()
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
 
-'''
 env = 'local';
 if ConfigurationManager.weAreInTheCloud():  
-    env = ConfigurationManager.getEnv()
-'''
+    env = ConfigurationManager.getCloudEnvironment()
 
-# if local
-#sys.path.append('L:\\Freddy\\Test\\NotePanel\\Code\\site-packages\\')
+# setting path to packages
+if env == 'local':
+    sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')) + '\\')
 
-
-'''
 # connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
@@ -40,8 +35,7 @@ svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 app.envconf = env_conf
 
 
-
-
+'''
 import logging
 from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 import logging.config
@@ -89,16 +83,13 @@ site_logger.addHandler(site_log_file_handler)
 utils_logger = logging.getLogger('ysance.utils')
 utils_logger.setLevel(logging.INFO)
 utils_logger.addHandler(site_log_file_handler)
-'''
 
-
-'''
 from notepanel.utils.azurefilemonitor import *
 log_monitor = AzureFileMonitor()
 log_monitor.setTarget(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
 log_monitor.blob_service.set_proxy('localhost', '3127')
 log_monitor.addFile(logs_path + 'site.log')
-log_monitor.addFile(ogs_path + 'sqlalchemy.log')
+log_monitor.addFile(logs_path + 'sqlalchemy.log')
 log_monitor.copyAllFiles()
 '''
 
