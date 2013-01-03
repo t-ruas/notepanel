@@ -21,21 +21,15 @@ env_conf = conf_manager.getConfiguration()
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
 
+'''
 env = 'local';
 if ConfigurationManager.weAreInTheCloud():  
     env = ConfigurationManager.getEnv()
+'''
 
 # if local
 #sys.path.append('L:\\Freddy\\Test\\NotePanel\\Code\\site-packages\\')
 
-'''
-from notepanel.utils.azurefilemonitor import *
-log_monitor = AzureFileMonitor()
-log_monitor.setTarget(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
-log_monitor.blob_service.set_proxy('localhost', '3127')
-log_monitor.addFile(root_path + '\\logs\\site.log')
-log_monitor.copyAllFiles()
-'''
 
 '''
 # connection string
@@ -96,6 +90,19 @@ utils_logger = logging.getLogger('ysance.utils')
 utils_logger.setLevel(logging.INFO)
 utils_logger.addHandler(site_log_file_handler)
 '''
+
+
+'''
+from notepanel.utils.azurefilemonitor import *
+log_monitor = AzureFileMonitor()
+log_monitor.setTarget(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
+log_monitor.blob_service.set_proxy('localhost', '3127')
+log_monitor.addFile(logs_path + 'site.log')
+log_monitor.addFile(ogs_path + 'sqlalchemy.log')
+log_monitor.copyAllFiles()
+'''
+
+
 
 #from . import views
 
