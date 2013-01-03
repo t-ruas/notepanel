@@ -29,6 +29,7 @@ def identify():
     else:
         return flask.jsonify(identified=False)
 
+'''
 @app.route("/test", methods=["GET"])
 def test():
     import os
@@ -37,3 +38,4 @@ def test():
     else:
         myvar = 'local'
     return flask.render_template('test.html', myvar=myvar)
+'''
