@@ -27,12 +27,13 @@ if ConfigurationManager.weAreInTheCloud():
 # setting path to packages for local environment
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
-    
+
+'''
 # retrieving connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
-
+'''
 
 #logs_path = root_path + '\\logs\\'
 
