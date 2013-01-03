@@ -38,21 +38,24 @@ svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 
 
-'''
+logs_path = root_path + '\\logs\\'
+
+
 import logging
 from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 import logging.config
 
 #logging
 logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
-logs_path = root_path + '\\logs\\'
+
 # flask app logging
 if ConfigurationManager.weAreInTheCloud():
     app_log_file_name = logs_path + 'flask.log'
     app_log_file_handler = TimedRotatingFileHandler(filename=app_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
     app_log_file_handler.setLevel(logging.WARN)
     app.logger.addHandler(app_log_file_handler)
-        
+
+'''
 # sqlalchemy logging
 from logging import getLogger
 sqlalchemy_logger = logging.getLogger('sqlalchemy')
@@ -87,12 +90,17 @@ utils_logger = logging.getLogger('ysance.utils')
 utils_logger.setLevel(logging.INFO)
 utils_logger.addHandler(site_log_file_handler)
 
+'''
+'''
 from notepanel.utils.azurefilemonitor import *
 log_monitor = AzureFileMonitor()
 log_monitor.setTarget(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
-log_monitor.blob_service.set_proxy('localhost', '3127')
+# using proxy only in local
+if env == 'local':
+    log_monitor.blob_service.set_proxy('localhost', '3127')
 log_monitor.addFile(logs_path + 'site.log')
 log_monitor.addFile(logs_path + 'sqlalchemy.log')
+log_monitor.addFile(logs_path + 'flask.log')
 log_monitor.copyAllFiles()
 '''
 
