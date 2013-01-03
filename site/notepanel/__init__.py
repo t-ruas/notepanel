@@ -9,7 +9,6 @@ app = flask.Flask(__name__)
 
 
 
-
 # get root directory
 root_path = app.root_path + "\\"
 # init configuration
@@ -25,7 +24,7 @@ if ConfigurationManager.weAreInTheCloud():
     env = ConfigurationManager.getCloudEnvironment()
 app.env = env
 
-# setting path to packages
+# setting path to packages for local environment
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
     
@@ -35,7 +34,7 @@ svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 
 
-logs_path = root_path + '\\logs\\'
+#logs_path = root_path + '\\logs\\'
 
 '''
 import logging
