@@ -1,15 +1,17 @@
+import sys
 import os
 import inspect
 import flask
 from notepanel.utils.configuration import *
 
+
 app = flask.Flask(__name__)
 
 
-'''
-import logging
-from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
-import logging.config
+
+
+#for path in sys.path:
+#    print path
 
 # get root directory
 root_path = app.root_path + "\\"
@@ -19,18 +21,36 @@ env_conf = conf_manager.getConfiguration()
 # secret for session cookie encryption
 app.secret_key = env_conf.getSetting('secret')
 
+env = 'local';
+if ConfigurationManager.weAreInTheCloud():  
+    env = ConfigurationManager.getEnv()
+
+# if local
+#sys.path.append('L:\\Freddy\\Test\\NotePanel\\Code\\site-packages\\')
+
+'''
+from notepanel.utils.azurefilemonitor import *
+log_monitor = AzureFileMonitor()
+log_monitor.setTarget(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
+log_monitor.blob_service.set_proxy('localhost', '3127')
+log_monitor.addFile(root_path + '\\logs\\site.log')
+log_monitor.copyAllFiles()
+'''
+
+'''
 # connection string
 from notepanel.services.serviceconfiguration import ServiceConfiguration
 svc_conf = ServiceConfiguration()
 svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
 
-
 app.envconf = env_conf
 
-env = 'local';
-if ConfigurationManager.weAreInTheCloud():
-    env = ConfigurationManager.getEnv()
 
+
+
+import logging
+from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
+import logging.config
 
 #logging
 logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
