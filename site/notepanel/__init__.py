@@ -8,7 +8,6 @@ from notepanel.utils.configuration import *
 app = flask.Flask(__name__)
 
 
-
 # get root directory
 root_path = app.root_path + "\\"
 # init configuration
@@ -34,12 +33,13 @@ site_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), e
 site_log_aztable_handler.setLevel(logging.INFO)
 if env == 'local':
     site_log_aztable_handler.set_proxy('localhost', '3127')
-site_log_aztable_handler.create_table()
+#site_log_aztable_handler.create_table()
 
 # site logging 
 site_logger = logging.getLogger('notepanel.site')
 site_logger.setLevel(logging.INFO)
 site_logger.addHandler(site_log_aztable_handler)
+
 
 # flask app logging
 '''
@@ -49,6 +49,7 @@ if ConfigurationManager.weAreInTheCloud():
     app_log_file_handler.setLevel(logging.WARN)
     app.logger.addHandler(app_log_file_handler)
 '''
+
 flask_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
 flask_log_aztable_handler.setLevel(logging.WARN)
 if env == 'local':
@@ -58,12 +59,11 @@ app.logger.addHandler(flask_log_aztable_handler)
 logger.addHandler(flask_log_aztable_handler)
 
 try:
-
+    
     # retrieving connection string
     from notepanel.services.serviceconfiguration import ServiceConfiguration
     svc_conf = ServiceConfiguration()
-    svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')
-    
+    svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')    
         
     #logs_path = root_path + '\\logs\\'
     
@@ -135,11 +135,13 @@ try:
     log_monitor.copyAllFiles()
     '''
     
-    
-    #from . import views
-    
-    # for test
-    from . import test
 
 except Exception, e:
-    site_logger.error(str(e))
+    #site_logger.error(str(e))
+    pass
+    
+      
+#from . import views
+# for test
+from . import test
+

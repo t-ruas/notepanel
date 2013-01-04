@@ -1,0 +1,22 @@
+<html>
+    <head>
+		<link rel="shortcut icon" href="static/favicon.ico" />
+    </head>
+    <body>
+		<h1>Welcome to admin page !</h1>
+		
+		<div><a href='{{ url_for("admin") }}/logout'>admin logout</a></div>		
+		
+		<div>
+			<h2>Logs admin</h2>
+			<div>
+				<ul>
+					<li><a href='{{ url_for("logs") }}'>view logs</a></li>
+					<li><a href='{{ url_for("logs") }}/clear'>clear logs</a></li>
+					<li><a href='{{ url_for("logs") }}/init'>init logs</a></li>
+					<li><a href='{{ url_for("logs") }}/copy/all'>copy logs</a></li>
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>
