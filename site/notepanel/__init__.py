@@ -63,8 +63,11 @@ try:
     #import logging.config
     #logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
     
-    # flask app logging
+    # ensure logs dir exists
     logs_path = os.path.join(root_path, 'logs\\')
+    if not os.path.exists(logs_path):
+        os.makedirs(logs_path)
+        
     '''
     if ConfigurationManager.weAreInTheCloud():
         app_log_file_name = logs_path + 'flask.log'
