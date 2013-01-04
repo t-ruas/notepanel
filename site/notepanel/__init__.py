@@ -27,8 +27,14 @@ app.env = env
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
 
+
+import logging
+from logging import getLogger
 from notepanel.utils.log import LevelFilter
 
+# site logging
+site_logger = logging.getLogger('notepanel.site')
+site_logger.setLevel(logging.INFO)
 # site logs azure table handler
 from notepanel.utils.azuretablehandler import AzureTableHandler
 site_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
@@ -36,19 +42,7 @@ site_log_aztable_handler.setLevel(logging.WARN)
 site_log_aztable_handler.addFilter(LevelFilter(logging.WARN))
 if env == 'local':
     site_log_aztable_handler.set_proxy('localhost', '3127')
-
-# site logging 
-site_logger = logging.getLogger('notepanel.site')
-site_logger.setLevel(logging.INFO)
 site_logger.addHandler(site_log_aztable_handler)
-
-
-flask_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
-flask_log_aztable_handler.setLevel(logging.WARN)
-if env == 'local':
-    site_log_aztable_handler.set_proxy('localhost', '3127')
-app.logger.addHandler(flask_log_aztable_handler)
-
 
 try:
     
@@ -67,28 +61,31 @@ try:
     logs_path = os.path.join(root_path, 'logs\\')
     if not os.path.exists(logs_path):
         os.makedirs(logs_path)
-        
-    '''
+    
+    # flask app logging
     if ConfigurationManager.weAreInTheCloud():
+        # flask app logs azure table handler
+        flask_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
+        flask_log_aztable_handler.setLevel(logging.WARN)
+        if env == 'local':
+            site_log_aztable_handler.set_proxy('localhost', '3127')
+        app.logger.addHandler(flask_log_aztable_handler)
+        # site logs file handler
         app_log_file_name = logs_path + 'flask.log'
         app_log_file_handler = TimedRotatingFileHandler(filename=app_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
         app_log_file_handler.setLevel(logging.INFO)
+        app_log_file_handler.addFilter(LevelFilter(logging.INFO))
         app.logger.addHandler(app_log_file_handler)
-    '''
-    
-    '''
-    # sqlalchemy logging
-    from logging import getLogger
+        
+    # sqlalchemy logging    
     sqlalchemy_logger = logging.getLogger('sqlalchemy')
-    sqlalchemy_logger.setLevel(logging.INFO)    
+    sqlalchemy_logger.setLevel(logging.INFO)
+    # sqlalchemy logs file handler  
     sqlalchemy_log_file_name = logs_path + 'sqlalchemy.log'
     sqlalchemy_log_file_handler = TimedRotatingFileHandler(filename=sqlalchemy_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
-    sqlalchemy_log_file_handler.setLevel(logging.WARN)
-    #sqlalchemy_logger.handlers = []
-    #for h in sqlalchemy_logger.handlers:
-    #    print '**************************************************removing handler %s'%str(h)
+    sqlalchemy_log_file_handler.setLevel(logging.INFO)
+    sqlalchemy_log_file_handler.addFilter(LevelFilter(logging.INFO))
     sqlalchemy_logger.addHandler(sqlalchemy_log_file_handler)
-    '''
     
     # site logs file handler 
     site_log_file_name = logs_path + 'site.log'
@@ -118,7 +115,6 @@ try:
 
 except Exception, e:
     site_logger.error(str(e))
-    #raise
     pass
     
       
