@@ -46,7 +46,7 @@ site_logger.addHandler(site_log_aztable_handler)
 if ConfigurationManager.weAreInTheCloud():
     app_log_file_name = logs_path + 'flask.log'
     app_log_file_handler = TimedRotatingFileHandler(filename=app_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
-    app_log_file_handler.setLevel(logging.WARN)
+    app_log_file_handler.setLevel(logging.ERROR)
     app.logger.addHandler(app_log_file_handler)
 '''
 
@@ -56,7 +56,7 @@ if env == 'local':
     site_log_aztable_handler.set_proxy('localhost', '3127')
 app.logger.addHandler(flask_log_aztable_handler)
 
-logger.addHandler(flask_log_aztable_handler)
+#logger.addHandler(flask_log_aztable_handler)
 
 try:
     
