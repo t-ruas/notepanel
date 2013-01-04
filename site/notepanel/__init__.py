@@ -116,9 +116,15 @@ try:
 except Exception, e:
     site_logger.error(str(e))
     pass
-    
-      
-#from . import views
+
 # for test
 from . import test
+
+try:      
+    from . import views
+except Exception, e:
+    site_logger.error(str(e))
+    pass
+
+
 
