@@ -53,7 +53,7 @@ def admin_login(password):
 @app.route("/admin/logout", methods=["GET"])
 def admin_logout():
     flask.session.pop('is_admin', None)
-    return flask.render_template('panel.html')
+    return flask.redirect('/admin')
 
 @app.route("/admin", methods=["GET"])
 def admin():

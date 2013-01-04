@@ -27,13 +27,15 @@ app.env = env
 if env == 'local':
     sys.path.append(os.path.normpath(os.path.join(root_path, '..\\..\\site-packages')))
 
+from notepanel.utils.log import LevelFilter
+
 # site logs azure table handler
 from notepanel.utils.azuretablehandler import AzureTableHandler
 site_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
-site_log_aztable_handler.setLevel(logging.INFO)
+site_log_aztable_handler.setLevel(logging.WARN)
+site_log_aztable_handler.addFilter(LevelFilter(logging.WARN))
 if env == 'local':
     site_log_aztable_handler.set_proxy('localhost', '3127')
-#site_log_aztable_handler.create_table()
 
 # site logging 
 site_logger = logging.getLogger('notepanel.site')
@@ -41,46 +43,35 @@ site_logger.setLevel(logging.INFO)
 site_logger.addHandler(site_log_aztable_handler)
 
 
-# flask app logging
-'''
-if ConfigurationManager.weAreInTheCloud():
-    app_log_file_name = logs_path + 'flask.log'
-    app_log_file_handler = TimedRotatingFileHandler(filename=app_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
-    app_log_file_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(app_log_file_handler)
-'''
-
 flask_log_aztable_handler = AzureTableHandler(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
 flask_log_aztable_handler.setLevel(logging.WARN)
 if env == 'local':
     site_log_aztable_handler.set_proxy('localhost', '3127')
 app.logger.addHandler(flask_log_aztable_handler)
 
-#logger.addHandler(flask_log_aztable_handler)
 
 try:
     
     # retrieving connection string
     from notepanel.services.serviceconfiguration import ServiceConfiguration
     svc_conf = ServiceConfiguration()
-    svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')    
-        
-    #logs_path = root_path + '\\logs\\'
+    svc_conf.mysqlenginestring = env_conf.getMySQLEngineString('APP')            
     
-    '''
     import logging
     from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
-    import logging.config
-    '''
-    
-    #logging
+        
+    #import logging.config
     #logging.config.fileConfig(app.root_path + '\\log.' + env + '.conf')
     
+    # flask app logging
+    logs_path = os.path.join(root_path, 'logs\\')
     '''
-    
+    if ConfigurationManager.weAreInTheCloud():
+        app_log_file_name = logs_path + 'flask.log'
+        app_log_file_handler = TimedRotatingFileHandler(filename=app_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
+        app_log_file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(app_log_file_handler)
     '''
-    
-    
     
     '''
     # sqlalchemy logging
@@ -94,17 +85,17 @@ try:
     #for h in sqlalchemy_logger.handlers:
     #    print '**************************************************removing handler %s'%str(h)
     sqlalchemy_logger.addHandler(sqlalchemy_log_file_handler)
-    
+    '''
     
     # site logs file handler 
     site_log_file_name = logs_path + 'site.log'
     site_log_file_handler = TimedRotatingFileHandler(filename=site_log_file_name, when='midnight', interval=1, backupCount=2, encoding=None, delay=False, utc=False)
     site_log_file_handler.setLevel(logging.INFO)
+    site_log_aztable_handler.addFilter(LevelFilter(logging.INFO))
     site_log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    site_log_file_handler.setFormatter(site_log_formatter)
-    '''
-    
-    
+    site_log_file_handler.setFormatter(site_log_formatter)       
+    site_logger.addHandler(site_log_file_handler)
+    site_logger.info('Site logs file handler up')
     
     '''
     # filtering on our logs
@@ -114,30 +105,17 @@ try:
     #site_log_file_handler.addFilter(ysance_utils_log_filter)
     '''
     
-    
     '''
     # utils logging
     utils_logger = logging.getLogger('ysance.utils')
     utils_logger.setLevel(logging.INFO)
-    utils_logger.addHandler(site_log_file_handler)
-    
+    utils_logger.addHandler(site_log_file_handler)    
     '''
-    '''
-    from notepanel.utils.azurefilemonitor import *
-    log_monitor = AzureFileMonitor()
-    log_monitor.setTarget(env_conf.getSetting('azaccount'), env_conf.getSetting('azkey'), 'logs')
-    # using proxy only in local
-    if env == 'local':
-        log_monitor.blob_service.set_proxy('localhost', '3127')
-    log_monitor.addFile(logs_path + 'site.log')
-    log_monitor.addFile(logs_path + 'sqlalchemy.log')
-    log_monitor.addFile(logs_path + 'flask.log')
-    log_monitor.copyAllFiles()
-    '''
-    
+       
 
 except Exception, e:
-    #site_logger.error(str(e))
+    site_logger.error(str(e))
+    #raise
     pass
     
       
