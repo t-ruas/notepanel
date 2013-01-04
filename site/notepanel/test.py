@@ -109,4 +109,16 @@ def logs_copy_all():
         az_file_monitor.copyAll()
         return flask.redirect('/admin')
     else:
-        return "Not authorized", 401 
+        return "Not authorized", 401
+        
+@app.route("/logs/file/<logger>", methods=["GET"])
+def logs_file(logger):
+    if is_admin():
+        log_service = LogService(account_name=app.env_conf.getSetting('azaccount'), account_key=app.env_conf.getSetting('azkey'), debug=True)
+        raw_log = log_service.getLogFileContent(logger)        
+        raw_log = raw_log.replace("\r\n", "<br />")
+        html_log = raw_log.replace("\n", "<br />")
+        return flask.render_template('logs_file.html', name=logger, log=html_log)
+    else:
+        return "Not authorized", 401
+        
