@@ -1,4 +1,6 @@
 import os
+import logging 
+import cStringIO
 from azure.storage import *
 
 class AzureFileMonitor(object):
@@ -55,6 +57,3 @@ class AzureFileMonitor(object):
             self.copyOneFile(file)
         for dir in self.directories:
             self.copyAllFilesInDirectory(dir)
-        
-        
-    
