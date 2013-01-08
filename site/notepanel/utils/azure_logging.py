@@ -14,20 +14,16 @@ def configure(account_name, account_key):
     blob_service = BlobService(account_name, account_key)
 
 def set_proxy(proxy_host, proxy_port):
-    global table_service, blob_service
     table_service.set_proxy(proxy_host, proxy_port)
     blob_service.set_proxy(proxy_host, proxy_port)
 
 def init_storage():
-    global table_service, log_table
     table_service.create_table(log_table, fail_on_exist=False)
 
 def clear_logs():
-    global table_service, log_table
     table_service.delete_table(log_table, fail_not_exist=False)
 
 def get_logs(logger_name=None, top="100"):
-    global table_service, log_table
     if logger_name == None:
         logs = table_service.query_entities(log_table, top="100")
     else:
@@ -37,11 +33,9 @@ def get_logs(logger_name=None, top="100"):
     return logs
 
 def get_handler():
-    global table_service, log_table
     return AzureTableHandler(table_service, log_table)
 
 def read_log_file(logger_name):
-    global blob_service, log_container
     blob_name = logger_name + ".log"
     blob = blob_service.get_blob(log_container, blob_name)
     output = cStringIO.StringIO()

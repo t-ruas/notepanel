@@ -71,13 +71,13 @@ if not os.path.exists(logs_path):
 
 file_log_handler = TimedRotatingFileHandler(filename=logs_path+"site.log", when="midnight", interval=1, backupCount=2, encoding=None, delay=False, utc=False)
 file_log_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-file_log_handler.setLevel(logging.INFO)
+file_log_handler.setLevel(logging.DEBUG)
 
 # ================================================================
 # log redirection
 
 logger = logging.getLogger('sqlalchemy')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)

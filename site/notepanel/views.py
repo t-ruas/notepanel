@@ -6,37 +6,74 @@ from data import db
 from . import app
 from utils import AzureFileMonitor
 from utils import azure_logging
+from datetime import datetime
 
 logger = logging.getLogger("notepanel.views")
 
 @app.route("/", methods=["GET"])
 def index():
-    logger.info("hello!")
     return flask.render_template("panel.html")
-    
+
 @app.route("/login", methods=["POST"])
 def login():
-    return flask.jsonify(identified=True)
-
-@app.route("/logout", methods=["GET"])
-def logout():
-    flask.session.pop("username", None)
-    return flask.render_template("panel.html")
-
-@app.route("/identify", methods=["GET"])
-def identify():
-    if "username" in flask.session:
-        session = db.Session()
-        user_service = UserService()
-        user = user_service.get_user(session, flask.session["username"])
+    session = db.Session()
+    user = UserService().log(session, flask.request.form["username"], flask.request.form["password"])
+    if user is not None:
+        logger.debug("login ok : {0}/{1}".format(user.name, user.id))
+        user.last_seen_date = datetime.now()
+        session.commit()
         return flask.jsonify(
             identified=True,
             id=user.id,
             email=user.email,
-            username=user.login,
+            login=user.name,
             boards=None)
+    logger.debug("login ko : {0}".format(flask.request.form["username"]))
+    return flask.jsonify(identified=False)
+
+@app.route("/register", methods=["POST"])
+def register():
+    logger.debug("register start : {0}/{1}/{2}".format(flask.request.form["username"], flask.request.form["email"], flask.request.form["password"]))
+    session = db.Session()
+    user = UserService().add(session, flask.request.form["username"], flask.request.form["email"], flask.request.form["password"])
+    session.commit()
+    if user is not None:
+        logger.debug("register ok : {0}/{1}".format(user.name, user.id))
+        return flask.jsonify(
+            identified=True,
+            id=user.id,
+            email=user.email,
+            login=user.name,
+            boards=None)
+    logger.debug("register ko")
+    return flask.jsonify(identified=False)
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    logger.debug("logout ok")
+    flask.session.pop("id", None)
+    return flask.render_template("panel.html")
+
+@app.route("/identify", methods=["GET"])
+def identify():
+    if "id" in flask.session:
+        session = db.Session()
+        user = UserService().get(session, flask.session["id"])
+        if not user is None:
+            logger.debug("identify ok : {0}/{1}".format(user.name, user.id))
+            return flask.jsonify(
+                identified=True,
+                id=user.id,
+                email=user.email,
+                login=user.name,
+                boards=None)
+        else:
+            logger.debug("identify ko : {0}".format(flask.session["id"]))
     else:
-        return flask.jsonify(identified=False)
+        logger.debug("identify ko")
+    return flask.jsonify(identified=False)
+
+
 
 @app.route("/test", methods=["GET"])
 def test():

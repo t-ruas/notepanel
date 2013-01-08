@@ -1,42 +1,28 @@
-from sqlalchemy import Column, Date, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, DateTime, Integer, String, ForeignKey, func
 from db import Entity
 
 class User(Entity):
-
     __tablename__ = "user"
-
-    usr_id = Column(Integer, primary_key=True)
-    usr_email = Column(String(50))
-    usr_login = Column(String(20))
-    usr_password = Column(String(20))
-
-    def __init__(self, usr_email, usr_password):
-        self.usr_email = usr_email
-        self.usr_password = usr_password
+    id = Column(Integer, primary_key=True)
+    email = Column(String(100))
+    name = Column(String(20))
+    password = Column(String(32))
+    last_seen_date = Column(DateTime, default=func.now())
+    creation_date = Column(DateTime, default=func.now())
 
 class Board(Entity):
-
     __tablename__ = "board"
-
-    brd_id = Column(Integer, primary_key=True)
-    brd_name = Column(String(50))
-
-    def __init__(self, brd_name):
-        self.brd_name = brd_name
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    creation_date = Column(DateTime, default=func.now())
 
 class Note(Entity):
-
     __tablename__ = "note"
-
-    nte_id = Column(Integer, primary_key=True)
-    usr_id = Column(Integer, ForeignKey("user.usr_id"))
-    brd_id = Column(Integer, ForeignKey("board.brd_id"))
-    nte_text = Column(String(100))
-    nte_x = Column(Integer)
-    nte_y = Column(Integer)
-    nte_color = Column(String(6))
-
-    def __init__(self, usr_id, brd_id):
-        self.usr_id = usr_id
-        self.brd_id = usr_id
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"))
+    board_id = Column(Integer, ForeignKey("board.id"))
+    text = Column(String(1000))
+    x = Column(Integer)
+    y = Column(Integer)
+    color = Column(String(6))
+    creation_date = Column(DateTime, default=func.now())
