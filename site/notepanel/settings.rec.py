@@ -1,10 +1,10 @@
-﻿import os
+import os
 
 secret = os.environ["secret"] 
 azaccount = os.environ["azaccount"] 
 azkey = os.environ["azkey"] 
 adminpwd = os.environ["adminpwd"] 
 
-db = "Database=notepanel;Data Source=localhost;User Id=root;Password="
+db = os.environ["MYSQLCONNSTR_APP"] 
 
 logs_path = "logs\\"
