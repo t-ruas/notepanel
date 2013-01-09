@@ -45,6 +45,16 @@ if "packages_path" in settings:
     sys.path.append(packages_path)
 
 # ================================================================
+# azure log file monitor
+
+from utils import file_monitor
+log_monitor = file_monitor.getAzureFileMonitor("log_monitor")
+log_monitor.configure(settings["azaccount"], settings["azkey"], "logs")
+log_monitor.add_directory(os.path.join(root_path, settings["logs_path"]))
+if "proxy_host" in settings:
+    log_monitor.set_proxy(settings["proxy_host"], settings["proxy_port"])
+
+# ================================================================
 # azure log handler
 
 from utils import azure_logging

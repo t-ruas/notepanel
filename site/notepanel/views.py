@@ -4,7 +4,8 @@ import logging
 from data.services import UserService
 from data import db
 from . import app
-from utils import AzureFileMonitor
+from . import settings
+from . import log_monitor
 from utils import azure_logging
 from datetime import datetime
 
@@ -84,9 +85,13 @@ def test():
         myvar = 'local'
     return flask.render_template('test.html', myvar=myvar)
 
+
+# ================================================================
+# admin
+
 @app.route("/admin/login/<password>", methods=["GET"])
 def admin_login(password):
-    if password == app.settings["adminpwd"]:
+    if password == settings["adminpwd"]:
         flask.session['is_admin'] = True
         return flask.redirect('/admin')
     else:
@@ -109,6 +114,8 @@ def is_admin():
     return 'is_admin' in flask.session and flask.session['is_admin'] == True
 
 
+# ================================================================
+# log management
 
 @app.route("/logs", methods=["GET"])
 def logs():
@@ -120,32 +127,28 @@ def logs():
 @app.route("/logs/clear", methods=["GET"])
 def logs_clear():
     if is_admin():
-        azure_logging.clearLogs()
+        azure_logging.clear_logs()
         return flask.redirect('/admin')
     else:
         return "Not authorized", 401
 
-# @app.route("/logs/init", methods=["GET"])
-# def logs_init():
-    # if is_admin():
-        # log_service = LogService(account_name=app.settings["azaccount"], account_key=app.settings["azkey"])
-        # log_service.initLogs()
-        # return flask.redirect('/logs')
-    # else:
-        # return "Not authorized", 401 
+@app.route("/logs/init", methods=["GET"])
+def logs_init():
+    if is_admin():
+        azure_logging.init_storage()
+        return flask.redirect('/logs')
+    else:
+        return "Not authorized", 401 
 
 
-
+# ================================================================
 # log files  management
 
 @app.route("/logs/copy/all", methods=["GET"])
 def logs_copy_all():
     if is_admin():
-        az_file_monitor = AzureFileMonitor(app.settings["azaccount"], app.settings["azkey"], 'logs')
-        if "proxy_host" in app.settings:
-            az_file_monitor.setProxy(app.settings["proxy_host"], app.settings["proxy_port"])
-        az_file_monitor.addDirectory(os.path.join(app.root_path, 'logs'))
-        az_file_monitor.copyAll()
+        log_monitor.add_directory(os.path.join(app.root_path, 'logs'))
+        az_file_monitor.copy_all()
         return flask.redirect('/admin')
     else:
         return "Not authorized", 401
