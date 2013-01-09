@@ -80,10 +80,11 @@ def identify():
 def test():
     import os
     if 'WeAreInTheCloud' in os.environ:  
-        myvar = 'cloud' #ConfigurationManager.getCloudEnvironment()
+        myvar = 'cloud'
     else:
         myvar = 'local'
     return flask.render_template('test.html', myvar=myvar)
+
 
 
 # ================================================================

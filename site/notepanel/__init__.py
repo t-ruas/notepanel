@@ -53,7 +53,7 @@ log_monitor.configure(settings["azaccount"], settings["azkey"], "logs")
 log_monitor.add_directory(os.path.join(root_path, settings["logs_path"]))
 if "proxy_host" in settings:
     log_monitor.set_proxy(settings["proxy_host"], settings["proxy_port"])
-
+    
 # ================================================================
 # azure log handler
 
@@ -98,6 +98,18 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
+# log to console for local environment
+if env == 'local':
+    # console log handler
+    console_log_handler = logging.StreamHandler()
+    console_log_handler.setLevel(logging.DEBUG)
+    # redirection
+    logger = logging.getLogger('sqlalchemy')
+    logger.addHandler(console_log_handler)
+    logger = logging.getLogger("notepanel")
+    logger.addHandler(console_log_handler)
+    
+
 # ================================================================
 
 try:
@@ -111,10 +123,15 @@ try:
 
     db.configure(settings["db"])
     db.initialize("notepanel")
-
+    
+    
     import data.model
 
     db.create_model()
+    
+    from data import mocker
+    
+    mocker.fill_db()
 
     # ================================================================
 

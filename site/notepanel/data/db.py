@@ -27,5 +27,10 @@ def create_model():
     Entity.metadata.create_all(engine)
 
 def initialize(dbname):
-    engine.execute("CREATE DATABASE IF NOT EXISTS %s;" % dbname)
+    engine.execute("CREATE DATABASE IF NOT EXISTS %s;" % dbname)    
     engine.execute("USE %s;" % dbname)
+    # drop tables before recreating them with model
+    engine.execute("DROP TABLE IF EXISTS board_user;") 
+    engine.execute("DROP TABLE IF EXISTS note;") 
+    engine.execute("DROP TABLE IF EXISTS board;")    
+    engine.execute("DROP TABLE IF EXISTS user;") 
