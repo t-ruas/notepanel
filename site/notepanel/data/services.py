@@ -41,9 +41,10 @@ class BoardService(object):
             first()
         return board
         
-    def add(self, session, name,creator):  
+    def add(self, session, name, creator_id):  
         board = Board(name=name)
-        board.users.add(creator)
+        creator = User(id=creator_id)
+        board.users.append(creator)
         session.add(board)
         return board
         
@@ -51,11 +52,15 @@ class BoardService(object):
         board = Board(id=board_id)
         session.delete(board)
         return board
+        
+    def get_default(self, session, user):
+        board = session.query(Board).first()
+        return board
     
     def add_user(self, session, board, user_id):
         user = User(id=user_id)
         if not user in board.users:
-            board.users.add(user)
+            board.users.append(user)
             session.commit()
         return board
         

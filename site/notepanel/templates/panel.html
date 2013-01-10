@@ -10,6 +10,10 @@
         <div id="div_menu">
             <a href="#" id="a_logout">Log out</a>
             <a href="#" id="a_add_note">Add a new note</a>
+			<p>Board : <span id="s_board_name"><span></p>
+			<input type="text" name="boardname" id="i_create_board" />
+            <a href="#" id="a_create_board">Create new board</a>
+			<div id="div_create_board_result"></div>
         </div>
         <div id="div_login">
             <input type="text" name="username" />
@@ -52,8 +56,9 @@
                         $('#div_login_result').empty();
                         $.ajax({url: '{{ url_for("login") }}', type: 'POST', dataType: 'json', data: $('#div_login :input').serialize()}).done(function (data) {
                             if (data.identified) {
-                                notepanel.user = data;
-                                me.disable();
+                                notepanel.user = data.user;
+								notepanel.views.panel.loadData(data.board);
+                                me.disable();								
                                 notepanel.views.panel.enable();
                             } else {
                                 $('#div_login_result').text('Error.');
@@ -110,6 +115,9 @@
                 var noteWidth = 175;
                 var noteHeight = 100;
                 
+				// Name of the board
+				var name = '';
+				
                 // List of notes on the board
                 var notes = [];
                 
@@ -141,6 +149,7 @@
                     $('#canvas_board').off('.notepanel');
                     $('#a_logout').off('.notepanel');
                     $('#a_add_note').off('.notepanel');
+					$('#a_create_board').off('.notepanel');
                     
                     // Hide everything
                     $('#canvas_board').hide();
@@ -149,8 +158,8 @@
                 
                 // Enable this view
                 me.enable = function () {
-                    
-                    var $canvas = $('#canvas_board').show()
+					
+					var $canvas = $('#canvas_board').show()
                     var context = $canvas.get(0).getContext('2d');
                     
                     // Start the main draw loop
@@ -213,8 +222,29 @@
                         $('#div_menu').hide();
                         return false;
                     });
-                };
+					
+					$('#a_create_board').on('click.notepanel', function (e) {
+						$('#div_create_board_result').empty();
+						$.ajax({url: '{{ url_for("board_create") }}', type: 'POST', dataType: 'json', data: $('#i_create_board').serialize()}).done(function (data) {
+							if (data.board) {
+								me.loadData(data.board);
+							} else {
+								$('#div_create_board_result').text('Error.');
+							}
+						});					
+                        $('#div_menu').hide();
+                        return false;
+                    });
                 
+				};
+                
+				// Load data for this view
+				me.loadData = function(board) {
+					me.name = board.name;
+					$('#s_board_name').html(me.name);
+					me.notes = board.notes;
+				};
+				
                 var hitTest = function (x, y) {
                     for (var i = 0, imax = notes.length; i < imax; i++) {
                         var note = notes[i];

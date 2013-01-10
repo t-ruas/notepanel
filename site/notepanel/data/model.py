@@ -20,8 +20,10 @@ class User(Entity):
     notes = {} # not mapped
     
     def __hash__(self):
-        return self.id
-
+        return self.id        
+    
+    def to_dic(self):
+        return { 'id':self.id, 'name':self.name, 'email':self.email}
 
 class Board(Entity):
     __tablename__ = "board"
@@ -35,6 +37,10 @@ class Board(Entity):
     
     def __hash__(self):
         return self.id
+        
+    def to_dic(self):
+        return { 'id':self.id, 'name':self.name}
+
 
 
 class Note(Entity):

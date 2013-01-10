@@ -1,7 +1,8 @@
 import flask
 import os
 import logging
-from data.services import UserService
+from data.services import UserService, BoardService
+from data.model import User, Board
 from data import db
 from . import app
 from . import settings
@@ -19,16 +20,17 @@ def index():
 def login():
     session = db.Session()
     user = UserService().log(session, flask.request.form["username"], flask.request.form["password"])
+    board = BoardService().get_default(db.Session(), user)
     if user is not None:
         logger.debug("login ok : {0}/{1}".format(user.name, user.id))
         user.last_seen_date = datetime.now()
         session.commit()
+        logged_user = User(id=user.id, email=user.email, name=user.name)
+        logger.debug("logged_user : {0}/{1}".format(logged_user.name, logged_user.id))
         return flask.jsonify(
             identified=True,
-            id=user.id,
-            email=user.email,
-            login=user.name,
-            boards=None)
+            user=logged_user.to_dic(),
+            board=board.to_dic())
     logger.debug("login ko : {0}".format(flask.request.form["username"]))
     return flask.jsonify(identified=False)
 
@@ -38,6 +40,7 @@ def register():
     session = db.Session()
     user = UserService().add(session, flask.request.form["username"], flask.request.form["email"], flask.request.form["password"])
     session.commit()
+    # TODO board = BoardService().add(db.Session(), name, user)
     if user is not None:
         logger.debug("register ok : {0}/{1}".format(user.name, user.id))
         return flask.jsonify(
@@ -72,8 +75,15 @@ def identify():
             logger.debug("identify ko : {0}".format(flask.session["id"]))
     else:
         logger.debug("identify ko")
-    return flask.jsonify(identified=False)
+    return flask.jsonify(identified=False)  
 
+
+@app.route("/board/create", methods=["POST"])
+def board_create():
+    board_name = flask.request.form["boardname"]
+    creator_id = flask.session["id"]
+    board = BoardService().add(db.Session(), name, creator_id)
+    return flask.jsonify(board=board.to_dic())
 
 
 @app.route("/test", methods=["GET"])
@@ -84,7 +94,6 @@ def test():
     else:
         myvar = 'local'
     return flask.render_template('test.html', myvar=myvar)
-
 
 
 # ================================================================
