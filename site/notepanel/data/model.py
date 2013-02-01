@@ -28,6 +28,7 @@ class User(Entity):
 class Board(Entity):
     __tablename__ = "board"
     id = Column(Integer, primary_key=True)
+    version = Column(Integer)
     name = Column(String(100))
     creation_date = Column(DateTime, default=func.now())
     users = relationship("User",

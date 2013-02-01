@@ -2,6 +2,13 @@ from . import db
 from model import User, Board, Note
 from sqlalchemy import func
 
+def empty_db():
+    # drop tables before recreating them with model
+    db.engine.execute("DROP TABLE IF EXISTS board_user;")
+    db.engine.execute("DROP TABLE IF EXISTS note;")
+    db.engine.execute("DROP TABLE IF EXISTS board;")
+    db.engine.execute("DROP TABLE IF EXISTS user;")
+
 def fill_db():
     session = db.Session()
     user1 = User(name='tr', password=func.md5('123'), email='bbb')

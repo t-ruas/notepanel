@@ -1,23 +1,28 @@
 import flask
 import os
 import logging
-from data.services import UserService, BoardService
-from data.model import User, Board
-from data import db
+from datetime import datetime
+from threading  import Lock
+from time import time
 from . import app
 from . import settings
 from . import log_monitor
+from data.services import UserService, BoardService
+from data.model import User, Board
+from data import db
 from utils import azure_logging
-from datetime import datetime
 
 logger = logging.getLogger("notepanel.views")
+
+board_version_cache = {}
+board_version_cache_lock = Lock()
 
 @app.route("/", methods=["GET"])
 def index():
     return flask.render_template("panel.html")
 
-@app.route("/login", methods=["POST"])
-def login():
+@app.route("/user/login", methods=["POST"])
+def user_login():
     session = db.Session()
     user = UserService().log(session, flask.request.form["username"], flask.request.form["password"])
     board = BoardService().get_default(db.Session(), user)
@@ -34,8 +39,8 @@ def login():
     logger.debug("login ko : {0}".format(flask.request.form["username"]))
     return flask.jsonify(identified=False)
 
-@app.route("/register", methods=["POST"])
-def register():
+@app.route("/user/register", methods=["POST"])
+def user_register():
     logger.debug("register start : {0}/{1}/{2}".format(flask.request.form["username"], flask.request.form["email"], flask.request.form["password"]))
     session = db.Session()
     user = UserService().add(session, flask.request.form["username"], flask.request.form["email"], flask.request.form["password"])
@@ -52,14 +57,14 @@ def register():
     logger.debug("register ko")
     return flask.jsonify(identified=False)
 
-@app.route("/logout", methods=["GET"])
-def logout():
+@app.route("/user/logout", methods=["GET"])
+def user_logout():
     logger.debug("logout ok")
     flask.session.pop("id", None)
     return flask.render_template("panel.html")
 
-@app.route("/identify", methods=["GET"])
-def identify():
+@app.route("/user/identify", methods=["GET"])
+def user_identify():
     if "id" in flask.session:
         session = db.Session()
         user = UserService().get(session, flask.session["id"])
@@ -85,6 +90,35 @@ def board_create():
     board = BoardService().add(db.Session(), name, creator_id)
     return flask.jsonify(board=board.to_dic())
 
+@app.route("/board/poll?board_id=<int:board_id>&version=<int:version>", methods=["GET"])
+def board_poll(id, version):
+    if id not in board_version_cache:
+        with board_version_cache_lock:
+            if id not in board_version_cache:
+                board_version_cache[id] = {current_version: version})
+    if board_version_cache[id].current_version < version:
+        logger.warning("board_poll invalid version {0}".format(version))
+    while board_version_cache[id].current_version == version:
+        time.sleep(1)
+    with board_version_cache_lock:
+            board_version_cache[id].current_version == version
+    return "changed!"
+
+@app.route("/note/move?board_id=<int:board_id>", methods=["POST"])
+def note_move():
+    # TODO :
+    # db update to move the note, only if it's in the right place
+    # increment board version
+    #...?
+
+    with board_version_cache_lock:
+        if board.id not in board_version_cache:
+            last_version = version + 1
+            # Create the manager if it doesn't already exist
+            board_version_cache[board.id] = {version: version, })
+        else:
+        
+    
 
 @app.route("/test", methods=["GET"])
 def test():

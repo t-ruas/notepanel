@@ -1,5 +1,5 @@
 import os
-import logging 
+import logging
 import cStringIO
 from azure.storage import *
 
