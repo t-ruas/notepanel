@@ -4,6 +4,7 @@ import inspect
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from tornado.web import Application
+from tornado.ioloop import IOLoop
 
 # ================================================================
 # get root directory
@@ -71,13 +72,13 @@ file_log_handler.setLevel(logging.DEBUG)
 logger = logging.getLogger('sqlalchemy')
 logger.setLevel(logging.ERROR)
 
-# logger.addHandler(azure_log_handler)
+logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 logger = logging.getLogger("notepanel")
 logger.setLevel(logging.DEBUG)
 
-# logger.addHandler(azure_log_handler)
+logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 # ================================================================
@@ -130,6 +131,10 @@ try:
         (r"/board/poll", BoardPollHandler),
         (r"/board/(\w+)", BoardHandler),
     ], **appsettings)
+
+    app.listen(80)
+
+    IOLoop.instance().start()
 
 except Exception, e:
     logger.error(str(e))
