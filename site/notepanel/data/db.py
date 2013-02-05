@@ -8,15 +8,15 @@ engine = None
 
 def configure(connection_string):
     global engine, Session
-    engine_string = get_MySQL_engine_string(connection_string)
+    engine_string = connection_string #get_MySQL_engine_string(connection_string)
     engine = create_engine(engine_string, echo=True)
     Session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-    
-def get_MySQL_engine_string(connection_string):
+
+def get_mysql_engine_string(connection_string):
     connection_string_parts = connection_string.split(";")
     connection_elts = dict()
     for part in connection_string_parts:
-        assignement_parts = part.split("=")            
+        assignement_parts = part.split("=")
         key = assignement_parts[0]
         value = assignement_parts[1]
         connection_elts[key] = value
@@ -27,5 +27,5 @@ def create_model():
     Entity.metadata.create_all(engine)
 
 def initialize(dbname):
-    engine.execute("CREATE DATABASE IF NOT EXISTS %s;" % dbname)    
+    engine.execute("CREATE DATABASE IF NOT EXISTS %s;" % dbname)
     engine.execute("USE %s;" % dbname)

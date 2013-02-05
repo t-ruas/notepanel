@@ -74,11 +74,12 @@ notepanel.views.register = function (me) {
 
 notepanel.views.panel = function (me) {
 
-    // Default not size
+    // Default note size
     var noteWidth = 175;
     var noteHeight = 100;
 
-    // Name of the board
+    // Id and name of the board
+    var id = 0;
     var name = '';
 
     // Current version for synchronization
@@ -120,6 +121,34 @@ notepanel.views.panel = function (me) {
         // Hide everything
         $('#canvas_board').hide();
         $('#div_menu').hide();
+    };
+
+    me.poll = function () {
+        $.ajax({url: notepanel.urls.board.poll + '?board_id=' + id + '&version=' + version, dataType: 'json',/* timeout: 30000,*/ data: movingNote})
+            .done(function (data) {
+                for (var j = 0, jmax = data.length; j < jmax; j++) {
+                    found = false;
+                    for (var i = 0, imax = notes.length; i < imax; i++) {
+                        if (data[j].note.id === notes[i].id) {
+                            // Copy all the new properties
+                            notes[i].text = data[j].note.text;
+                            notes[i].color = data[j].note.color;
+                            notes[i].x = data[j].note.x;
+                            notes[i].y = data[j].note.y;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        notes.push(data[j].note);
+                    }
+                    // Double check in case they aren't ordered
+                    version = data[j].version > version ? data[j].version : version;
+                }
+            })
+            .always(function () {
+                me.poll();
+            });
     };
 
     // Enable this view
@@ -167,14 +196,12 @@ notepanel.views.panel = function (me) {
         });
 
         $canvas.on('mouseup.notepanel', function (e) {
+            if (mode === modes.note) {
+                $.ajax({url: notepanel.urls.board.edit, type: 'POST', dataType: 'json', data: movingNote});
+                movingNote = null;
+            }
             $canvas.css('cursor', 'default');
-            $.ajax({url: notepanel.urls.note.move, type: 'POST', dataType: 'json', data: {version: version, note: movingNote}}).done(function (data) {
-                /*
-                 * TODO : nothing returned?
-                 */
-            });
-            mode = 0;
-            movingNote = null;
+            mode = modes.still;
         });
 
         // Menu events
@@ -207,14 +234,14 @@ notepanel.views.panel = function (me) {
             return false;
         });
 
+        me.poll();
     };
 
     // Load data for this view
     me.loadData = function (board) {
-        me.name = board.name;
-        me.version = board.version;
-        $('#s_board_name').html(me.name);
-        me.notes = board.notes;
+        id = board.id;
+        name = board.name;
+        $('#s_board_name').html(name);
     };
 
     var hitTest = function (x, y) {
@@ -231,11 +258,17 @@ notepanel.views.panel = function (me) {
 
     // Add a new note to the list
     var addNote = function (x, y) {
-        notes.push({
+        var note = {
+            id: 0,
+            board_id: id,
             text: 'new sticky note',
             color: '#66aaee',
             x: x,
             y: y
+        };
+        notes.push(note);
+        $.ajax({url: notepanel.urls.board.edit, type: 'POST', dataType: 'json', data: note}).done(function (data) {
+            note.id = data.id;
         });
     };
 
@@ -258,7 +291,7 @@ notepanel.views.panel = function (me) {
             context.lineTo(note.x + noteWidth + boardX, note.y + noteHeight + boardY);
             context.lineTo(note.x + boardX, note.y + noteHeight + boardY);
             context.closePath();
-            if (mode === modes.note && note === note) {
+            if (mode === modes.note && note === movingNote) {
                 context.strokeStyle = '#444444';
                 context.fillStyle = note.color;
             } else {

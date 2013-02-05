@@ -1,19 +1,14 @@
 import sys
 import os
 import inspect
-import flask
 import logging
 from logging.handlers import TimedRotatingFileHandler
-
-# ================================================================
-# flask
-
-app = flask.Flask(__name__)
+from tornado.web import Application
 
 # ================================================================
 # get root directory
 
-root_path = app.root_path + "\\"
+root_path = os.path.dirname(__file__)
 
 # ================================================================
 # set the environment
@@ -30,19 +25,6 @@ settings = {}
 settings_path = os.path.join(root_path, "settings.%s.py" % env)
 print settings_path
 execfile(settings_path, settings)
-
-# ================================================================
-# secret for flask session cookie encryption
-
-app.secret_key = settings["secret"]
-
-# ================================================================
-# set path to packages for local environment
-
-if "packages_path" in settings:
-    packages_path = os.path.join(root_path, settings["packages_path"])
-    print packages_path
-    sys.path.append(packages_path)
 
 # ================================================================
 # azure log file monitor
@@ -89,13 +71,13 @@ file_log_handler.setLevel(logging.DEBUG)
 logger = logging.getLogger('sqlalchemy')
 logger.setLevel(logging.ERROR)
 
-logger.addHandler(azure_log_handler)
+# logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 logger = logging.getLogger("notepanel")
 logger.setLevel(logging.DEBUG)
 
-logger.addHandler(azure_log_handler)
+# logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 # ================================================================
@@ -120,22 +102,34 @@ try:
     # database
 
     from data import db
+    import data.model
+    from data import mocker
 
     db.configure(settings["db"])
     db.initialize("notepanel")
 
-    import data.model
+    mocker.empty_db()
 
     db.create_model()
 
-    from data import mocker
-
-    mocker.empty_db()
     mocker.fill_db()
 
     # ================================================================
 
-    import views
-    
+    from views import HomeHandler, AuthHandler, BoardPollHandler, BoardHandler
+
+    appsettings = {
+        "static_path": os.path.join(root_path, "static"),
+        "cookie_secret": settings["secret"],
+        "debug": True
+    }
+
+    app = Application([
+        (r"/", HomeHandler),
+        (r"/auth/(\w+)", AuthHandler),
+        (r"/board/poll", BoardPollHandler),
+        (r"/board/(\w+)", BoardHandler),
+    ], **appsettings)
+
 except Exception, e:
     logger.error(str(e))
