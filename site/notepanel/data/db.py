@@ -8,7 +8,7 @@ engine = None
 
 def configure(connection_string):
     global engine, Session
-    engine_string = connection_string #get_MySQL_engine_string(connection_string)
+    engine_string = get_mysql_engine_string(connection_string)
     engine = create_engine(engine_string, echo=True)
     Session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 

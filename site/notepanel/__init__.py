@@ -1,15 +1,19 @@
 import sys
 import os
 import inspect
+import flask
 import logging
 from logging.handlers import TimedRotatingFileHandler
-from tornado.web import Application
-from tornado.ioloop import IOLoop
+
+# ================================================================
+# flask
+
+app = flask.Flask(__name__)
 
 # ================================================================
 # get root directory
 
-root_path = os.path.dirname(__file__)
+root_path = app.root_path + "\\"
 
 # ================================================================
 # set the environment
@@ -103,7 +107,6 @@ try:
     # database
 
     from data import db
-    import data.model
     from data import mocker
 
     db.configure(settings["db"])
@@ -117,24 +120,7 @@ try:
 
     # ================================================================
 
-    from views import HomeHandler, AuthHandler, BoardPollHandler, BoardHandler
-
-    appsettings = {
-        "static_path": os.path.join(root_path, "static"),
-        "cookie_secret": settings["secret"],
-        "debug": True
-    }
-
-    app = Application([
-        (r"/", HomeHandler),
-        (r"/auth/(\w+)", AuthHandler),
-        (r"/board/poll", BoardPollHandler),
-        (r"/board/(\w+)", BoardHandler),
-    ], **appsettings)
-
-    app.listen(80)
-
-    IOLoop.instance().start()
+    import views
 
 except Exception, e:
     logger.error(str(e))

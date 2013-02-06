@@ -17,7 +17,7 @@ notepanel.views.login = function (me) {
         $('#div_login').show();
         $('#a_login').on('click.notepanel', function (e) {
             $('#div_login_result').empty();
-            $.ajax({url: notepanel.urls.user.login, type: 'POST', dataType: 'json', data: $('#div_login :input').serialize()}).done(function (data) {
+            $.ajax({type: 'GET', url: notepanel.servicesUrl + '/users/login?' + $('#div_login :input').serialize(), dataType: 'json'}).done(function (data) {
                 if (data.identified) {
                     notepanel.user = data.user;
                     notepanel.views.panel.loadData(data.board);
@@ -56,7 +56,7 @@ notepanel.views.register = function (me) {
         $('#div_register').show();
         $('#a_register').on('click.notepanel', function (e) {
             $('#div_register_result').empty();
-            $.ajax({url: notepanel.urls.user.register, type: 'POST', dataType: 'json', data: $('#div_register :input').serialize()}).done(function (data) {
+            $.ajax({type: 'POST', url: notepanel.servicesUrl + '/users', dataType: 'json', data: $('#div_register :input').serialize()}).done(function (data) {
                 if (data.identified) {
                     notepanel.user = data;
                     me.disable();
@@ -124,7 +124,7 @@ notepanel.views.panel = function (me) {
     };
 
     me.poll = function () {
-        $.ajax({url: notepanel.urls.board.poll + '?board_id=' + id + '&version=' + version, dataType: 'json',/* timeout: 30000,*/ data: movingNote})
+        $.ajax({type: 'GET', url: notepanel.servicesUrl + '/boards/poll?board_id=' + id + '&version=' + version, dataType: 'json',/* timeout: 30000,*/ data: movingNote})
             .done(function (data) {
                 for (var j = 0, jmax = data.length; j < jmax; j++) {
                     found = false;
@@ -145,16 +145,18 @@ notepanel.views.panel = function (me) {
                     // Double check in case they aren't ordered
                     version = data[j].version > version ? data[j].version : version;
                 }
-            })
-            .always(function () {
                 me.poll();
+            })
+            .fail(function () {
+                me.disable();
+                $('#div_fatal').show();
             });
     };
 
     // Enable this view
     me.enable = function () {
 
-        var $canvas = $('#canvas_board').show()
+        var $canvas = $('#canvas_board').show();
         var context = $canvas.get(0).getContext('2d');
 
         // Start the main draw loop
@@ -197,7 +199,7 @@ notepanel.views.panel = function (me) {
 
         $canvas.on('mouseup.notepanel', function (e) {
             if (mode === modes.note) {
-                $.ajax({url: notepanel.urls.board.edit, type: 'POST', dataType: 'json', data: movingNote});
+                $.ajax({type: 'POST', url: notepanel.servicesUrl + '/notes', dataType: 'json', data: $.param(movingNote)});
                 movingNote = null;
             }
             $canvas.css('cursor', 'default');
@@ -208,7 +210,7 @@ notepanel.views.panel = function (me) {
 
         $('#a_logout').on('click.notepanel', function (e) {
             me.disable();
-            $.ajax({url: notepanel.urls.user.logout}).done(function (data) {
+            $.ajax({type: 'GET', url: notepanel.servicesUrl + '/users/logout'}).done(function (data) {
                 notepanel.user = null;
                 notepanel.views.login.enable();
             });
@@ -223,7 +225,7 @@ notepanel.views.panel = function (me) {
 
         $('#a_create_board').on('click.notepanel', function (e) {
             $('#div_create_board_result').empty();
-            $.ajax({url: notepanel.urls.board.create, type: 'POST', dataType: 'json', data: $('#i_create_board').serialize()}).done(function (data) {
+            $.ajax({type: 'POST', url: notepanel.servicesUrl + '/boards', dataType: 'json', data: $('#i_create_board').serialize()}).done(function (data) {
                 if (data.board) {
                     me.loadData(data.board);
                 } else {
@@ -267,7 +269,7 @@ notepanel.views.panel = function (me) {
             y: y
         };
         notes.push(note);
-        $.ajax({url: notepanel.urls.board.edit, type: 'POST', dataType: 'json', data: note}).done(function (data) {
+        $.ajax({type: 'POST', url: notepanel.servicesUrl + '/notes', dataType: 'json', data: note}).done(function (data) {
             note.id = data.id;
         });
     };
@@ -324,11 +326,14 @@ $(document).ready(function () {
     notepanel.views.login.disable();
     notepanel.views.register.disable();
     notepanel.views.panel.disable();
-    $.ajax({url: notepanel.urls.user.identify, dataType: 'json'}).done(function (data) {
+    $.ajax({type: 'GET', url: notepanel.servicesUrl + '/users/identify', dataType: 'json'}).done(function (data) {
+        $('#div_fatal').hide();
         if (data.identified) {
             notepanel.views.panel.enable();
         } else {
             notepanel.views.login.enable();
         }
+    }).fail(function () {
+        $('#div_fatal').show();
     });
 });

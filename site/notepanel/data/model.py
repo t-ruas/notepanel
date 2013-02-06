@@ -62,4 +62,3 @@ class Note(Entity):
             "y": self.y,
             "color": self.color
         }
-

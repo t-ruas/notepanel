@@ -87,13 +87,3 @@ class NoteService(object):
         note = Note(id=id)
         session.delete(note)
         session.commit()
-
-    # Return all the updates on a board that occured after the given version
-    #def get_updates(self, session, id, version):
-    #    updates = session.query(Note).\
-    #        filter(Note.board_id == id && Note.board_version > version)
-    #    return updates
-
-    # Increment the board's version and add a note update
-    #def add_update(self, session, note):
-    #    pass
