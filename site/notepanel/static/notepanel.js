@@ -104,6 +104,9 @@ notepanel.views.panel = function (me) {
 
     // Currently dragged note
     var movingNote = null;
+	
+	// Currently overed note
+	var overedNote = null;
 
     // Last mouse coordinates
     var lastX = 0;
@@ -165,8 +168,12 @@ notepanel.views.panel = function (me) {
         $canvas.on('mousedown.notepanel', function (e) {
             var note = hitTest(e.clientX, e.clientY);
             if (note) {
-                mode = modes.note;
-                movingNote = note;
+                if (note.onMouseDown(e)) { // click on note menu
+					mode = modes.still;
+				} else {
+					mode = modes.note;
+					movingNote = note;
+				}
             } else {
                 mode = modes.board;
             }
@@ -180,6 +187,12 @@ notepanel.views.panel = function (me) {
                     $('#div_menu:hidden').show();
                 } else if (e.clientX < window.innerWidth - 10 - $('#div_menu').width()) {
                     $('#div_menu:visible').hide();
+					// TODO : move into draw() method ?
+					if (overedNote && overedNote.menu.isMouseOver(lastX, lastY)) {
+						$canvas.css('cursor', 'pointer');
+					} else {
+						$canvas.css('cursor', 'default');
+					}
                 }
             } else {
                 $canvas.css('cursor', 'pointer');
@@ -191,10 +204,10 @@ notepanel.views.panel = function (me) {
                 } else if (mode === modes.note) {
                     movingNote.x += deltaX;
                     movingNote.y += deltaY;
-                }
-                lastX = e.clientX;
-                lastY = e.clientY;
+                }                
             }
+			lastX = e.clientX;
+            lastY = e.clientY;
         });
 
         $canvas.on('mouseup.notepanel', function (e) {
@@ -235,6 +248,11 @@ notepanel.views.panel = function (me) {
             $('#div_menu').hide();
             return false;
         });
+		
+		$('#a_close_edit').on('click.notepanel', function (e) {
+			closeEditNote();
+			return false;
+		});
 
         me.poll();
     };
@@ -260,18 +278,14 @@ notepanel.views.panel = function (me) {
 
     // Add a new note to the list
     var addNote = function (x, y) {
-        var note = {
-            id: 0,
-            board_id: id,
-            text: 'new sticky note',
-            color: '#66aaee',
-            x: x,
-            y: y
-        };
-        notes.push(note);
+        var position = {x: x, y: y};
+		var note = new Note(position);
+		notes.push(note);
+		
         $.ajax({type: 'POST', url: notepanel.servicesUrl + '/notes', dataType: 'json', data: note}).done(function (data) {
             note.id = data.id;
         });
+		
     };
 
     // Full redraw
@@ -285,25 +299,47 @@ notepanel.views.panel = function (me) {
 
     // Draw each note in the list
     var drawNotes = function (context) {
-        for (var i = 0, imax = notes.length; i < imax; i++) {
-            var note = notes[i];
-            context.beginPath();
-            context.moveTo(note.x + boardX, note.y + boardY);
-            context.lineTo(note.x + noteWidth + boardX, note.y + boardY);
-            context.lineTo(note.x + noteWidth + boardX, note.y + noteHeight + boardY);
-            context.lineTo(note.x + boardX, note.y + noteHeight + boardY);
-            context.closePath();
-            if (mode === modes.note && note === movingNote) {
-                context.strokeStyle = '#444444';
-                context.fillStyle = note.color;
-            } else {
-                context.strokeStyle = '#888888';
-                context.fillStyle = note.color;
-            }
-            context.stroke();
-            context.fill();
-        }
+       overedNote = null;
+		document.body.style.cursor = '';
+		for (var i = 0, imax = notes.length; i < imax; i++) {
+			var note = notes[i];
+			if (note) {
+				if (note.isMouseOver(lastX, lastY)) {
+					// draw note menu on the overed note
+					overedNote = note;
+					note.isMenuVisible = true;								
+				} else {
+					note.isMenuVisible = false;
+				}
+				drawNote(context, note);
+			}
+		}
     };
+	
+	//Draw one note
+	var drawNote = function (context, note) {
+		context.beginPath();
+		context.moveTo(note.x + boardX, note.y + boardY);
+		context.lineTo(note.x + noteWidth + boardX, note.y + boardY);
+		context.lineTo(note.x + noteWidth + boardX, note.y + noteHeight + boardY);
+		context.lineTo(note.x + boardX, note.y + noteHeight + boardY);	
+		context.closePath();										
+		if (mode === modes.note && note === note) {
+			context.strokeStyle = '#444444';
+			context.fillStyle = note.color;
+		} else {
+			context.strokeStyle = '#888888';
+			context.fillStyle = note.color;
+		}
+		context.stroke();
+		context.fill();
+		// draw note text
+		note.drawText(context);
+		// draw note menu
+		if (note.isMenuVisible) {
+			note.drawMenu(context);
+		}
+	};
 
     // Draw the board
     var drawBoard = function (context) {
@@ -318,7 +354,134 @@ notepanel.views.panel = function (me) {
         context.fillStyle = '#ffffee';
         context.fill();
     };
-
+	
+	// Note class
+	var Note = function (options) {
+		this.id = -1;
+		this.x = 0;
+		this.y = 0;
+		this.width = 175;
+		this.height = 100;					
+		this.text = 'new sticky note';
+		this.color = '#66aaee';
+		this.template = 'default';
+		this.isMenuVisible = false;
+		
+		// merge options in Note
+		$.extend(this, options);									
+	};
+	
+	Note.prototype.drawMenu = function(context) {					
+		menu = new NoteMenu();
+		this.menu = menu;
+		menu.addItem(new NoteMenuItem("d"));
+		var editItem = new NoteMenuItem("e");
+		note = this;
+		editItem.onClick = function() {
+			showEditNote(note, context);
+		}
+		menu.addItem(editItem);
+		// this logic should be in the note template
+		context.font='bold 16px sans-serif';     
+		context.fillStyle = "#fff";
+		// TODO : manage template with menu starting either from left and right
+		startX = boardX + this.x + this.width; // from right
+		// menu starting from right
+		for(i=0;i<menu.items.length;i++) {
+			item = menu.items[i];
+			item.width = 10
+			menu.width += item.width;
+		}
+		menu.x = startX - menu.width;
+		menu.items.reverse();
+		// menu starting from left
+		//startX = boardX + this.x 
+		//menu.x = startX
+		// drawing menu from left
+		menu.height = 10;
+		menu.y = boardY + this.y; // from bottom
+		for(i=0;i<menu.items.length;i++) {
+			item = menu.items[i];
+			item.y = menu.y;
+			item.height = menu.height;
+			item.width = 10
+			item.x = menu.x + (i*item.width);
+			context.fillText(item.text, item.x, item.y + menu.height);
+		}					
+		this.menu = menu;
+	};
+	
+	Note.prototype.isMouseOver = function(x, y) {
+		return isInRectangle(x, y, boardX + this.x, boardY + this.y, this.width, this.height);
+	};
+	
+	Note.prototype.onMouseDown = function(e) {
+		var isEventHandled = false;
+		x = e.clientX;
+		y = e.clientY;
+		if (this.isMouseOver(x, y)) {	
+			if(this.menu.isMouseOver(x, y)) {
+				for(i=0;i<this.menu.items.length;i++) {
+					var item = this.menu.items[i];
+					if(item.isMouseOver(x, y)) {
+						isEventHandled = true;									
+						item.onClick();
+					}
+				}
+				
+			}
+		}
+		return isEventHandled;
+	};
+	
+	Note.prototype.drawText = function(context) {
+		var text = this.text;
+		// x = this.x + left margin;
+		var x = this.x + 10;
+		// TODO : y (bottom) = this.y + menu.height + line.height
+		var y = this.y + 10 + 15;
+		// TODOD : width = this.width - (left margin + right margin)
+		var width = this.width - (10 + 10);
+		CanvasText.drawText({
+			text: text,
+			x: x,
+			y: y,
+			boxWidth: width
+		});
+	};
+	
+	// Note menu class
+	var NoteMenu = function() {
+		this.x = 0;
+		this.y = 0;
+		this.width = 0;
+		this.height = 0;
+		this.items = [];
+	}
+	
+	// to add in "ordered way"
+	NoteMenu.prototype.addItem = function(item) {
+		this.items.push(item);
+	}
+	
+	NoteMenu.prototype.isMouseOver = function(x, y) {
+		return isInRectangle(x, y, this.x, this.y, this.width, this.height);
+	}
+	
+	// Note menu item class
+	var NoteMenuItem = function(action) {
+		this.x = 0;
+		this.y = 0;
+		this.width = 0;
+		this.height = 0;
+		this.text = action;
+		this.onClick = function() { alert(action); };
+	}
+	
+	NoteMenuItem.prototype.isMouseOver = function(x, y) {
+		return isInRectangle(x, y, this.x, this.y, this.width, this.height);
+	}
+	
     return me;
 }(notepanel.views.panel || {});
 

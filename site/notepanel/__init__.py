@@ -32,6 +32,14 @@ print settings_path
 execfile(settings_path, settings)
 
 # ================================================================
+# set path to packages for local environment
+
+if "packages_path" in settings:
+    packages_path = os.path.join(root_path, settings["packages_path"])
+    print '****************************************' + packages_path
+    sys.path.append(packages_path)
+
+# ================================================================
 # azure log file monitor
 
 from utils import file_monitor
