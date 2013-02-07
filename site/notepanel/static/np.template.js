@@ -2,8 +2,8 @@ var CanvasText = new CanvasText;
 
 CanvasText.config({
     canvasId: "canvas_board",
-    fontFamily: "Verdana",
-    fontSize: "14px",
+    fontFamily: "GoodDogRegular", //"Verdana",
+    fontSize: "18px",
     fontWeight: "normal",
     fontColor: "#fff",
     lineHeight: "12"

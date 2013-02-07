@@ -148,7 +148,7 @@ notepanel.views.panel = function (me) {
                     // Double check in case they aren't ordered
                     version = data[j].version > version ? data[j].version : version;
                 }
-                me.poll();
+                //me.poll();
             })
             .fail(function () {
                 me.disable();
@@ -168,7 +168,7 @@ notepanel.views.panel = function (me) {
         $canvas.on('mousedown.notepanel', function (e) {
             var note = hitTest(e.clientX, e.clientY);
             if (note) {
-                if (note.onMouseDown(e)) { // click on note menu
+                if (note.onMouseDown(e)) { // click on note menu				
 					mode = modes.still;
 				} else {
 					mode = modes.note;
@@ -280,12 +280,11 @@ notepanel.views.panel = function (me) {
     var addNote = function (x, y) {
         var position = {x: x, y: y};
 		var note = new Note(position);
+		note.id = notes.length + 1;
 		notes.push(note);
-		
         $.ajax({type: 'POST', url: notepanel.servicesUrl + '/notes', dataType: 'json', data: note}).done(function (data) {
             note.id = data.id;
         });
-		
     };
 
     // Full redraw
@@ -371,64 +370,68 @@ notepanel.views.panel = function (me) {
 		$.extend(this, options);									
 	};
 	
-	Note.prototype.drawMenu = function(context) {					
-		menu = new NoteMenu();
-		this.menu = menu;
-		menu.addItem(new NoteMenuItem("d"));
-		var editItem = new NoteMenuItem("e");
-		note = this;
-		editItem.onClick = function() {
-			showEditNote(note, context);
+	Note.prototype.drawMenu = function(context) {
+		if(context != null) {
+			var menu = new NoteMenu();
+			this.menu = menu;
+			menu.addItem(new NoteMenuItem("d"));
+			var editItem = new NoteMenuItem("e");
+			var note = this;
+			editItem.onClick = function() {
+				showEditNote(note, context);
+			}
+			menu.addItem(editItem);
+			// this logic should be in the note template
+			context.font='bold 16px sans-serif';     
+			context.fillStyle = "#fff";
+			// TODO : manage template with menu starting either from left and right
+			var startX = boardX + this.x + this.width; // from right
+			// menu starting from right
+			for(i=0;i<menu.items.length;i++) {
+				item = menu.items[i];
+				item.width = 10
+				menu.width += item.width;
+			}
+			menu.x = startX - menu.width;
+			menu.items.reverse();
+			// menu starting from left
+			//startX = boardX + this.x 
+			//menu.x = startX
+			// drawing menu from left
+			menu.height = 10;
+			menu.y = boardY + this.y; // from bottom
+			for(i=0;i<menu.items.length;i++) {
+				var item = menu.items[i];
+				item.y = menu.y;
+				item.height = menu.height;
+				item.width = 10
+				item.x = menu.x + (i*item.width);
+				context.fillText(item.text, item.x, item.y + menu.height);
+			}					
+			this.menu = menu;
 		}
-		menu.addItem(editItem);
-		// this logic should be in the note template
-		context.font='bold 16px sans-serif';     
-		context.fillStyle = "#fff";
-		// TODO : manage template with menu starting either from left and right
-		startX = boardX + this.x + this.width; // from right
-		// menu starting from right
-		for(i=0;i<menu.items.length;i++) {
-			item = menu.items[i];
-			item.width = 10
-			menu.width += item.width;
-		}
-		menu.x = startX - menu.width;
-		menu.items.reverse();
-		// menu starting from left
-		//startX = boardX + this.x 
-		//menu.x = startX
-		// drawing menu from left
-		menu.height = 10;
-		menu.y = boardY + this.y; // from bottom
-		for(i=0;i<menu.items.length;i++) {
-			item = menu.items[i];
-			item.y = menu.y;
-			item.height = menu.height;
-			item.width = 10
-			item.x = menu.x + (i*item.width);
-			context.fillText(item.text, item.x, item.y + menu.height);
-		}					
-		this.menu = menu;
 	};
 	
 	Note.prototype.isMouseOver = function(x, y) {
 		return isInRectangle(x, y, boardX + this.x, boardY + this.y, this.width, this.height);
 	};
 	
-	Note.prototype.onMouseDown = function(e) {
+	Note.prototype.onMouseDown = function(e) {		
 		var isEventHandled = false;
-		x = e.clientX;
-		y = e.clientY;
-		if (this.isMouseOver(x, y)) {	
-			if(this.menu.isMouseOver(x, y)) {
-				for(i=0;i<this.menu.items.length;i++) {
-					var item = this.menu.items[i];
-					if(item.isMouseOver(x, y)) {
-						isEventHandled = true;									
-						item.onClick();
+		if(e != null) {
+			var x = e.clientX;
+			var y = e.clientY;
+			if(this.isMouseOver(x, y)) {	
+				if(this.menu.isMouseOver(x, y)) {
+					for(i=0;i<this.menu.items.length;i++) {
+						var item = this.menu.items[i];
+						if(item.isMouseOver(x, y)) {
+							isEventHandled = true;									
+							item.onClick();
+						}
 					}
+					
 				}
-				
 			}
 		}
 		return isEventHandled;
@@ -461,7 +464,9 @@ notepanel.views.panel = function (me) {
 	
 	// to add in "ordered way"
 	NoteMenu.prototype.addItem = function(item) {
-		this.items.push(item);
+		if(this.items != null) {
+			this.items.push(item);
+		}
 	}
 	
 	NoteMenu.prototype.isMouseOver = function(x, y) {
@@ -475,7 +480,7 @@ notepanel.views.panel = function (me) {
 		this.width = 0;
 		this.height = 0;
 		this.text = action;
-		this.onClick = function() { alert(action); };
+		this.onClick = function() {   (action); };
 	}
 	
 	NoteMenuItem.prototype.isMouseOver = function(x, y) {
@@ -494,7 +499,7 @@ $(document).ready(function () {
         if (data.identified) {
             notepanel.views.panel.enable();
         } else {
-            notepanel.views.login.enable();
+			notepanel.views.panel.enable();
         }
     }).fail(function () {
         $('#div_fatal').show();
