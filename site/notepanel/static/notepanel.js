@@ -1,4 +1,24 @@
 
+notepanel.ajaxErrorHandler = function (xhr) {
+    notepanel.views.error.enable();
+};
+
+notepanel.views.error = function (me) {
+
+    // Disable this view
+    me.disable = function () {
+        // Hide everything
+        $('#div_fatal').hide();
+    };
+
+    // Enable this view
+    me.enable = function () {
+        $('#div_fatal').show();
+    };
+
+    return me;
+}(notepanel.views.error || {});
+
 notepanel.views.login = function (me) {
 
     // Disable this view
@@ -17,16 +37,22 @@ notepanel.views.login = function (me) {
         $('#div_login').show();
         $('#a_login').on('click.notepanel', function (e) {
             $('#div_login_result').empty();
-            $.ajax({type: 'GET', url: notepanel.servicesUrl + '/users/login?' + $('#div_login :input').serialize(), dataType: 'json'}).done(function (data) {
-                if (data.success && data.message.identified) {
-                    notepanel.user = data.message.user;
-                    notepanel.views.panel.loadData(data.message.boards[0]);
+            $.ajax({type: 'GET',
+                    url: notepanel.servicesUrl + '/users/login?' + $('#div_login :input').serialize(),
+                    dataType: 'json'})
+                .done(function (data) {
+                    notepanel.user = data.user;
+                    notepanel.views.panel.loadData(data.boards[0]);
                     me.disable();
                     notepanel.views.panel.enable();
-                } else {
-                    $('#div_login_result').text('Error.');
-                }
-            });
+                })
+                .fail(function (xhr) {
+                    if (xhr.status === 403) {
+                        $('#div_login_result').text('Wrong user name/password.');
+                    } else {
+                        notepanel.ajaxErrorHandler.apply(this, arguments);
+                    }
+                });
             return false;
         });
         $('#a_to_register').on('click.notepanel', function (e) {
@@ -55,16 +81,26 @@ notepanel.views.register = function (me) {
     me.enable = function () {
         $('#div_register').show();
         $('#a_register').on('click.notepanel', function (e) {
+
             $('#div_register_result').empty();
-            $.ajax({type: 'POST', url: notepanel.servicesUrl + '/users', dataType: 'json', data: $('#div_register :input').serialize()}).done(function (data) {
-                if (data.identified) {
-                    notepanel.user = data;
-                    me.disable();
-                    notepanel.views.panel.enable();
-                } else {
-                    $('#div_register_result').text('Error.');
-                }
-            });
+
+            var data = $('#div_register :input').serializeObject();
+            
+            $.ajax({type: 'POST',
+                    url: notepanel.servicesUrl + '/users',
+                    dataType: 'json',
+                    data: JSON.stringify(data)})
+                .done(function (data) {
+                    if (data.identified) {
+                        notepanel.user = data;
+                        me.disable();
+                        notepanel.views.panel.enable();
+                    } else {
+                        $('#div_register_result').text('Error.');
+                    }
+                })
+                .fail(notepanel.ajaxErrorHandler);
+
             return false;
         });
     };
@@ -130,8 +166,7 @@ notepanel.views.panel = function (me) {
         $.ajax({type: 'GET',
                 url: notepanel.servicesUrl + '/boards/poll?board_id=' + id + '&version=' + version,
                 dataType: 'json',
-                /* timeout: 30000,*/
-                data: movingNote})
+                /* timeout: 30000,*/})
             .done(function (data) {
                 for (var j = 0, jmax = data.length; j < jmax; j++) {
                     found = false;
@@ -154,10 +189,7 @@ notepanel.views.panel = function (me) {
                 }
                 me.poll();
             })
-            .fail(function () {
-                me.disable();
-                $('#div_fatal').show();
-            });
+            .fail(notepanel.ajaxErrorHandler);
     };
 
     // Enable this view
@@ -216,10 +248,22 @@ notepanel.views.panel = function (me) {
 
         $canvas.on('mouseup.notepanel', function (e) {
             if (mode === modes.note) {
+
+                var data = {
+                    boardId: id,
+                    id: movingNote.id,
+                    text: movingNote.text,
+                    x: movingNote.x,
+                    y: movingNote.y,
+                    color: movingNote.color
+                };
+
                 $.ajax({type: 'POST',
                         url: notepanel.servicesUrl + '/notes',
                         dataType: 'json',
-                        data: {boardId: id, id: movingNote.id, text: movingNote.text, x: movingNote.x, y: movingNote.y, color: movingNote.color}});
+                        data: JSON.stringify(data)})
+                    .fail(notepanel.globalErrorHandler);
+
                 movingNote = null;
             }
             $canvas.css('cursor', 'default');
@@ -231,11 +275,13 @@ notepanel.views.panel = function (me) {
         $('#a_logout').on('click.notepanel', function (e) {
             me.disable();
             $.ajax({type: 'GET',
-                    url: notepanel.servicesUrl + '/users/logout'})
+                    url: notepanel.servicesUrl + '/users/logout',
+                    dataType: 'json'})
                 .done(function (data) {
                     notepanel.user = null;
                     notepanel.views.login.enable();
-                });
+                })
+                .fail(notepanel.ajaxErrorHandler);
             return false;
         });
 
@@ -247,17 +293,18 @@ notepanel.views.panel = function (me) {
 
         $('#a_create_board').on('click.notepanel', function (e) {
             $('#div_create_board_result').empty();
+
+            var data = $('#i_create_board').serialize();
+
             $.ajax({type: 'POST',
                     url: notepanel.servicesUrl + '/boards',
                     dataType: 'json',
-                    data: $('#i_create_board').serialize()})
+                    data: JSON.stringify(data)})
                 .done(function (data) {
-                    if (data.success) {
-                        me.loadData(data.message.board);
-                    } else {
-                        $('#div_create_board_result').text('Error.');
-                    }
-                });
+                    me.loadData(data.board);
+                })
+                .fail(notepanel.ajaxErrorHandler);
+
             $('#div_menu').hide();
             return false;
         });
@@ -293,16 +340,23 @@ notepanel.views.panel = function (me) {
     var addNote = function (x, y) {
         var position = {x: x, y: y};
         var note = new Note(position);
+
+        var data = {
+            boardId: id,
+            text: note.text,
+            x: note.x,
+            y: note.y,
+            color: note.color
+        };
+
         $.ajax({type: 'POST',
                 url: notepanel.servicesUrl + '/notes',
-                dataType: 'json',
-                data: {boardId: id, text: note.text, x: note.x, y: note.y, color: note.color}})
+                data: JSON.stringify(data)})
             .done(function (data) {
-                if (data.success) {
-                    note.id = data.message.id;
-                }
+                note.id = data.id;
                 notes.push(note);
-            });
+            })
+            .fail(notepanel.ajaxErrorHandler);
     };
 
     // Full redraw
@@ -503,27 +557,25 @@ notepanel.views.panel = function (me) {
 }(notepanel.views.panel || {});
 
 $(document).ready(function () {
+
     notepanel.views.login.disable();
     notepanel.views.register.disable();
     notepanel.views.panel.disable();
+    notepanel.views.error.disable();
+
     $.ajax({type: 'GET',
             url: notepanel.servicesUrl + '/users/identify',
             dataType: 'json'})
         .done(function (data) {
-            $('#div_fatal').hide();
-            if (data.success) {
-                if (data.message.identified) {
-                    notepanel.user = data.message.user;
-                    notepanel.views.panel.loadData(data.message.boards[0]);
-                    notepanel.views.panel.enable();
-                } else {
-                    notepanel.views.login.enable();
-                }
-            } else {
-                $('#div_fatal').show();
-            }
+            notepanel.user = data.user;
+            notepanel.views.panel.loadData(data.boards[0]);
+            notepanel.views.panel.enable();
         })
-        .fail(function () {
-            $('#div_fatal').show();
+        .fail(function (xhr) {
+            if (xhr.status === 403) {
+                notepanel.views.login.enable();
+            } else {
+                notepanel.ajaxErrorHandler.apply(this, arguments);
+            }
         });
 });
