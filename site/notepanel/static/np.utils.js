@@ -6,11 +6,10 @@ function isInRectangle(x, y, rectangleX, rectangleY, rectangleWidth, rectangleHe
 }
 
 function showEditNote(note, context) {
-	alert(note.id);
 	$('#texta_note').val(note.text);
 	$('#texta_note').on('keyup', function(){
 		var text = $('#texta_note').val();
-		note.text = note.id + ' : ' + text;
+		note.text = text;
 		note.drawText(context);
 	});
 	// left = board.x + note.x + note.width + 30 // at the rignt of the note
