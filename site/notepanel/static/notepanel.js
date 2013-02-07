@@ -397,10 +397,10 @@ notepanel.views.panel = function (me) {
         context.closePath();
         if (mode === modes.note && note === movingNote) {
             context.strokeStyle = '#444444';
-            context.fillStyle = note.color;
+            context.fillStyle = '#' + note.color;
         } else {
             context.strokeStyle = '#888888';
-            context.fillStyle = note.color;
+            context.fillStyle = '#' + note.color;
         }
         context.stroke();
         context.fill();
@@ -434,7 +434,7 @@ notepanel.views.panel = function (me) {
         this.width = 175;
         this.height = 100;
         this.text = 'new sticky note';
-        this.color = '#66aaee';
+        this.color = '66aaee';
         this.template = 'default';
         this.isMenuVisible = false;
 
