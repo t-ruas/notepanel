@@ -42,7 +42,7 @@ notepanel.views.login = function (me) {
                     dataType: 'json'})
                 .done(function (data) {
                     notepanel.user = data.user;
-                    notepanel.views.panel.loadData(data.boards[0]);
+                    notepanel.views.panel.setBoard(data.boards[0]);
                     me.disable();
                     notepanel.views.panel.enable();
                 })
@@ -114,9 +114,8 @@ notepanel.views.panel = function (me) {
     var noteWidth = 175;
     var noteHeight = 100;
 
-    // Id and name of the board
-    var id = 0;
-    var name = '';
+    // Id and name of the displayed board
+    var currentBoard = null;
 
     // Current version for synchronization
     var version = 0;
@@ -134,6 +133,9 @@ notepanel.views.panel = function (me) {
         board: 1,
         note: 2
     };
+
+    // Keep a reference to the running long polling xhr so we can abort it
+    var currentPollXhr = null;
 
     // Current dragging mode
     var mode = modes.still;
@@ -162,34 +164,45 @@ notepanel.views.panel = function (me) {
         $('#div_menu').hide();
     };
 
-    me.poll = function () {
-        $.ajax({type: 'GET',
-                url: notepanel.servicesUrl + '/boards/poll?board_id=' + id + '&version=' + version,
+    var poll = function () {
+        if (currentPollXhr) {
+            currentPollXhr.abort();
+        }
+        currentPollXhr = $.ajax({type: 'GET',
+                url: notepanel.servicesUrl + '/boards/poll?boardId=' + currentBoard.id + '&version=' + version,
                 dataType: 'json',
                 /* timeout: 30000,*/})
-            .done(function (data) {
-                for (var j = 0, jmax = data.length; j < jmax; j++) {
-                    found = false;
-                    for (var i = 0, imax = notes.length; i < imax; i++) {
-                        if (data[j].note.id === notes[i].id) {
-                            // Copy all the new properties
-                            notes[i].text = data[j].note.text;
-                            notes[i].color = data[j].note.color;
-                            notes[i].x = data[j].note.x;
-                            notes[i].y = data[j].note.y;
-                            found = true;
-                            break;
+            .done(function (data, status, xhr) {
+                // Ignore the response if it's from a previous, aborted ajax call
+                if (xhr === currentPollXhr) {
+                    for (var j = 0, jmax = data.length; j < jmax; j++) {
+                        found = false;
+                        for (var i = 0, imax = notes.length; i < imax; i++) {
+                            if (data[j].note.id === notes[i].id) {
+                                // Copy all the new properties
+                                notes[i].text = data[j].note.text;
+                                notes[i].color = data[j].note.color;
+                                notes[i].x = data[j].note.x;
+                                notes[i].y = data[j].note.y;
+                                found = true;
+                                break;
+                            }
                         }
+                        if (!found) {
+                            notes.push(data[j].note);
+                        }
+                        // Double check in case they aren't ordered
+                        version = data[j].version > version ? data[j].version : version;
                     }
-                    if (!found) {
-                        notes.push(data[j].note);
-                    }
-                    // Double check in case they aren't ordered
-                    version = data[j].version > version ? data[j].version : version;
+                    currentPollXhr = null;
+                    poll();
                 }
-                me.poll();
             })
-            .fail(notepanel.ajaxErrorHandler);
+            .fail(function (xhr) {
+                if (xhr === currentPollXhr) {
+                    notepanel.ajaxErrorHandler.apply(this, arguments);
+                }
+            });
     };
 
     // Enable this view
@@ -250,7 +263,7 @@ notepanel.views.panel = function (me) {
             if (mode === modes.note) {
 
                 var data = {
-                    boardId: id,
+                    boardId: currentBoard.id,
                     id: movingNote.id,
                     text: movingNote.text,
                     x: movingNote.x,
@@ -301,7 +314,7 @@ notepanel.views.panel = function (me) {
                     dataType: 'json',
                     data: JSON.stringify(data)})
                 .done(function (data) {
-                    me.loadData(data.board);
+                    me.setBoard(data.board);
                 })
                 .fail(notepanel.ajaxErrorHandler);
 
@@ -313,15 +326,34 @@ notepanel.views.panel = function (me) {
             closeEditNote();
             return false;
         });
-
-        //me.poll();
     };
 
-    // Load data for this view
-    me.loadData = function (board) {
-        id = board.id;
-        name = board.name;
-        $('#s_board_name').html(name);
+    // Set the currently open board
+    me.setBoard = function (board) {
+        currentBoard = board;
+        getBoardNotes();
+        $('#s_board_name').html(currentBoard.name);
+    };
+
+    // Refresh the current board's note list
+    var getBoardNotes = function () {
+        notes.length = 0;
+        $.ajax({type: 'GET',
+                url: notepanel.servicesUrl + '/notes?boardId=' + currentBoard.id,
+                dataType: 'json',
+                /* timeout: 30000,*/})
+            .done(function (data) {
+
+                for (var i = 0, imax = data.notes.length; i < imax; i++) {
+                    notes.push(new Note(data.notes[i]));
+                }
+
+                version = data.version;
+
+                // Start polling only now that we have the current server side cache version
+                poll();
+            })
+            .fail(notepanel.ajaxErrorHandler);
     };
 
     var hitTest = function (x, y) {
@@ -342,7 +374,7 @@ notepanel.views.panel = function (me) {
         var note = new Note(position);
 
         var data = {
-            boardId: id,
+            boardId: currentBoard.id,
             text: note.text,
             x: note.x,
             y: note.y,
@@ -351,6 +383,7 @@ notepanel.views.panel = function (me) {
 
         $.ajax({type: 'POST',
                 url: notepanel.servicesUrl + '/notes',
+                dataType: 'json',
                 data: JSON.stringify(data)})
             .done(function (data) {
                 note.id = data.id;
@@ -568,7 +601,7 @@ $(document).ready(function () {
             dataType: 'json'})
         .done(function (data) {
             notepanel.user = data.user;
-            notepanel.views.panel.loadData(data.boards[0]);
+            notepanel.views.panel.setBoard(data.boards[0]);
             notepanel.views.panel.enable();
         })
         .fail(function (xhr) {
