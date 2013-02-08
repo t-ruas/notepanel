@@ -1,4 +1,4 @@
-
+﻿
 notepanel.views.panel = function (me) {
 
     // Default note size
@@ -322,22 +322,25 @@ notepanel.views.panel = function (me) {
     Note.prototype.drawMenu = function(context) {
         menu = new NoteMenu();
         this.menu = menu;
-        menu.addItem(new NoteMenuItem("d"));
-        var editItem = new NoteMenuItem("e");
+        menu.addItem(new NoteMenuItem("\uF00d"));
+        var editItem = new NoteMenuItem("\uF040");
         note = this;
         editItem.onClick = function() {
             showEditNote(note, context);
         }
         menu.addItem(editItem);
         // this logic should be in the note template
-        context.font='bold 16px sans-serif';
+        context.font='14px "FontAwesome"';
         context.fillStyle = "#fff";
+        context.textBaseline = 'bottom';
+        context.textAlign = 'start';
         // TODO : manage template with menu starting either from left and right
         startX = boardX + this.x + this.width; // from right
         // menu starting from right
         for(i=0;i<menu.items.length;i++) {
-            item = menu.items[i];
-            item.width = 10
+            var item = menu.items[i];
+            // TODO : set from template
+            item.width = 16; //context.measureText(item.text); //14;
             menu.width += item.width;
         }
         menu.x = startX - menu.width;
@@ -346,13 +349,14 @@ notepanel.views.panel = function (me) {
         //startX = boardX + this.x
         //menu.x = startX
         // drawing menu from left
-        menu.height = 10;
+        menu.height = 16;
         menu.y = boardY + this.y; // from bottom
         for(i=0;i<menu.items.length;i++) {
-            item = menu.items[i];
+            var item = menu.items[i];
             item.y = menu.y;
             item.height = menu.height;
-            item.width = 10
+            // TODO : set from template
+            item.width = 16;//context.measureText(item.text); //14;
             item.x = menu.x + (i*item.width);
             context.fillText(item.text, item.x, item.y + menu.height);
         }

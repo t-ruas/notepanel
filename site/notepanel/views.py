@@ -19,17 +19,6 @@ def index():
     return flask.render_template("panel.html", services_url=settings["services_url"])
 
 # ================================================================
-
-@app.route("/test", methods=["GET"])
-def test():
-    import os
-    if 'WeAreInTheCloud' in os.environ:  
-        myvar = 'cloud'
-    else:
-        myvar = 'local'
-    return flask.render_template('test.html', myvar=myvar)
-
-# ================================================================
 # admin
 
 @app.route("/admin/login/<password>", methods=["GET"])
@@ -55,7 +44,13 @@ def admin():
 
 def is_admin():
     return 'is_admin' in flask.session and flask.session['is_admin'] == True
-
+    
+@app.route("/test", methods=["GET"])
+def test():
+    if is_admin():
+        return flask.render_template('test.html')
+    else:
+        return "Not authorized", 401
 
 # ================================================================
 # log management

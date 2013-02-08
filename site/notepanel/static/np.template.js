@@ -2,11 +2,11 @@ var CanvasText = new CanvasText;
 
 CanvasText.config({
     canvasId: "canvas_board",
-    fontFamily: "GoodDogRegular", //"Verdana",
+    fontFamily: "GoodDogRegular",
     fontSize: "18px",
     fontWeight: "normal",
-    fontColor: "#fff",
-    lineHeight: "12"
+    fontColor: "#000",
+    lineHeight: "20"
 });
 
 CanvasText.defineClass("blue",{
