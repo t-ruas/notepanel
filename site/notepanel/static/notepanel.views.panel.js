@@ -25,6 +25,11 @@ notepanel.views.panel = function (me) {
         note: 2
     };
 
+    var $canvas = null;
+
+    // 2D drawing context
+    var context = null;
+
     // Keep a reference to the running long polling xhr so we can abort it
     var currentPollXhr = null;
 
@@ -37,30 +42,147 @@ notepanel.views.panel = function (me) {
     // Currently overed note
     var overedNote = null;
 
+    // Loop timer so we can stop drawing during an update
+    var currentTimer = null;
+
     // Last mouse coordinates
     var lastX = 0;
     var lastY = 0;
 
+    var enabled = false;
+
+    $(document).ready(function () {
+        $canvas = $('#canvas_board');
+        context = $canvas.get(0).getContext('2d');
+        adjustCanvas();
+        $('#div_panel').hide();
+    });
+
+    // Enable this view
+    me.enable = function () {
+        if (!enabled) {
+
+            $canvas.on('mousedown', onMouseDown);
+            $canvas.on('mousemove', onMouseMove);
+            $canvas.on('mouseup', onMouseUp);
+
+            $('#a_close_edit').on('click.notepanel', onCloseEdit);
+
+            $('#div_panel').show();
+
+            notepanel.views.menu.activate();
+
+            enabled = true;
+        }
+    };
+
     // Disable this view
     me.disable = function () {
+        if (enabled) {
+            notepanel.views.menu.disactivate();
 
-        // Remove event handlers
-        $('#canvas_board').off('.notepanel');
-        $('#a_logout').off('.notepanel');
-        $('#a_add_note').off('.notepanel');
-        $('#a_create_board').off('.notepanel');
+            $canvas.off('mousedown');
+            $canvas.off('mousemove');
+            $canvas.off('mouseup');
 
-        // Hide everything
-        $('#canvas_board').hide();
-        $('#div_menu').hide();
+            $('#div_panel').hide();
+
+            interruptPolling();
+            interruptDrawing();
+
+            enabled = false;
+        }
+    };
+
+    var onMouseMove = function (e) {
+        if (mode === modes.still) {
+            // TODO : move into draw() method ?
+            if (overedNote && overedNote.menu.isMouseOver(lastX, lastY)) {
+                $canvas.css('cursor', 'pointer');
+            } else {
+                $canvas.css('cursor', 'default');
+            }
+        } else {
+            $canvas.css('cursor', 'pointer');
+            var deltaX = e.clientX - lastX;
+            var deltaY = e.clientY - lastY;
+            if (mode === modes.board) {
+                boardX += deltaX;
+                boardY += deltaY;
+            } else if (mode === modes.note) {
+                movingNote.x += deltaX;
+                movingNote.y += deltaY;
+            }
+        }
+        lastX = e.clientX;
+        lastY = e.clientY;
+    };
+
+    var onMouseDown = function (e) {
+        var note = hitTest(e.clientX, e.clientY);
+        if (note) {
+            if (note.onMouseDown(e)) { // click on note menu
+                mode = modes.still;
+            } else {
+                mode = modes.note;
+                movingNote = note;
+            }
+        } else {
+            mode = modes.board;
+        }
+        lastX = e.clientX;
+        lastY = e.clientY;
+    };
+
+    var onMouseUp = function (e) {
+        if (mode === modes.note) {
+
+            var data = {
+                boardId: currentBoard.id,
+                id: movingNote.id,
+                text: movingNote.text,
+                x: movingNote.x,
+                y: movingNote.y,
+                color: movingNote.color
+            };
+
+            $.ajax({type: 'POST',
+                    url: notepanel.servicesUrl + '/notes',
+                    xhrFields: {withCredentials: true},
+                    dataType: 'json',
+                    data: JSON.stringify(data)})
+                .fail(notepanel.globalErrorHandler);
+
+            movingNote = null;
+        }
+        $canvas.css('cursor', 'default');
+        mode = modes.still;
+    };
+
+    var onCloseEdit = function (e) {
+        closeEditNote();
+        return false;
+    };
+
+    var interruptPolling = function () {
+        if (currentPollXhr) {
+            currentPollXhr.abort();
+            currentPollXhr = null;
+        }
+    };
+
+    var interruptDrawing = function () {
+        if (currentTimer) {
+            window.clearInterval(currentTimer);
+            currentTimer = null;
+        }
     };
 
     var poll = function () {
-        if (currentPollXhr) {
-            currentPollXhr.abort();
-        }
+        interruptPolling();
         currentPollXhr = $.ajax({type: 'GET',
                 url: notepanel.servicesUrl + '/boards/poll?boardId=' + currentBoard.id + '&version=' + version,
+                xhrFields: {withCredentials: true},
                 dataType: 'json',
                 /* timeout: 30000,*/})
             .done(function (data, status, xhr) {
@@ -96,110 +218,42 @@ notepanel.views.panel = function (me) {
             });
     };
 
-    // Enable this view
-    me.enable = function () {
-
-        var $canvas = $('#canvas_board').show();
-        var context = $canvas.get(0).getContext('2d');
-
-        // Start the main draw loop
-        window.setInterval(function () {draw(context);}, 50);
-
-        $canvas.on('mousedown.notepanel', function (e) {
-            var note = hitTest(e.clientX, e.clientY);
-            if (note) {
-                if (note.onMouseDown(e)) { // click on note menu
-                    mode = modes.still;
-                } else {
-                    mode = modes.note;
-                    movingNote = note;
-                }
-            } else {
-                mode = modes.board;
-            }
-            lastX = e.clientX;
-            lastY = e.clientY;
-        });
-
-        $canvas.on('mousemove.notepanel', function (e) {
-            if (mode === modes.still) {
-                if (e.clientX > window.innerWidth - 10) {
-                    notepanel.views.menu.enable();
-                } else if (e.clientX < window.innerWidth - 10 - $('#div_menu').width()) {
-                    notepanel.views.menu.disable();
-                    // TODO : move into draw() method ?
-                    if (overedNote && overedNote.menu.isMouseOver(lastX, lastY)) {
-                        $canvas.css('cursor', 'pointer');
-                    } else {
-                        $canvas.css('cursor', 'default');
-                    }
-                }
-            } else {
-                $canvas.css('cursor', 'pointer');
-                var deltaX = e.clientX - lastX;
-                var deltaY = e.clientY - lastY;
-                if (mode === modes.board) {
-                    boardX += deltaX;
-                    boardY += deltaY;
-                } else if (mode === modes.note) {
-                    movingNote.x += deltaX;
-                    movingNote.y += deltaY;
-                }
-            }
-            lastX = e.clientX;
-            lastY = e.clientY;
-        });
-
-        $canvas.on('mouseup.notepanel', function (e) {
-            if (mode === modes.note) {
-
-                var data = {
-                    boardId: currentBoard.id,
-                    id: movingNote.id,
-                    text: movingNote.text,
-                    x: movingNote.x,
-                    y: movingNote.y,
-                    color: movingNote.color
-                };
-
-                $.ajax({type: 'POST',
-                        url: notepanel.servicesUrl + '/notes',
-                        dataType: 'json',
-                        data: JSON.stringify(data)})
-                    .fail(notepanel.globalErrorHandler);
-
-                movingNote = null;
-            }
-            $canvas.css('cursor', 'default');
-            mode = modes.still;
-        });
-
-        $('#a_close_edit').on('click.notepanel', function (e) {
-            closeEditNote();
-            return false;
-        });
-    };
-
     // Set the currently open board
     me.setBoard = function (board) {
         currentBoard = board;
         getBoardNotes();
-        $('#s_board_name').html(currentBoard.name);
     };
+
+    me.getBoardId = function () {
+        return currentBoard ? currentBoard.id : 0;
+    }
 
     // Refresh the current board's note list
     var getBoardNotes = function () {
+        interruptPolling();
+        interruptDrawing();
         notes.length = 0;
         $.ajax({type: 'GET',
                 url: notepanel.servicesUrl + '/notes?boardId=' + currentBoard.id,
+                xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
+
                 for (var i = 0, imax = data.notes.length; i < imax; i++) {
                     notes.push(new Note(data.notes[i]));
                 }
+
+                // Version of the received update
                 version = data.version;
+
                 // Start polling only now that we have the current server side cache version
                 poll();
+
+                // Start the main draw loop
+                currentTimer = window.setInterval(draw, 50);
+
+                // Give access to the board now that it's set up
+                notepanel.views.wait.disable();
             })
             .fail(notepanel.ajaxErrorHandler);
     };
@@ -229,6 +283,7 @@ notepanel.views.panel = function (me) {
         };
         $.ajax({type: 'POST',
                 url: notepanel.servicesUrl + '/notes',
+                xhrFields: {withCredentials: true},
                 dataType: 'json',
                 data: JSON.stringify(data)})
             .done(function (data) {
@@ -236,12 +291,16 @@ notepanel.views.panel = function (me) {
             .fail(notepanel.ajaxErrorHandler);
     };
 
-    // Full redraw
-    var draw = function (context) {
+    var adjustCanvas = function () {
         context.canvas.width  = window.innerWidth;
         context.canvas.height = window.innerHeight;
+    };
+
+    // Full redraw
+    var draw = function () {
+        adjustCanvas();
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-        drawBoard(context);
+        //drawBoard(context);
         drawNotes(context);
     };
 

@@ -1,44 +1,46 @@
 ﻿
 notepanel.views.register = function (me) {
 
-    // Disable this view
-    me.disable = function () {
+    var enabled = false;
 
-        // Remove event handlers
-        $('#a_register').off('.notepanel');
-
+    $(document).ready(function () {
         $('#div_register').hide();
-        $('#div_register_result').empty();
-    };
+    });
 
     // Enable this view
     me.enable = function () {
+        if (!enabled) {
+            $('#a_register').on('click.notepanel', onRegister);
+            $('#div_register').show();
+            enabled = true;
+        }
+    };
 
-        $('#div_register').show();
-
-        $('#a_register').on('click.notepanel', function (e) {
-
+    // Disable this view
+    me.disable = function () {
+        if (enabled) {
+            $('#a_register').off('.notepanel');
+            $('#div_register').hide();
             $('#div_register_result').empty();
+            enabled = false;
+        }
+    };
 
-            var data = $('#div_register :input').serializeObject();
-            
-            $.ajax({type: 'POST',
-                    url: notepanel.servicesUrl + '/users',
-                    dataType: 'json',
-                    data: JSON.stringify(data)})
-                .done(function (data) {
-                    if (data.identified) {
-                        notepanel.user = data;
-                        me.disable();
-                        notepanel.views.panel.enable();
-                    } else {
-                        $('#div_register_result').text('Error.');
-                    }
-                })
-                .fail(notepanel.ajaxErrorHandler);
-
-            return false;
-        });
+    var onRegister = function (e) {
+        notepanel.views.wait.enable();
+        $('#div_register_result').empty();
+        var data = $('#div_register :input').serializeObject();
+        $.ajax({type: 'POST',
+                url: notepanel.servicesUrl + '/users',
+                dataType: 'json',
+                data: JSON.stringify(data)})
+            .done(function (data) {
+                notepanel.user = data.user;
+                me.disable();
+                notepanel.views.panel.enable();
+            })
+            .fail(notepanel.ajaxErrorHandler);
+        return false;
     };
 
     return me;

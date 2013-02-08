@@ -1,4 +1,10 @@
 ﻿
+var notepanel = {
+    user: null,
+    views: {},
+    servicesUrl: '{{services_url}}'
+};
+
 notepanel.ajaxErrorHandler = function (xhr) {
     notepanel.views.error.enable();
 };
@@ -7,19 +13,14 @@ notepanel.reset = function () {
 
     notepanel.user = null;
 
-    // Disable all the views
-    notepanel.views.login.disable();
-    notepanel.views.register.disable();
-    notepanel.views.panel.disable();
-    notepanel.views.error.disable();
-    notepanel.views.menu.disable();
+    notepanel.views.wait.enable();
 
     $.ajax({type: 'GET',
             url: notepanel.servicesUrl + '/users/identify',
+            xhrFields: {withCredentials: true},
             dataType: 'json'})
         .done(function (data) {
-            notepanel.user = data.user;
-            notepanel.views.panel.setBoard(data.boards[0]);
+            notepanel.setUser(data);
             notepanel.views.panel.enable();
         })
         .fail(function (xhr) {
@@ -28,9 +29,13 @@ notepanel.reset = function () {
             } else {
                 notepanel.ajaxErrorHandler.apply(this, arguments);
             }
+        })
+        .always(function () {
+            notepanel.views.wait.disable();
         });
 };
 
-$(document).ready(function () {
-    notepanel.reset();
-});
+notepanel.setUser = function (user) {
+    notepanel.user = user;
+    notepanel.views.menu.refreshBoards();
+};

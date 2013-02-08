@@ -2,13 +2,6 @@
     <head>
         <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}" />
-        <script type="text/javascript">
-            var notepanel = {
-                user: null,
-                views: {},
-                servicesUrl: '{{services_url}}'
-            };
-        </script>
         <script type="text/javascript" src="{{url_for('static', filename='jquery-1.8.3.min.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='jquery.serialize-object.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='CanvasText-0.4.1.js')}}"></script>
@@ -21,17 +14,26 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.wait.js')}}"></script>
+        <script type="text/javascript">
+            notepanel.servicesUrl = '{{services_url}}';
+            notepanel.reset();
+        </script>
     </head>
     <body>
-        <canvas id="canvas_board">
-        </canvas>
+        <div id="div_panel">
+            <canvas id="canvas_board"></canvas>
+        </div>
         <div id="div_menu">
             <a href="#" id="a_logout">Log out</a>
             <a href="#" id="a_add_note">Add a new note</a>
-            <p>Board : <span id="s_board_name"><span></p>
-            <input type="text" name="boardname" id="i_create_board" />
+            
+            <div>Board :</div>
+            <select id="sel_choose_board"></select>
+            <a id="a_refresh_boards" href="#">refresh list</a>
+            
+            <input type="text" id="i_create_board" />
             <a href="#" id="a_create_board">Create new board</a>
-            <div id="div_create_board_result"></div>
+
         </div>
         <div id="div_login">
             <input type="text" name="username" />
@@ -46,6 +48,11 @@
             <input type="text" name="email" />
             <a href="#" id="a_register">Register</a>
             <div id="div_register_result"></div>
+        </div>
+        <div id="div_wait">
+            <div id="div_wait_centered_content">
+                <img src="{{url_for('static', filename='wait.gif')}}" />
+            </div>
         </div>
 		<div id="div_edit" style="display:none;">
 			<textarea rows="5" cols="25" id="texta_note"></textarea>
