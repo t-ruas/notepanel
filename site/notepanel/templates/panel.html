@@ -8,14 +8,15 @@
         <script type="text/javascript" src="{{url_for('static', filename='jquery.serialize-object.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='CanvasText-0.4.1.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.template.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.utils.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.utils.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.panel.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.login.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.register.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.wait.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.edit.js')}}"></script>
         <script type="text/javascript">
             notepanel.servicesUrl = '{{services_url}}';
             notepanel.reset();
@@ -57,10 +58,7 @@
             </div>
         </div>
         <div id="div_edit" style="display:none;">
-            <div id="toolbar" style="display: none;">
-                <a data-wysihtml5-command="bold" title="CTRL+B">bold</a> |
-                <a data-wysihtml5-command="italic" title="CTRL+I">italic</a>
-            </div>
+            <select id="sel_choose_font"></select>
             <textarea rows="5" cols="25" id="texta_note"></textarea>
             <a href="#" id="a_close_edit">Close</a>
         </div>

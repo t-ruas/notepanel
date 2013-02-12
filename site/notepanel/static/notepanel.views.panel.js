@@ -378,14 +378,30 @@ notepanel.views.panel = function (me) {
         $.extend(this, options);
     };
 
+    Note.prototype.drawText = function(context) {
+        var text = this.text;
+        // x = this.x + left margin;
+        var x = boardX + this.x + 10;
+        // TODO : y (bottom) = this.y + menu.height + line.height
+        var y = boardY + this.y + 10 + 15;
+        // TODOD : width = this.width - (left margin + right margin)
+        var width = this.width - (10 + 10);
+        CanvasText.drawText({
+            text: text,
+            x: x,
+            y: y,
+            boxWidth: width
+        });
+    };
+
     Note.prototype.drawMenu = function(context) {
-        menu = new NoteMenu();
+        var menu = new NoteMenu();
         this.menu = menu;
         menu.addItem(new NoteMenuItem("\uF00d"));
         var editItem = new NoteMenuItem("\uF040");
-        note = this;
+        $note = this;
         editItem.onClick = function() {
-            showEditNote(boardX, boardY, note, context);
+            notepanel.views.edit.enable(boardX, boardY, $note);
         }
         menu.addItem(editItem);
         // this logic should be in the note template
@@ -423,7 +439,7 @@ notepanel.views.panel = function (me) {
     };
 
     Note.prototype.isMouseOver = function(x, y) {
-        return isInRectangle(x, y, boardX + this.x, boardY + this.y, this.width, this.height);
+        return notepanel.utils.isInRectangle(x, y, boardX + this.x, boardY + this.y, this.width, this.height);
     };
 
     Note.prototype.onMouseDown = function(e) {
@@ -445,22 +461,6 @@ notepanel.views.panel = function (me) {
         return isEventHandled;
     };
 
-    Note.prototype.drawText = function(context) {
-        var text = this.text;
-        // x = this.x + left margin;
-        var x = boardX + this.x + 10;
-        // TODO : y (bottom) = this.y + menu.height + line.height
-        var y = boardY + this.y + 10 + 15;
-        // TODOD : width = this.width - (left margin + right margin)
-        var width = this.width - (10 + 10);
-        CanvasText.drawText({
-            text: text,
-            x: x,
-            y: y,
-            boxWidth: width
-        });
-    };
-
     // Note menu class
     var NoteMenu = function() {
         this.x = 0;
@@ -476,7 +476,7 @@ notepanel.views.panel = function (me) {
     };
 
     NoteMenu.prototype.isMouseOver = function(x, y) {
-        return isInRectangle(x, y, this.x, this.y, this.width, this.height);
+        return notepanel.utils.isInRectangle(x, y, this.x, this.y, this.width, this.height);
     };
 
     // Note menu item class
@@ -490,7 +490,7 @@ notepanel.views.panel = function (me) {
     };
 
     NoteMenuItem.prototype.isMouseOver = function(x, y) {
-        return isInRectangle(x, y, this.x, this.y, this.width, this.height);
+        return notepanel.utils.isInRectangle(x, y, this.x, this.y, this.width, this.height);
     };
 
     return me;
