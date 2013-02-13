@@ -47,10 +47,10 @@ def is_admin():
     
 @app.route("/test", methods=["GET"])
 def test():
-    if is_admin():
-        return flask.render_template('test.html')
-    else:
-        return "Not authorized", 401
+    #if is_admin():
+    return flask.render_template('test.html')
+    #else:
+    #    return "Not authorized", 401
 
 # ================================================================
 # log management

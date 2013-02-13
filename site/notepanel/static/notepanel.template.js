@@ -1,3 +1,27 @@
+function Color(name, code) {
+    this.name = name;
+    this.code = code;
+};
+
+if (typeof notepanel == 'undefined') var notepanel = {}; 
+notepanel.template = notepanel.template || {};
+
+notepanel.template.formatNoteText = function(note) {
+    var formattedText = note.text;
+    // TODO format according to note properties
+    // => convert note properties in CanvasText class defined below (e.g. : <class='Tpb47'>[note.text]</class>)
+    return formattedText;
+};
+
+notepanel.template.noteColors = [
+    new Color("blue", "29a1f1"), 
+    new Color("pink", "ff5e99"),
+    new Color("red", "FF0000"),
+    new Color("yellow", "FFFF99"),
+    new Color("green", "66FF66"),
+    new Color("white", "ffffff")
+];
+
 var CanvasText = new CanvasText;
 
 CanvasText.config({
