@@ -136,8 +136,6 @@ notepanel.views.panel = function (me) {
             } else if (mode === modes.note) {
                 movingNote.x += deltaX;
                 movingNote.y += deltaY;
-                // set the moving note on the top
-                moveNoteToTop(movingNote.z);
             }
         }
         lastX = e.clientX;
@@ -158,9 +156,11 @@ notepanel.views.panel = function (me) {
         x = e.clientX;
         y = e.clientY;
         mode = modes.board;
-        for (var i = 0, imax = notes.length; i < imax; i++) {
+        for (var i = notes.length - 1; i >= 0; i--) {
             var note = notes[i];
             if (note.isMouseOver(x, y)) {
+                // set the moving note on the top
+                moveNoteToTop(note.z);
                 if (note.activateMenu(x, y)) {
                     mode = modes.still;
                 } else {
