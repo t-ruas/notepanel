@@ -46,6 +46,7 @@ class Note(Entity):
     text = Column(String(1000))
     x = Column(Integer)
     y = Column(Integer)
+    z = Column(Integer)
     color = Column(String(6))
     creation_date = Column(DateTime, default=func.now())
     edition_date = Column(DateTime, default=func.now())
@@ -60,5 +61,6 @@ class Note(Entity):
             "text": self.text,
             "x": self.x,
             "y": self.y,
+            "z": self.z,
             "color": self.color
         }

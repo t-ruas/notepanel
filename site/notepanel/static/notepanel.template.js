@@ -46,6 +46,8 @@ var CanvasTextFontWeight = [
     ["b", "bold"]
 ];
 
+/*
+// TO USE for different fonts in a note
 for(var i=10; i<48;i++) { // loop on fontSize
     for(var j=0; j<CanvasTextFontFamily.length;j++) { // loop on font family
         for(var k=0; k<CanvasTextFontColor.length;k++) { // long on font color
@@ -62,6 +64,7 @@ for(var i=10; i<48;i++) { // loop on fontSize
         }
     }    
 }
+*/
 
 /*
 CanvasText.defineClass("blue",{

@@ -112,10 +112,22 @@ notepanel.views.panel = function (me) {
             } else if (mode === modes.note) {
                 movingNote.x += deltaX;
                 movingNote.y += deltaY;
+                // set the moving note on the top
+                moveNoteToTop(movingNote.z);
             }
         }
         lastX = e.clientX;
         lastY = e.clientY;
+    };
+    
+    
+    var moveNoteToTop = function (z) {
+        var noteOnTheTop = notes.splice(z, 1)[0];
+        notes.push(noteOnTheTop);
+        for(var i=z; i<notes.length; i++) {
+            var note = notes[i];
+            note.z = i;
+        }
     };
 
     var onMouseDown = function (e) {
@@ -260,12 +272,10 @@ notepanel.views.panel = function (me) {
 
     // Check if there is a note present at the given coordinates
     var hitTest = function (x, y) {
-        for (var i = 0, imax = notes.length; i < imax; i++) {
-            var note = notes[i];
-            if (x > note.x + boardX
-                && x < note.x + noteWidth + boardX
-                && y > note.y + boardY
-                && y < note.y + noteHeight + boardY) {
+        // the first found in the array from end must be on the top most
+        for (var i = notes.length-1; i >= 0; i--) {
+            var note = notes[i];            
+            if(notepanel.utils.isInRectangle(x, y, note.x, note.y, note.width, note.height)) {
                 return note;
             }
         }
@@ -279,6 +289,7 @@ notepanel.views.panel = function (me) {
             text: note.text,
             x: note.x,
             y: note.y,
+            z: notes.length-1,
             color: note.color
         };
         $.ajax({type: 'POST',
@@ -306,7 +317,7 @@ notepanel.views.panel = function (me) {
 
     // Draw each note in the list
     var drawNotes = function (context) {
-       overedNote = null;
+        overedNote = null;
         document.body.style.cursor = '';
         for (var i = 0, imax = notes.length; i < imax; i++) {
             var note = notes[i];
@@ -367,6 +378,7 @@ notepanel.views.panel = function (me) {
         this.id = null;
         this.x = 0;
         this.y = 0;
+        this.z = 0;
         this.width = 175;
         this.height = 100;
         this.text = 'new sticky note';
@@ -389,7 +401,7 @@ notepanel.views.panel = function (me) {
         CanvasText.drawText({
             text: text,
             x: x,
-            y: y,
+            y: y,            
             boxWidth: width
         });
     };

@@ -6,8 +6,6 @@ notepanel.views.edit = function (me) {
 
     $(document).ready(function () {
         $('#div_edit').hide();
-        // TODO
-        //me.prepareMenu();
     });
     
     // Enable this view
@@ -19,14 +17,12 @@ notepanel.views.edit = function (me) {
             // color picker
             var onClick = function(event) { 
                 currentNote.color = this.id; 
-                alert(currentNote.color); 
                 event.stopPropagation();
             };
             notepanel.template.templates.loadColorPicker(onClick);
             notepanel.utils.positionNearNote($divEdit, boardX, boardY, note)
             $('#a_close_edit').on('click', onCloseEdit);
             $('#texta_note').on('keyup', { note: note }, onKeyUp);
-            //$('#sel_choose_fontsize').on('change', {note: note }, onFontSizeChange);
             $('#div_edit').show(10, function(){
                 $('#texta_note').focus();
             });
@@ -42,14 +38,6 @@ notepanel.views.edit = function (me) {
             $('#sel_choose_fontsize').off('change');
             $('#div_edit').hide();
             enabled = false;
-        }
-    };
-    
-    me.prepareMenu = function () {
-        // font size selection
-        var $select = $('#sel_choose_fontsize').empty();
-        for(var i=10;i<48;i++) {
-            $select.append('<option value="'+i+'"> '+i+' </option>');
         }
     };
     
