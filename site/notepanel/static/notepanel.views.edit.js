@@ -43,6 +43,7 @@ notepanel.views.edit = function (me) {
     
     var onCloseEdit = function () {
         me.disable();
+        notepanel.views.panel.unlock();
     };
     
     var onKeyUp = function (e) {
