@@ -1,8 +1,11 @@
 from datetime import datetime
-from model import Board, User, BoardUser, Note
+from model import Board, User, BoardUser, Note, UserGroup
+from . import db
 from sqlalchemy import func, and_
 
 class UserService(object):
+    
+    
 
     def get_by_log(self, session, name, password):
         user = session.query(User).\
@@ -16,6 +19,11 @@ class UserService(object):
     def get_by_id(self, session, id):
         return session.query(User).\
             filter(User.id == id).\
+            first()
+            
+    def get_by_name(self, session, name):
+        return session.query(User).\
+            filter(User.name == name).\
             first()
 
     def add(self, session, name, email, password):
@@ -32,6 +40,8 @@ class UserService(object):
         session.commit()
 
 class BoardService(object):
+    
+    session = db.Session()
 
     def get(self, session, board_id):
         board = session.query(Board).\
@@ -62,6 +72,16 @@ class BoardService(object):
         if not user in board.users:
             board.users.append(user)
             session.commit()
+        return board
+        
+    def add_user(self, board_id, user_name, user_group):
+        board = self.get(session=self.session, board_id=board_id)
+        user = UserService().get_by_name(session=self.session, name=user_name)
+        if user != None and not user in board.users:
+            board_user = BoardUser(user_id=user.id, board_id=board_id, user_group=user_group)        
+            self.session.add(board_user)
+            self.session.commit()
+        # TODO : else
         return board
 
     def remove_user(self, session, board, user_id):
