@@ -1,10 +1,6 @@
 ﻿
 notepanel.views.panel = function (me) {
 
-    // Default note size
-    var noteWidth = 175;
-    var noteHeight = 100;
-
     // Id and name of the displayed board
     var currentBoard = null;
 
@@ -13,10 +9,6 @@ notepanel.views.panel = function (me) {
 
     // List of notes on the board
     var notes = [];
-
-    // Current board position
-    var boardX = 0;
-    var boardY = 0;
 
     // Dragging modes
     var modes = {
@@ -45,33 +37,28 @@ notepanel.views.panel = function (me) {
     // Loop timer so we can stop drawing during an update
     var currentTimer = null;
 
-    // Last mouse coordinates
-    var lastX = 0;
-    var lastY = 0;
-
-    var enabled = false;
-
-    var locked = false;
-
-    var noteMenuButtons = {
-        remove: {
-            text: '\uF00d',
-            width: 16,
-            height: 16,
-            onClick: function () {
-                this.remove();
-            }
+    var adapter = {
+        // Keep track of all the transforms on the canvas.
+        trnsfrm: new Transform(),
+        offset: {
+            x: 0,
+            y: 0
         },
-        edit: {
-            text: '\uF040',
-            width: 16,
-            height: 16,
-            onClick: function () {
-                me.lock();
-                notepanel.views.edit.enable(boardX, boardY, this);
-            }
+        // Zooming.
+        scale: {
+            ratio: 1,
+            x: 0,
+            y: 0
         }
     };
+
+    // Last mouse coordinates.
+    var mouse = {
+        x: 0,
+        y: 0
+    };
+
+    var enabled = false;
 
     $(document).ready(function () {
         $canvas = $('#canvas_board');
@@ -85,26 +72,23 @@ notepanel.views.panel = function (me) {
         $canvas.off('mousedown');
         $canvas.off('mousemove');
         $canvas.off('mouseup');
+        $canvas.off('mousewheel');
     };
 
     me.unlock = function () {
         $canvas.on('mousedown', onMouseDown);
         $canvas.on('mousemove', onMouseMove);
         $canvas.on('mouseup', onMouseUp);
+        $canvas.on('mousewheel', onMouseWheel);
     };
 
     // Enable this view
     me.enable = function () {
         if (!enabled) {
-
             me.unlock();
-
             //$('#a_close_edit').on('click.notepanel', onCloseEdit);
-
             $('#div_panel').show();
-
             notepanel.views.menu.activate();
-
             enabled = true;
         }
     };
@@ -113,53 +97,93 @@ notepanel.views.panel = function (me) {
     me.disable = function () {
         if (enabled) {
             notepanel.views.menu.disactivate();
-
             me.lock();
-
             $('#div_panel').hide();
-
             interruptPolling();
             interruptDrawing();
-
             enabled = false;
         }
     };
 
+    var onMouseWheel = function (e, delta, deltaX, deltaY) {
+        var sc = adapter.scale;
+        var st = adapter.trnsfrm;
+        var pt = adapter.trnsfrm.transformPoint({x: e.offsetX, y: e.offsetY});
+        //var pt = {x: e.offsetX, y: e.offsetY};
+        var zoom = Math.pow(Math.abs(delta) / 16 + 1, delta);
+        var rescale = sc.ratio * zoom;
+        //adapter.offset.x += sc.x;
+        //adapter.offset.y += sc.y;
+        
+        sc.ratio = rescale;
+        
+        /*
+        st.translate(sc.x, sc.y);
+        st.scale(zoom, zoom);
+        sc.x += pt.x / sc.ratio - pt.x / rescale;
+        sc.y += pt.y / sc.ratio - pt.y / rescale;
+        st.translate(-sc.x, -sc.y);
+        sc.ratio = rescale;
+        context.setTransform.apply(context, st.m);
+        */
+    };
+
     var onMouseMove = function (e) {
+        //var pt = adapter.trnsfrm.transformPoint({x: e.offsetX, y: e.offsetY});
+        var pt = {x: e.offsetX, y: e.offsetY};
         if (mode !== modes.still) {
             $canvas.css('cursor', 'pointer');
-            var deltaX = e.clientX - lastX;
-            var deltaY = e.clientY - lastY;
+            var mvmnt = {
+                x: (pt.x - mouse.x) / adapter.scale.ratio,
+                y: (pt.y - mouse.y) / adapter.scale.ratio
+            };
             if (mode === modes.board) {
-                boardX += deltaX;
-                boardY += deltaY;
+                //adapter.trnsfrm.translate(mvmnt.x, mvmnt.y);
+                //context.setTransform.apply(context, adapter.trnsfrm.m);
+                //context.translate(mvmnt.x, mvmnt.y);
+                adapter.offset.x += mvmnt.x;
+                adapter.offset.y += mvmnt.y;
             } else if (mode === modes.note) {
-                movingNote.x += deltaX;
-                movingNote.y += deltaY;
+                movingNote.x += mvmnt.x;
+                movingNote.y += mvmnt.y;
+            }
+        } else {
+            hoveredNote = null;
+            for (var i = 0, imax = notes.length; i < imax; i++) {
+                var note = notes[i];
+                note.hovered = false;
+                if (hoveredNote === null && note.isMouseOver(pt)) {
+                    note.hovered = true;
+                    hoveredNote = note;
+                }
+            }
+            if (hoveredNote === null) {
+                $canvas.css('cursor', 'default');
+            } else {
+                $canvas.css('cursor', 'pointer');
             }
         }
-        lastX = e.clientX;
-        lastY = e.clientY;
+        mouse.x = pt.x;
+        mouse.y = pt.y;
     };
 
     var onMouseDown = function (e) {
-        x = e.clientX;
-        y = e.clientY;
+        //var pt = adapter.trnsfrm.transformPoint({x: e.offsetX, y: e.offsetY});
+        var pt = {x: e.offsetX, y: e.offsetY};
         mode = modes.board;
         for (var i = 0, imax = notes.length; i < imax; i++) {
             var note = notes[i];
-            if (note.isMouseOver(x, y)) {
-                if (note.activateMenu(x, y)) {
+            note.moving = false;
+            if (note.isMouseOver(pt)) {
+                if (note.activateMenu(pt)) {
                     mode = modes.still;
                 } else {
                     mode = modes.note;
+                    note.moving = true;
                     movingNote = note;
                 }
-                break;
             }
         }
-        lastX = e.clientX;
-        lastY = e.clientY;
     };
 
     var onMouseUp = function (e) {
@@ -180,6 +204,11 @@ notepanel.views.panel = function (me) {
                     dataType: 'json',
                     data: JSON.stringify(data)})
                 .fail(notepanel.globalErrorHandler);
+            
+            for (var i = 0, imax = notes.length; i < imax; i++) {
+                var note = notes[i];
+                note.moving = false;
+            }
 
             movingNote = null;
         }
@@ -234,8 +263,9 @@ notepanel.views.panel = function (me) {
                             }
                         }
                         if (!found) {
-                            var nt = new Note(data[j].note);
-                            nt.setMenuItems([noteMenuButtons.remove, noteMenuButtons.edit]);
+                            var nt = new notepanel.notes.Note(data[j].note);
+                            nt.adapter = adapter;
+                            nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                             notes.push(nt);
                         }
                         // Double check in case they aren't ordered
@@ -274,8 +304,9 @@ notepanel.views.panel = function (me) {
             .done(function (data) {
 
                 for (var i = 0, imax = data.notes.length; i < imax; i++) {
-                    var nt = new Note(data.notes[i]);
-                    nt.setMenuItems([noteMenuButtons.remove, noteMenuButtons.edit]);
+                    var nt = new notepanel.notes.Note(data.notes[i]);
+                    nt.adapter = adapter;
+                    nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                     notes.push(nt);
                 }
 
@@ -296,7 +327,7 @@ notepanel.views.panel = function (me) {
 
     // Add a new note to the list (from the menu)
     me.addNote = function () {
-        var nt = new Note({x: -boardX + 50, y: -boardY + 50});
+        var nt = new notepanel.notes.Note({x: 50, y: 50});
         var data = {
             boardId: currentBoard.id,
             text: nt.text,
@@ -315,166 +346,28 @@ notepanel.views.panel = function (me) {
     };
 
     var adjustCanvas = function () {
-        context.canvas.width  = window.innerWidth;
-        context.canvas.height = window.innerHeight;
+        if (context.canvas.width != window.innerWidth || context.canvas.height != window.innerHeight) {
+            context.canvas.width  = window.innerWidth;
+            context.canvas.height = window.innerHeight;
+        }
     };
 
     // Full redraw
     var draw = function () {
+        context.save();
         adjustCanvas();
+        //context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.restore();
         //drawBoard(context);
         drawNotes(context);
     };
 
     // Draw each note in the list
     var drawNotes = function (context) {
-        hoveredNote = null;
         for (var i = 0, imax = notes.length; i < imax; i++) {
-            var note = notes[i];
-            if (!hoveredNote && note.isMouseOver(lastX, lastY)) {
-                hoveredNote = note;
-            }
-            note.draw(context);
+            notes[i].draw(context);
         }
-        if (hoveredNote === null) {
-            $canvas.css('cursor', 'default');
-        } else {
-            $canvas.css('cursor', 'pointer');
-        }
-    };
-
-    // Draw the board
-    var drawBoard = function (context) {
-        context.beginPath();
-        context.moveTo(10, 10);
-        context.lineTo(context.canvas.width - 10, 10);
-        context.lineTo(context.canvas.width - 10, context.canvas.height - 10);
-        context.lineTo(10, context.canvas.height - 10);
-        context.closePath();
-        context.strokeStyle = '#888888';
-        context.stroke();
-        context.fillStyle = '#ffffee';
-        context.fill();
-    };
-
-    // Note class
-    var Note = function (options) {
-        this.id = null;
-        this.x = 0;
-        this.y = 0;
-        this.width = 175;
-        this.height = 100;
-        this.text = 'new sticky note';
-        this.color = '66aaee';
-        this.template = 'default';
-        this.menu = {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-            items: []
-        };
-        // merge options in Note
-        $.extend(this, options);
-    };
-
-    Note.prototype.setMenuItems = function (items) {
-        this.menu.items = items;
-        for (var i = 0, imax = items.length; i < imax; i++) {
-            var item = items[i];
-            this.menu.width += item.width;
-            this.menu.height = item.height > this.menu.height ? item.height : this.menu.height;
-        }
-    };
-
-    Note.prototype.drawText = function (context) {
-        var text = this.text;
-        // x = this.x + left margin;
-        var x = boardX + this.x + 10;
-        // TODO : y (bottom) = this.y + menu.height + line.height
-        var y = boardY + this.y + 10 + 15;
-        // TODOD : width = this.width - (left margin + right margin)
-        var width = this.width - (10 + 10);
-        CanvasText.drawText({
-            text: text,
-            x: x,
-            y: y,
-            boxWidth: width
-        });
-    };
-
-    Note.prototype.remove = function() {
-        $.ajax({type: 'DELETE',
-                url: notepanel.servicesUrl + '/notes?noteId=' + this.id + '&boardId=' + this.boardId,
-                xhrFields: {withCredentials: true},
-                dataType: 'json'})
-            .fail(notepanel.globalErrorHandler);
-    };
-
-    Note.prototype.draw = function (context) {
-        context.beginPath();
-        context.moveTo(this.x + boardX, this.y + boardY);
-        context.lineTo(this.x + noteWidth + boardX, this.y + boardY);
-        context.lineTo(this.x + noteWidth + boardX, this.y + noteHeight + boardY);
-        context.lineTo(this.x + boardX, this.y + noteHeight + boardY);
-        context.closePath();
-        if (mode === modes.note && this === movingNote) {
-            context.strokeStyle = '#444444';
-            context.fillStyle = '#' + this.color;
-        } else {
-            context.strokeStyle = '#888888';
-            context.fillStyle = '#' + this.color;
-        }
-        context.stroke();
-        context.fill();
-        // draw note text
-        this.drawText(context);
-        // draw note menu
-        if (hoveredNote === this) {
-            // draw note menu on the hovered note
-            this.drawMenu(context);
-        }
-    };
-
-    Note.prototype.drawMenu = function (context) {
-        // this logic should be in the note template
-        context.font='14px "FontAwesome"';
-        context.fillStyle = "#fff";
-        context.textBaseline = 'bottom';
-        context.textAlign = 'start';
-        // TODO : manage template with menu starting either from left and right
-        var startX = boardX + this.x + this.width; // from right
-        this.menu.x = startX - this.menu.width;
-        //this.menu.items.reverse();
-        // menu starting from left
-        //startX = boardX + this.x
-        //menu.x = startX
-        // drawing menu from left
-        this.menu.y = boardY + this.y; // from bottom
-        for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
-            var item = this.menu.items[i];
-            item.y = this.menu.y;
-            item.x = this.menu.x + (i * item.width);
-            context.fillText(item.text, item.x, item.y + this.menu.height);
-        }
-    };
-
-    Note.prototype.isMouseOver = function(x, y) {
-        return notepanel.utils.isInRectangle(x, y, {x: boardX + this.x, y: boardY + this.y, width: this.width, height: this.height});
-    };
-
-    Note.prototype.activateMenu = function (x, y) {
-        if (notepanel.utils.isInRectangle(x, y, this.menu)) {
-            for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
-                var item = this.menu.items[i];
-                if (notepanel.utils.isInRectangle(x, y, item)) {
-                    item.onClick.apply(this);
-                    return true;
-                }
-            }
-        }
-        return false;
     };
 
     return me;
