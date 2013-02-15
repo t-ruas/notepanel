@@ -86,7 +86,7 @@ notepanel.views.menu = function (me) {
     };
 
     var onRefreshBoards = function (e) {
-        me.refreshBoards();
+        me.refreshBoards();        
         return false;
     };
 
@@ -110,6 +110,15 @@ notepanel.views.menu = function (me) {
     var onChooseBoard = function (e) {
         notepanel.views.wait.enable();
         notepanel.views.panel.setBoard({id: parseInt($(this).val()), name: $(this).text()});
+        // TODO : refresh board user list
+        $.ajax({type: 'GET',
+                url: '/board/' + $(this).val() + '/users', //notepanel.servicesUrl + '/users/logout',
+                xhrFields: {withCredentials: true},
+                dataType: 'json'})
+            .done(function (data) {
+                notepanel.template.templates.loadBoardUserList(data.boardUsers);
+            })
+            .fail(notepanel.ajaxErrorHandler);
     };
     
     return me;

@@ -3,8 +3,16 @@
         {{#colors}}
         <div id="{{code}}" style="background-color:#{{code}};width:20px;border-color:#000;border-width:1px;border-style:solid;float:left;">&nbsp;</div>
         {{/colors}}
-        <div style="clear:both;"></div>    
+        <div style="clear:both;"></div>
     </div>
+</script>
+
+<script id="hogan-tpl-board-user-list" type="text">
+    <ul id="board_user_list">
+        {{#users}}
+        <li id="{{id}}" style="">{{name}}</li>
+        {{/users}}
+    </ul>
 </script>
 
 

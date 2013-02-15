@@ -70,6 +70,12 @@ class BoardService(object):
             board.users.remove(user)
             session.commit()
         return board
+    
+    def get_users(self, session, board_id):
+        return session.query(User).\
+            join(BoardUser).\
+            filter(BoardUser.board_id == board_id).\
+            all()
 
 class NoteService(object):
 

@@ -308,7 +308,7 @@ notepanel.views.panel = function (me) {
 
     // Add a new note to the list (from the menu)
     me.addNote = function () {
-        var nt = new Note({x: -boardX + 50, y: -boardY + 50});
+        var note = new Note({x: -boardX + 50, y: -boardY + 50});
         var data = {
             boardId: currentBoard.id,
             text: note.text,

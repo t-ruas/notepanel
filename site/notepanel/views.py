@@ -19,6 +19,19 @@ def index():
     return flask.render_template("panel.html", services_url=settings["services_url"])
 
 # ================================================================
+# board services
+@app.route("/board/<id>/users", methods=["GET"])
+def board_users(id):
+    board_service = BoardService()
+    session = db.Session()
+    users = board_service.get_users(session, id)
+    json_users = [];
+    for user in users:
+        json_users.append(user.to_dic()) 
+    return flask.jsonify(boardUsers=json_users)
+    
+
+# ================================================================
 # admin
 
 @app.route("/admin/login/<password>", methods=["GET"])

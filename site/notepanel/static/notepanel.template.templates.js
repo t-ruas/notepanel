@@ -12,7 +12,6 @@ notepanel.template.templates = function(me) {
         loadTemplates(null, null);
     });
     
-    // TODO : avoid reloaded
     me.loadColorPicker = function(onClick) {
         if(loaded) {
             var template = compiledTemplates['hogan-tpl-color-picker'];
@@ -28,7 +27,22 @@ notepanel.template.templates = function(me) {
             loadTemplates(me.loadColorPicker, onClick);
         }
     }
-    
+
+    me.loadBoardUserList = function(boardUsers) {
+        if(loaded) {
+            var template = compiledTemplates['hogan-tpl-board-user-list'];
+            if(template != null) {
+                var htmlBoardUserList = template.render({users: boardUsers});
+                $("#ph_board_user_list").html(htmlBoardUserList);
+            } else {
+                console.log('template not found');
+            }
+        } else {
+            console.log('Templates not loaded');
+            loadTemplates(me.loadBoardUserList, null);
+        }
+    }
+
     var loadTemplates = function(callback, callbackArgs) {
         if(me.templatesFile && !loaded) {
             $.get(me.templatesFile, function(html) {

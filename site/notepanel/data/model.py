@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, DateTime, Integer, String, ForeignKey, func
+from sqlalchemy import Table, Column, DateTime, Integer, String, Boolean, ForeignKey, func
 from sqlalchemy.orm import relationship
 from db import Entity
 
@@ -6,6 +6,7 @@ class BoardUser(Entity):
     __tablename__ = "board_user"
     board_id = Column(Integer, ForeignKey("board.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    user_group = Column(Integer)
     creation_date = Column(DateTime, default=func.now())
 
 class User(Entity):
@@ -28,6 +29,7 @@ class Board(Entity):
     __tablename__ = "board"
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
+    public =  Column(Boolean, default=False)
     creation_date = Column(DateTime, default=func.now())
     edition_date = Column(DateTime, default=func.now())
     users = relationship("User", secondary="board_user", backref="boards")
@@ -64,3 +66,9 @@ class Note(Entity):
             "z": self.z,
             "color": self.color
         }
+
+class UserGroup:
+    OWNER = 1 # creator of the board : allowed to modify the board, invite people, remove (?)
+    ADMIN = 2 # allowed to modify and invite people
+    CONTRIBUTOR = 3 # allowed to modify the board
+    VIEWER = 4 # allowed to view the board
