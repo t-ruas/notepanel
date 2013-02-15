@@ -15,7 +15,7 @@ notepanel.notes.menuButtons = {
         width: 16,
         height: 16,
         onClick: function () {
-            me.lock();
+            notepanel.views.panel.lock();
             notepanel.views.edit.enable(this);
         }
     }
@@ -76,6 +76,7 @@ notepanel.notes.Note = function (options) {
     this.id = null;
     this.x = 0;
     this.y = 0;
+    this.z = 0;
     this.width = 350;
     this.height = 275;
     this.text = 'new sticky note';

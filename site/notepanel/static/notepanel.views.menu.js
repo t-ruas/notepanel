@@ -23,6 +23,7 @@ notepanel.views.menu = function (me) {
             $('#a_create_board').on('click', onCreateBoard);
             $('#a_refresh_boards').on('click', onRefreshBoards);
             $('#sel_choose_board').on('change', onChooseBoard);
+            $('#a_invite_user').on('click', onInviteUser);
             $('#div_menu').show();
             enabled = true;
         }
@@ -36,6 +37,7 @@ notepanel.views.menu = function (me) {
             $('#a_create_board').off('click');
             $('#a_refresh_boards').off('click');
             $('#sel_choose_board').off('change');
+            $('#a_invite_user').off('click');
             $('#div_menu').hide();
             enabled = false;
         }
@@ -86,7 +88,7 @@ notepanel.views.menu = function (me) {
     };
 
     var onRefreshBoards = function (e) {
-        me.refreshBoards();
+        me.refreshBoards();        
         return false;
     };
 
@@ -110,6 +112,32 @@ notepanel.views.menu = function (me) {
     var onChooseBoard = function (e) {
         notepanel.views.wait.enable();
         notepanel.views.panel.setBoard({id: parseInt($(this).val()), name: $(this).text()});
+        $.ajax({type: 'GET',
+                url: '/board/' + $(this).val() + '/users',
+                xhrFields: {withCredentials: true},
+                dataType: 'json'})
+            .done(function (data) {
+                notepanel.template.templates.loadBoardUserList(data.boardUsers);
+            })
+            .fail(notepanel.ajaxErrorHandler);
+    };
+    
+    var onInviteUser = function(e) {
+        var boardId = $('#sel_choose_board').val();
+        var userName = $('#i_invite_user').val();
+        var userGroup = $('#sel_choose_user_group').val();
+        if(userName.length>0) {
+            $.ajax({type: 'GET',
+                    url: '/board/' + boardId + '/users/add/' + userName + '/' + userGroup, //notepanel.servicesUrl + '/users/logout',
+                    xhrFields: {withCredentials: true},
+                    dataType: 'json'})
+                .done(function (data) {
+                    $('#i_invite_user').val('');
+                    notepanel.template.templates.loadBoardUserList(data.boardUsers);
+                })
+                .fail(notepanel.ajaxErrorHandler);
+        }
+        return false;
     };
     
     return me;
