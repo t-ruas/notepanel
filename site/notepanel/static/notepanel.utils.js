@@ -1,11 +1,11 @@
 if (typeof notepanel == 'undefined') var notepanel = {}; 
 notepanel.utils = notepanel.utils || {};
 
-notepanel.utils.isInRectangle = function (x, y, rect) {
-    return x > rect.x
-        && x < rect.x + rect.width
-        && y > rect.y
-        && y < rect.y + rect.height;
+notepanel.utils.isInRectangle = function (pt, rect) {
+    return pt.x > rect.x
+        && pt.x < rect.x + rect.width
+        && pt.y > rect.y
+        && pt.y < rect.y + rect.height;
 };
 
 notepanel.utils.positionNearNote = function(element, boardX, boardY, note) {

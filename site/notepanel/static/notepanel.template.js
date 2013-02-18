@@ -22,16 +22,18 @@ notepanel.template.noteColors = [
     new Color("white", "ffffff")
 ];
 
-var CanvasText = new CanvasText;
+notepanel.template.canvasText = new CanvasText();
 
-CanvasText.config({
+notepanel.template.canvasText.config({
     canvasId: "canvas_board",
     fontFamily: "GoodDogRegular",
-    fontSize: "18px",
+    fontSize: "32px",
     fontWeight: "normal",
     fontColor: "#000",
     lineHeight: "20"
 });
+
+/*
 
 var CanvasTextFontFamily = [
     ["I", "Impact"],
@@ -46,14 +48,14 @@ var CanvasTextFontWeight = [
     ["b", "bold"]
 ];
 
-/*
+
 // TO USE for different fonts in a note
 for(var i=10; i<48;i++) { // loop on fontSize
     for(var j=0; j<CanvasTextFontFamily.length;j++) { // loop on font family
         for(var k=0; k<CanvasTextFontColor.length;k++) { // long on font color
             for(var l=0; l<CanvasTextFontWeight.length;l++) { // loop on font weght
                 var className = CanvasTextFontFamily[j][0] + CanvasTextFontColor[k][0] + CanvasTextFontWeight[l][0] + i;
-                CanvasText.defineClass(className, {
+                notepanel.template.canvasText.defineClass(className, {
                     fontSize: i + "px",
                     fontColor: CanvasTextFontColor[k][1],
                     fontFamily: CanvasTextFontFamily[j][1],
@@ -64,9 +66,9 @@ for(var i=10; i<48;i++) { // loop on fontSize
         }
     }    
 }
-*/
 
-/*
+
+
 CanvasText.defineClass("blue",{
     fontSize: "24px",
     fontColor: "#29a1f1",
@@ -80,5 +82,5 @@ CanvasText.defineClass("pink",{
     fontFamily: "Times new roman",
     fontWeight: "bold"
 });
-*/
 
+*/
