@@ -2,6 +2,7 @@ import flask
 import os
 import logging
 from datetime import datetime
+from functools import wraps
 from . import app
 from . import settings
 from . import log_monitor
@@ -13,14 +14,57 @@ from utils import azure_logging
 logger = logging.getLogger("notepanel.views")
 
 # ================================================================
-
+# default
 @app.route("/", methods=["GET"])
 def index():
     return flask.render_template("panel.html", services_url=settings["services_url"])
+    
+# ================================================================
+# user services
+@app.route("/login", methods=["POST"])
+def login():
+    user = UserService().get_by_log(session, flask.request.form["username"], flask.request.form["password"])
+    if user is not None:
+        logged_user = user
+        flask.session['user'] = logged_user
+        return flask.jsonify(
+            identified=True,
+            user=logged_user.to_dic(),
+            boards=None)
+    return flask.jsonify(identified=False)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_logged():
+            return "Not authorized", 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+def is_logged():
+    return 'user' in flask.session
+
+@app.route("/register", methods=["POST"])
+def register():
+    user = UserService().add(flask.request.form["username"], flask.request.form["email"], flask.request.form["password"])
+    # TODO board = BoardService().add(db.Session(), name, user)
+    if user is not None:
+        return flask.jsonify(
+            identified=True,
+            user = user.to_dic(),
+            boards=None)
+    return flask.jsonify(identified=False)
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    flask.session.pop("user", None)
+    return flask.render_template("panel.html")
+
 
 # ================================================================
 # board services
 @app.route("/board/<id>/users", methods=["GET"])
+@login_required
 def board_users(id):
     board_service = BoardService()
     session = db.Session()
@@ -31,6 +75,7 @@ def board_users(id):
     return flask.jsonify(boardUsers=json_users)
 
 @app.route("/board/<board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
+@login_required
 def board_users_add(board_id, user_name, user_group):    
     #session = db.Session()
     board = BoardService().add_user(board_id=board_id, user_name=user_name, user_group=user_group)
@@ -42,7 +87,6 @@ def board_users_add(board_id, user_name, user_group):
 
 # ================================================================
 # admin
-
 @app.route("/admin/login/<password>", methods=["GET"])
 def admin_login(password):
     if password == settings["adminpwd"]:
@@ -63,6 +107,14 @@ def admin():
         return flask.render_template('admin.html')
     else:
         return "Not authorized", 401
+
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_admin():
+            return "Not authorized", 401
+        return f(*args, **kwargs)
+    return decorated_function
 
 def is_admin():
     return 'is_admin' in flask.session and flask.session['is_admin'] == True
