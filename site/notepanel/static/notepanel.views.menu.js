@@ -60,6 +60,13 @@ notepanel.views.menu = function (me) {
                 notepanel.reset();
             })
             .fail(notepanel.ajaxErrorHandler);
+        /*
+        $.ajax({type: 'GET',
+                url: '/logout',
+                xhrFields: {withCredentials: true},
+                dataType: 'json'})
+            .done(function (data) {});
+        */
         return false;
     };
 

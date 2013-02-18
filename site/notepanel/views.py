@@ -23,10 +23,11 @@ def index():
 # user services
 @app.route("/login", methods=["POST"])
 def login():
-    user = UserService().get_by_log(session, flask.request.form["username"], flask.request.form["password"])
+    user = UserService().get_by_log(flask.request.form["username"], flask.request.form["password"])
     if user is not None:
         logged_user = user
-        flask.session['user'] = logged_user
+        flask.session['user_id'] = logged_user.id   
+        flask.session['board_id'] = -1;
         return flask.jsonify(
             identified=True,
             user=logged_user.to_dic(),
@@ -42,7 +43,7 @@ def login_required(f):
     return decorated_function
 
 def is_logged():
-    return 'user' in flask.session
+    return 'user_id' in flask.session
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -57,8 +58,9 @@ def register():
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    flask.session.pop("user", None)
-    return flask.render_template("panel.html")
+    flask.session.pop("user_id", None)
+    flask.session.pop("board_id", None)
+    return flask.jsonify(identified=False)
 
 
 # ================================================================
