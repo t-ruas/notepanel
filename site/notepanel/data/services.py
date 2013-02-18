@@ -5,39 +5,36 @@ from sqlalchemy import func, and_
 
 class UserService(object):
     
+    session = db.Session()
     
-
-    def get_by_log(self, session, name, password):
-        user = session.query(User).\
+    def get_by_log(self, name, password):
+        user = self.session.query(User).\
             filter(and_(User.name == name, User.password == func.md5(password))).\
             first()
-        if user is not None:
-            user.last_seen_date = datetime.now()
-            session.commit()
         return user
 
-    def get_by_id(self, session, id):
-        return session.query(User).\
+    def get_by_id(self, id):
+        return self.session.query(User).\
             filter(User.id == id).\
             first()
             
-    def get_by_name(self, session, name):
-        return session.query(User).\
+    def get_by_name(self, name):
+        return self.session.query(User).\
             filter(User.name == name).\
             first()
 
-    def add(self, session, name, email, password):
+    def add(self, name, email, password):
         user = User(
             name=name,
             password=func.md5(password),
             email=email)
-        session.add(user)
-        session.commit()
+        self.session.add(user)
+        self.session.commit()
 
-    def remove(self, session, user_id):
+    def remove(self, user_id):
         user = User(id=user_id)
-        session.delete(user)
-        session.commit()
+        self.session.delete(user)
+        self.session.commit()
 
 class BoardService(object):
     

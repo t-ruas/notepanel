@@ -31,6 +31,9 @@ settings_path = os.path.join(root_path, "settings.%s.py" % env)
 print settings_path
 execfile(settings_path, settings)
 
+app.secret_key = settings['secret']
+
+
 # ================================================================
 # set path to packages for local environment
 

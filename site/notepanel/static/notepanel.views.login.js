@@ -31,6 +31,7 @@ notepanel.views.login = function (me) {
     var onLogin = function (e) {
         notepanel.views.wait.enable();
         $('#div_login_result').empty();
+        // log in to board server
         var data = $('#div_login :input').serialize();
         $.ajax({type: 'GET',
                 url: notepanel.servicesUrl + '/users/login?' + data,
@@ -51,6 +52,17 @@ notepanel.views.login = function (me) {
             .always(function () {
                 notepanel.views.wait.disable();
             });
+        // login to web site
+        var postData = new Object();
+        $("#div_login :input").each(function() {
+            postData[$(this).attr("name")] = $(this).val();
+        });
+        $.ajax({type: 'POST',
+                url: '/login',
+                xhrFields: {withCredentials: true},
+                dataType: 'json',
+                data: postData})
+            .done(function (data) {});
         return false;
     };
 
