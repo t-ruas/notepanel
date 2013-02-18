@@ -95,7 +95,7 @@ notepanel.views.menu = function (me) {
     };
 
     var onRefreshBoards = function (e) {
-        me.refreshBoards();        
+        me.refreshBoards();
         return false;
     };
 
@@ -118,9 +118,10 @@ notepanel.views.menu = function (me) {
 
     var onChooseBoard = function (e) {
         notepanel.views.wait.enable();
-        notepanel.views.panel.setBoard({id: parseInt($(this).val()), name: $(this).text()});
+        var board = {id: parseInt($(this).val()), name: $(this).text()};
+        notepanel.views.panel.setBoard(board);
         $.ajax({type: 'GET',
-                url: '/board/' + $(this).val() + '/users',
+                url: notepanel.servicesUrl + '/boards/users?boardId=' + board.id,
                 xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
@@ -128,14 +129,14 @@ notepanel.views.menu = function (me) {
             })
             .fail(notepanel.ajaxErrorHandler);
     };
-    
+
     var onInviteUser = function(e) {
         var boardId = $('#sel_choose_board').val();
         var userName = $('#i_invite_user').val();
         var userGroup = $('#sel_choose_user_group').val();
         if(userName.length>0) {
             $.ajax({type: 'GET',
-                    url: '/board/' + boardId + '/users/add/' + userName + '/' + userGroup, //notepanel.servicesUrl + '/users/logout',
+                    url: '/boards/' + boardId + '/users/add/' + userName + '/' + userGroup, //notepanel.servicesUrl + '/users/logout',
                     xhrFields: {withCredentials: true},
                     dataType: 'json'})
                 .done(function (data) {
@@ -146,6 +147,6 @@ notepanel.views.menu = function (me) {
         }
         return false;
     };
-    
+
     return me;
 }(notepanel.views.menu || {});

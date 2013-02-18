@@ -145,19 +145,20 @@ notepanel.views.panel = function (me) {
                     note.location.y += mvmnt.y;
                 }
             } else if (mode === modes.note) {
-                movingNote.x += mvmnt.x;
-                movingNote.y += mvmnt.y;
+                movingNote.x += mvmnt.x * adapter.scale.ratio;
+                movingNote.y += mvmnt.y * adapter.scale.ratio;
                 movingNote.location.x += mvmnt.x;
                 movingNote.location.y += mvmnt.y;
             }
         } else {
             hoveredNote = null;
-            for (var i = 0, imax = notes.length; i < imax; i++) {
+            for (var i = notes.length - 1; i >= 0; i--) {
                 var note = notes[i];
-                note.hovered = false;
                 if (hoveredNote === null && note.isMouseOver(pt)) {
                     note.hovered = true;
                     hoveredNote = note;
+                } else {
+                    note.hovered = false;
                 }
             }
             if (hoveredNote === null) {
@@ -195,6 +196,7 @@ notepanel.views.panel = function (me) {
                     note.moving = true;
                     movingNote = note;
                 }
+                break;
             }
         }
     };
