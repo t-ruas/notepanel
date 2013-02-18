@@ -89,9 +89,21 @@ notepanel.notes.Note = function (options) {
         height: 0,
         items: []
     };
-    this.location = null;
+    this.location = {
+        x: 0,
+        y: 0
+    };
     this.adapter = null;
     $.extend(this, options);
+};
+
+notepanel.notes.Note.prototype.relocate = function () {
+    var pt = this.adapter.move.call(this.adapter, this);
+    this.location.x = pt.x;
+    this.location.y = pt.y;
+    var dim = this.adapter.resize.call(this.adapter, this);
+    this.location.width = dim.width;
+    this.location.height = dim.height;
 };
 
 notepanel.notes.Note.prototype.setMenuItems = function (items) {
@@ -112,27 +124,8 @@ notepanel.notes.Note.prototype.remove = function() {
 };
 
 notepanel.notes.Note.prototype.draw = function (ctx) {
-    this.relocate();
+    //this.relocate();
     notepanel.notes.designers[this.template].call(this, ctx);
-};
-
-notepanel.notes.Note.prototype.relocate = function () {
-    //var pt = this.adapter.trnsfrm.transformPoint(this);
-    
-    this.location =  {
-        x: this.x + this.adapter.offset.x,
-        y: this.y + this.adapter.offset.y,
-        width: this.scale(this.width),
-        height: this.scale(this.height)
-    };
-    /*
-    this.location =  {
-        x: pt.x,
-        y: pt.y,
-        width: this.scale(this.width),
-        height: this.scale(this.height)
-    };
-    */
 };
 
 notepanel.notes.Note.prototype.isMouseOver = function (pt) {
@@ -140,7 +133,7 @@ notepanel.notes.Note.prototype.isMouseOver = function (pt) {
 };
 
 notepanel.notes.Note.prototype.scale = function (len) {
-    return len * this.adapter.scale.ratio;
+    return len / this.adapter.scale.ratio;
 };
 
 notepanel.notes.Note.prototype.activateMenu = function (pt) {

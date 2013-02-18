@@ -9,7 +9,7 @@ notepanel.views.edit = function (me) {
     });
     
     // Enable this view
-    me.enable = function (boardX, boardY, currentNote) {
+    me.enable = function (currentNote) {
         var note = currentNote;
         $('#texta_note').val(note.text);
         if (!enabled) {
@@ -20,7 +20,7 @@ notepanel.views.edit = function (me) {
                 event.stopPropagation();
             };
             notepanel.template.templates.loadColorPicker(onClick);
-            notepanel.utils.positionNearNote($divEdit, boardX, boardY, note)
+            notepanel.utils.positionNearNote($divEdit, note)
             $('#a_close_edit').on('click', onCloseEdit);
             $('#texta_note').on('keyup', { note: note }, onKeyUp);
             $('#div_edit').show(10, function(){
