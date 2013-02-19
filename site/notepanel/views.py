@@ -93,10 +93,9 @@ def board_add(name, privacy):
 
 @app.route("/board/<id>/export", methods=["GET"])
 @login_required
-def board_export(id):   
-    board = BoardService().get(id)
+def board_export(id):       
     file_name = 'board' + id + '_' + datetime.now().strftime("%Y%m%d%H%M%S") + '.nt'  
-    serialized_board = serializer.JsonSerializer().serialize(board)
+    serialized_board = BoardService().export_board(id)
     return flask.Response(serialized_board,
                        mimetype="text/plain",
                        headers={"Content-Disposition":

@@ -8,17 +8,17 @@ notepanel.utils.isInRectangle = function (pt, rect) {
         && pt.y < rect.y + rect.height;
 };
 
-notepanel.utils.positionNearNote = function(element, boardX, boardY, note) {
+notepanel.utils.positionNearNote = function(element, note) {
     var x, y;
     var margin = window.innerWidth / 3;
-    if (note.x > window.innerWidth - margin) { // note in the right part
-        x = boardX + note.x - (element.width + 30); // edit form at the left of the note
-    } else if (note.x < margin) { // note in the left part
-        x = boardX + note.x + note.width + 30; // edit form at the right of the note
+    if (note.location.x > window.innerWidth - margin) { // note in the right part
+        x = note.location.x - (element.width + 30); // edit form at the left of the note
+    } else if (note.location.x < margin) { // note in the left part
+        x = note.location.x + note.location.width + 30; // edit form at the right of the note
     } else { // note in the central part
-        x = boardX + note.x + note.width + 30; // edit form at the right of the note
+        x = note.location.x + note.location.width + 30; // edit form at the right of the note
     }
     // top = board.y + note.y + note.height + 30 // above the note
-    y = boardY + note.y + 5;
+    y = note.location.y + 5;
     $(element).css({position:"absolute",left:x,top:y});
 };

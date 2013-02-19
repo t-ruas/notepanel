@@ -46,6 +46,7 @@ class BoardService(object):
         board = self.session.query(Board).\
             filter(Board.id == board_id).\
             first()
+        self.session.commit()
         return board
 
     def add(self, creator_id, board_name, board_privacy):
@@ -59,7 +60,9 @@ class BoardService(object):
     
     def import_board(self, creator_id, board_json):
         board = JsonSerializer().deserialize_board(board_json)
-        board.notes = JsonSerializer().deserialize_notes(board_json)
+        notes = JsonSerializer().deserialize_notes(board_json)
+        for note in notes:
+            board.notes.append(note)
         self.session.add(board)
         self.session.commit()
         users = JsonSerializer().deserialize_users(board_json)
@@ -67,7 +70,11 @@ class BoardService(object):
             board_user = BoardUser(user_id=user.id, board_id=board.id, user_group=user.user_group)
             self.session.add(board_user)
         self.session.commit()
-        return board
+        return board      
+    
+    def export_board(self, board_id):
+        board = self.get(board_id)
+        return JsonSerializer().serialize(board)
 
     def remove(self, board_id):
         board = Board(id=board_id)
