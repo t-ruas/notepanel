@@ -68,9 +68,8 @@ def logout():
 @app.route("/board/<id>/users", methods=["GET"])
 @login_required
 def board_users(id):
-    board_service = BoardService()
-    session = db.Session()
-    users = board_service.get_users(session, id)
+    flask.session['board_id'] = id
+    users = BoardService().get_users(id)
     json_users = [];
     for user in users:
         json_users.append(user.to_dic()) 
@@ -79,17 +78,47 @@ def board_users(id):
 @app.route("/board/<board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
 @login_required
 def board_users_add(board_id, user_name, user_group):    
-    #session = db.Session()
     board = BoardService().add_user(board_id=board_id, user_name=user_name, user_group=user_group)
     json_users = [];
     for user in board.users:
         json_users.append(user.to_dic()) 
     return flask.jsonify(boardUsers=json_users)
-    
 
+@app.route("/board/add/<name>/<privacy>", methods=["GET"])
+@login_required
+def board_add(name, privacy):   
+    board = BoardService().add(user_id=flask.session['user_id'], board_name=name, board_privacy=privacy)
+    flask.session['board_id'] = board.id
+    return flask.jsonify(board=board.toDic())
+
+@app.route("/board/<id>/export", methods=["GET"])
+@login_required
+def board_export(id):   
+    board = BoardService().get(id)
+    file_name = 'board' + id + '_' + datetime.now().strftime("%Y%m%d%H%M%S") + '.nt'  
+    serialized_board = serializer.JsonSerializer().serialize(board)
+    return flask.Response(serialized_board,
+                       mimetype="text/plain",
+                       headers={"Content-Disposition":
+                                    "attachment;filename=" + file_name})
+
+JSON_EXPORT_FILE_EXTENSION = 'nt'
+
+@app.route("/board/import", methods=["POST"])
+@login_required
+def board_import():
+    file = flask.request.files["i_import_board"]
+    if file and '.' in file.filename and file.filename.rsplit('.', 1)[1] == JSON_EXPORT_FILE_EXTENSION:
+        import_content = file.read()
+        board = BoardService().import_board(flask.session['user_id'], import_content)
+        return flask.jsonify(uploaded = True, boardId = board.id)
+    else:
+        return flask.jsonify(uploaded = False, message = 'Wrong file type')
+                                    
 # ================================================================
 # admin
 @app.route("/admin/login/<password>", methods=["GET"])
+@login_required
 def admin_login(password):
     if password == settings["adminpwd"]:
         flask.session['is_admin'] = True

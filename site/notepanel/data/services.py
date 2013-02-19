@@ -1,7 +1,9 @@
 from datetime import datetime
 from model import Board, User, BoardUser, Note, UserGroup
+from serializer import JsonSerializer
 from . import db
 from sqlalchemy import func, and_
+
 
 class UserService(object):
     
@@ -40,40 +42,54 @@ class BoardService(object):
     
     session = db.Session()
 
-    def get(self, session, board_id):
-        board = session.query(Board).\
+    def get(self, board_id):
+        board = self.session.query(Board).\
             filter(Board.id == board_id).\
             first()
         return board
 
-    def add(self, session, creator_id, name):
-        board = Board(name=name)
-        creator = User(id=creator_id)
-        board.users.append(creator)
-        session.add(board)
-        session.commit()
+    def add(self, creator_id, board_name, board_privacy):
+        board = Board(name=board_name,privacy=board_privacy)
+        self.session.add(board)
+        self.session.commit()
+        board_user = BoardUser(user_id=creator_id, board_id=board.id, user_group=UserGroup.OWNER)
+        self.session.add(board_user)
+        self.session.commit()
+        return board
+    
+    def import_board(self, creator_id, board_json):
+        board = JsonSerializer().deserialize_board(board_json)
+        board.notes = JsonSerializer().deserialize_notes(board_json)
+        self.session.add(board)
+        self.session.commit()
+        users = JsonSerializer().deserialize_users(board_json)
+        for user in users:
+            board_user = BoardUser(user_id=user.id, board_id=board.id, user_group=user.user_group)
+            self.session.add(board_user)
+        self.session.commit()
+        return board
 
-    def remove(self, session, board_id):
+    def remove(self, board_id):
         board = Board(id=board_id)
-        session.delete(board)
-        session.commit()
+        self.session.delete(board)
+        self.session.commit()
 
-    def get_default(self, session, user):
-        return session.query(Board).\
+    def get_default(self, user):
+        return self.session.query(Board).\
             join(BoardUser).\
             filter(BoardUser.user_id == user.id).\
             first()
 
-    def add_user(self, session, board, user_id):
+    def add_user(self, board, user_id):
         user = User(id=user_id)
         if not user in board.users:
             board.users.append(user)
-            session.commit()
+            self.session.commit()
         return board
         
     def add_user(self, board_id, user_name, user_group):
-        board = self.get(session=self.session, board_id=board_id)
-        user = UserService().get_by_name(session=self.session, name=user_name)
+        board = self.get(board_id=board_id)
+        user = UserService().get_by_name(name=user_name)
         if user != None and not user in board.users:
             board_user = BoardUser(user_id=user.id, board_id=board_id, user_group=user_group)        
             self.session.add(board_user)
@@ -81,32 +97,16 @@ class BoardService(object):
         # TODO : else
         return board
 
-    def remove_user(self, session, board, user_id):
+    def remove_user(self, board, user_id):
         user = User(id=user_id)
         if user in board.users:
             board.users.remove(user)
-            session.commit()
+            self.session.commit()
         return board
     
-    def get_users(self, session, board_id):
-        return session.query(User).\
+    def get_users(self, board_id):
+        return self.session.query(User).\
             join(BoardUser).\
             filter(BoardUser.board_id == board_id).\
             all()
 
-class NoteService(object):
-
-    def add(self, session, board, note):
-        user = User(id=user_id)
-        if not user in board.users:
-            board.users.append(user)
-            session.commit()
-        return board
-
-    def edit():
-        note.edition_date = datetime.now()
-
-    def remove(self, session, id):
-        note = Note(id=id)
-        session.delete(note)
-        session.commit()

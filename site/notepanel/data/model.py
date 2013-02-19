@@ -15,6 +15,18 @@ class BoardPrivacy:
     PUBLIC_ALTERABLE = 2 # everybody is allowed to modify it
     PUBLIC_READONLY = 3 # everybody is allowed to see it but only contributor, admin, and owner are allowed to modify if
 
+class NoteOptions:
+    MOVABLE = 1
+    RESISZEABLE = 2 
+    EDITABLE = 4
+    COLORABLE = 8
+    
+   
+def from_export(object, dic):
+    for k in dic.keys():
+        prop = getattr(object, k)
+        if type(dic[k]) != list:
+            setattr(object, k, dic[k])
 
 class User(Entity):
     __tablename__ = "user"
@@ -30,6 +42,9 @@ class User(Entity):
 
     def __hash__(self):
         return self.id
+    
+    def __str__(self):
+     return '************************************************ %s | %s | %s ' % (self.id, self.name, self.user_group)
 
     def to_dic(self):
         return {
@@ -39,11 +54,24 @@ class User(Entity):
             "group": self.user_group
         }
     
+    def to_export(self):
+        return {
+            "id": self.id, 
+            "name": self.name, 
+            "email": self.email, 
+            "user_group": self.user_group
+        }
+    
+    def from_export(self, dic):
+        return from_export(self, dic)
+    
 
 class Board(Entity):
     __tablename__ = "board"
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
+    width = Column(Integer, default=2000)
+    height = Column(Integer, default=2000)
     privacy = Column(Integer, default=BoardPrivacy.PRIVATE)
     color = Column(String(7))
     creation_date = Column(DateTime, default=func.now())
@@ -60,7 +88,18 @@ class Board(Entity):
             "privacy": self.privacy,
             "color": self.color
         }
-
+    
+    def to_export(self):
+        return {
+            "name": self.name,
+            "width": self.width,
+            "height": self.height,
+            "privacy": self.privacy,
+            "color": self.color
+        }
+    
+    def from_export(self, dic):
+        return from_export(self, dic)
 
 class BoardUser(Entity):
     __tablename__ = "board_user"
@@ -103,4 +142,21 @@ class Note(Entity):
             "template": self.template,
             "level": self.access_level
         }
+    
+    def to_export(self):
+        return {
+            "text": self.text,
+            "width": self.width,
+            "height": self.height,
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "color": self.color,
+            "template": self.template,
+            "access_level": self.access_level
+        }
+    
+    def from_export(self, dic):
+        return from_export(self, dic)
+    
 

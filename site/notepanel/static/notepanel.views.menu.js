@@ -24,6 +24,8 @@ notepanel.views.menu = function (me) {
             $('#a_refresh_boards').on('click', onRefreshBoards);
             $('#sel_choose_board').on('change', onChooseBoard);
             $('#a_invite_user').on('click', onInviteUser);
+            $('#a_export_board').on('click', onExportBoard);
+            $('#a_import_board').on('click', onImportBoard);
             $('#div_menu').show();
             enabled = true;
         }
@@ -38,6 +40,8 @@ notepanel.views.menu = function (me) {
             $('#a_refresh_boards').off('click');
             $('#sel_choose_board').off('change');
             $('#a_invite_user').off('click');
+            $('#a_export_board').off('click');
+            $('#a_import_board').off('click');
             $('#div_menu').hide();
             enabled = false;
         }
@@ -52,6 +56,7 @@ notepanel.views.menu = function (me) {
     }
 
     var onLogout = function (e) {
+        // logout from board server
         $.ajax({type: 'GET',
                 url: notepanel.servicesUrl + '/users/logout',
                 xhrFields: {withCredentials: true},
@@ -60,13 +65,12 @@ notepanel.views.menu = function (me) {
                 notepanel.reset();
             })
             .fail(notepanel.ajaxErrorHandler);
-        /*
+        // logout from website
         $.ajax({type: 'GET',
                 url: '/logout',
                 xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {});
-        */
         return false;
     };
 
@@ -147,5 +151,53 @@ notepanel.views.menu = function (me) {
         return false;
     };
     
+    var onExportBoard = function(e) {
+        var boardId = $('#sel_choose_board').val();
+        if(boardId>0) {
+            url = '/board/' + boardId + '/export';
+            downloadURL(url);
+        }
+        return false;
+    }    
+    
+    var downloadURL = function downloadURL(url) {
+        var hiddenIFrameID = 'hiddenDownloader',
+            iframe = document.getElementById(hiddenIFrameID);
+        if (iframe === null) {
+            iframe = document.createElement('iframe');
+            iframe.id = hiddenIFrameID;
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+        iframe.src = url;
+    };
+    
+    var onImportBoard = function(e) {
+        var formData = new FormData(document.forms.namedItem('f_import_board'));
+        if($('#i_import_board').val()) {
+            $.ajax({type: 'POST',
+                        url: '/board/import',
+                        xhrFields: {withCredentials: true},
+                        dataType: 'json',
+                        data: formData,
+                        processData: false,
+                        contentType: false})
+                    .done(function (data) {
+                        if(data.uploaded) {
+                            $('#s_import_board').text('Board imported');
+                        } else {
+                            $('#s_import_board').text(data.message);
+                        }
+                        $('#s_import_board').fadeIn(2000, function() {
+                            $('#s_import_board').fadeOut(2000);
+                        });
+                    })
+                    .fail(notepanel.ajaxErrorHandler);
+        }
+        // empty the file input field
+        $('#i_import_board').replaceWith( $('#i_import_board').val('').clone( true ) );
+        return false;
+    }
+
     return me;
 }(notepanel.views.menu || {});

@@ -56,6 +56,12 @@
                 <option value="3">Public (read only)</option>                
             </select>
             <a href="#" id="a_create_board">Create new board</a>
+            <a href="#" id="a_export_board">Export board</a>
+            <form name="f_import_board" enctype="multipart/form-data">
+                <input type="file" id="i_import_board" name="i_import_board" />
+                <a href="#" id="a_import_board">Import board</a>
+                <span id="s_import_board" style="display: none"></span>
+            </form>
         </div>
         <div id="div_login">
             <input type="text" name="username" />

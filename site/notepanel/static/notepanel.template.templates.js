@@ -32,7 +32,7 @@ notepanel.template.templates = function(me) {
         if(loaded) {
             var template = compiledTemplates['hogan-tpl-board-user-list'];
             if(template != null) {
-                var htmlBoardUserList = template.render({users: boardUsers});
+                    var htmlBoardUserList = template.render({users: boardUsers});
                 $("#ph_board_user_list").html(htmlBoardUserList);
             } else {
                 console.log('template not found');
