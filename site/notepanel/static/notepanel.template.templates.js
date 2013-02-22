@@ -1,4 +1,3 @@
-if (typeof notepanel == 'undefined') var notepanel = {}; 
 notepanel.template = notepanel.template || {};
 notepanel.template.templates = notepanel.template.templates || {};
 
@@ -32,6 +31,10 @@ notepanel.template.templates = function(me) {
         if(loaded) {
             var template = compiledTemplates['hogan-tpl-board-user-list'];
             if(template != null) {
+                    for(var i in boardUsers) {
+                        user = boardUsers[i];
+                        user.userGroupLabel = notepanel.labels.userGroupLabels[user.group];
+                    }
                     var htmlBoardUserList = template.render({users: boardUsers});
                 $("#ph_board_user_list").html(htmlBoardUserList);
             } else {

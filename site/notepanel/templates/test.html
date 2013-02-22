@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <script type="text/javascript" src="{{url_for('static', filename='jquery-1.8.3.min.js')}}"></script>
+    </head>
+<body>
+    <div id="result">
+        1:<span id="span1"></span><br/>
+        <span id="span2"></span><br/>
+        <span id="span3"></span><br/>
+        <span id="span4"></span><br/>
+        <span id="span5"></span><br/>
+    </div>
+<script>
+    function test1(num) {
+       var storage = (1 | 2 | 8 | 32);
+       console.log(storage);
+       if (storage & num) {
+        return true;
+       }
+       else {
+        return false;
+       }
+    };
+    
+    $('#span1').text(test1(1));
+    $('#span2').text(test1(2));
+    $('#span3').text(test1(4));
+    $('#span4').text(test1(8));
+    $('#span5').text(test1(16));
+    
+</script>
+</body>
+</html>

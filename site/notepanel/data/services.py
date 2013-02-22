@@ -112,8 +112,15 @@ class BoardService(object):
         return board
     
     def get_users(self, board_id):
-        return self.session.query(User).\
+        #return self.session.query(User).\
+        users_array = self.session.query(User.id, User.name, User.email, BoardUser.user_group).\
             join(BoardUser).\
             filter(BoardUser.board_id == board_id).\
             all()
+        users = []
+        for u in users_array:
+            user = User(id=u.id, name=u.name, email=u.email)
+            user.user_group = u.user_group
+            users.append(user)
+        return users
 

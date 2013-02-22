@@ -16,6 +16,20 @@ notepanel.views.panel = function (me) {
         board: 1,
         note: 2
     };
+    
+    // user group of the current user
+    var currentUserGroup = notepanel.enums.userGroups.VIEWER;
+    
+    // Board privacies
+    var boardPrivacies = {
+        PRIVATE: 1,
+        INTERNAL_READONLY: 2,
+        INTERNAL_EDITABLE: 3,
+        PUBLIC: 4
+    };
+    
+    // privacy of the current board
+    var boardPrivacy = boardPrivacies.public_readonly;
 
     var $canvas = null;
 
@@ -174,11 +188,14 @@ notepanel.views.panel = function (me) {
     var moveNoteToTop = function (z) {
         var noteOnTheTop = notes.splice(z, 1)[0];
         notes.push(noteOnTheTop);
-        for(var i=z; i<notes.length; i++) {
-            var note = notes[i];
-            note.z = i;
-        }
+        setZNotes(0);
     };
+    
+    var setZNotes = function(startIndex) {
+        for(var i=startIndex; i<notes.length; i++) {
+            notes[i].z = i;
+        }
+    }
 
     var onMouseDown = function (e) {
         var pt = {x: e.offsetX, y: e.offsetY};
@@ -209,6 +226,7 @@ notepanel.views.panel = function (me) {
                 text: movingNote.text,
                 x: movingNote.x,
                 y: movingNote.y,
+                z: movingNote.z,
                 color: movingNote.color
             };
             $.ajax({type: 'POST',
@@ -262,12 +280,14 @@ notepanel.views.panel = function (me) {
                             if (data[j].note.id === notes[i].id) {
                                 if (data[j].note.deleted) {
                                     notes.splice(i, 1);
+                                    setZNotes(0); // recalculate z for notes
                                 } else {
                                     // Copy all the new properties
                                     notes[i].text = data[j].note.text;
                                     notes[i].color = data[j].note.color;
                                     notes[i].x = data[j].note.x;
                                     notes[i].y = data[j].note.y;
+                                    notes[i].z = data[j].note.z;
                                 }
                                 found = true;
                                 break;
@@ -277,7 +297,15 @@ notepanel.views.panel = function (me) {
                             var nt = new notepanel.notes.Note(data[j].note);
                             nt.adapter = adapter;
                             nt.relocate();
-                            nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                            var menuItems = [];
+                            if(nt.options & notepanel.enums.noteOptions.EDITABLE) {
+                                menuItems.push(notepanel.notes.menuButtons.edit);
+                            }
+                            if(nt.options & notepanel.enums.noteOptions.REMOVABLE) {
+                                menuItems.push(notepanel.notes.menuButtons.remove);
+                            }
+                            nt.setMenuItems(menuItems);
+                            //nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                             notes.push(nt);
                         }
                         // Double check in case they aren't ordered
@@ -295,11 +323,16 @@ notepanel.views.panel = function (me) {
     };
 
     // Set the currently open board
-    me.setBoard = function (board) {
+    me.setBoard = function (board, userGroup) {
         currentBoard = board;
-        getBoardNotes();
+        currentUserGroup = userGroup;
+        if(board) {
+            getBoardNotes();
+        } else {
+            notes = []; // clear panel
+        }
     };
-
+    
     me.getBoardId = function () {
         return currentBoard ? currentBoard.id : 0;
     }
@@ -310,15 +343,26 @@ notepanel.views.panel = function (me) {
         interruptDrawing();
         notes.length = 0;
         $.ajax({type: 'GET',
-                url: notepanel.servicesUrl + '/notes?boardId=' + currentBoard.id,
+                url: notepanel.servicesUrl + '/notes?boardId=' + me.getBoardId(),
                 xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
-
+                
+                // Set notes
                 for (var i = 0, imax = data.notes.length; i < imax; i++) {
                     var nt = new notepanel.notes.Note(data.notes[i]);
                     nt.adapter = adapter;
                     nt.relocate();
+                    /* TODO
+                    var menuItems = [];
+                    if(nt.options & notepanel.enums.noteOptions.EDITABLE) {
+                        menuItems.push(notepanel.notes.menuButtons.edit);
+                    }
+                    if(nt.options & notepanel.enums.noteOptions.REMOVABLE) {
+                        menuItems.push(notepanel.notes.menuButtons.remove);
+                    }
+                    nt.setMenuItems(menuItems);
+                    */
                     nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                     notes.push(nt);
                 }
@@ -340,14 +384,19 @@ notepanel.views.panel = function (me) {
 
     // Add a new note to the list (from the menu)
     me.addNote = function () {
-        var nt = new notepanel.notes.Note({x: 50, y: 50});
+        //var nt = new notepanel.notes.Note({x: 50, y: 50});
+        var nt = new notepanel.notes.Note({x: 50, y: 50, options: notepanel.enums.noteOptions.ALL });
         var data = {
             boardId: currentBoard.id,
+            userId: notepanel.user.id,
             text: nt.text,
+            width: nt.width,
+            height: nt.height,
             x: nt.x,
             y: nt.y,
-            z: notes.length-1,
-            color: nt.color
+            z: notes.length, //-1,
+            color: nt.color,
+            template: nt.template
         };
         $.ajax({type: 'POST',
                 url: notepanel.servicesUrl + '/notes',

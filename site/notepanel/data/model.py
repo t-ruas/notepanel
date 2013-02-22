@@ -15,11 +15,19 @@ class BoardPrivacy:
     PUBLIC_ALTERABLE = 2 # everybody is allowed to modify it
     PUBLIC_READONLY = 3 # everybody is allowed to see it but only contributor, admin, and owner are allowed to modify if
 
+class BoardOptions:
+    ZOOMABLE = 1
+    COLORABLE = 2
+    ALL = ZOOMABLE | COLORABLE
+
 class NoteOptions:
-    MOVABLE = 1
-    RESISZEABLE = 2 
-    EDITABLE = 4
-    COLORABLE = 8
+    NONE = 0
+    REMOVABLE = 1
+    MOVABLE = 2
+    RESISZEABLE = 4 
+    EDITABLE = 8
+    COLORABLE = 16
+    ALL = REMOVABLE | MOVABLE | RESISZEABLE | EDITABLE | COLORABLE # default mask
     
    
 def from_export(object, dic):
@@ -74,6 +82,8 @@ class Board(Entity):
     height = Column(Integer, default=2000)
     privacy = Column(Integer, default=BoardPrivacy.PRIVATE)
     color = Column(String(7))
+    options = Column(Integer, default=BoardOptions.ALL)
+    comments = Column(String(500))
     creation_date = Column(DateTime, default=func.now())
     edition_date = Column(DateTime, default=func.now())
     notes = relationship("Note", backref="board")
@@ -86,7 +96,8 @@ class Board(Entity):
             "id": self.id, 
             "name": self.name,
             "privacy": self.privacy,
-            "color": self.color
+            "color": self.color,
+            "comments": self.comments
         }
     
     def to_export(self):
@@ -113,6 +124,7 @@ class Note(Entity):
     __tablename__ = "note"
     id = Column(Integer, primary_key=True)
     board_id = Column(Integer, ForeignKey("board.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
     text = Column(String(1000))
     width = Column(Integer)
     height = Column(Integer)
@@ -120,8 +132,12 @@ class Note(Entity):
     y = Column(Integer)
     z = Column(Integer) # z-position of the note compared to the other (highest on the top)
     color = Column(String(6))
+    options = Column(Integer, default=NoteOptions.ALL)
+    owner_options = Column(Integer, default=NoteOptions.ALL)
+    admin_options = Column(Integer, default=NoteOptions.ALL)
+    contributor_options = Column(Integer, default=NoteOptions.ALL)
     template = Column(String(20))
-    access_level = Column(Integer, default=UserGroup.CONTRIBUTOR)
+    lock = Column(Integer, default=UserGroup.CONTRIBUTOR)
     creation_date = Column(DateTime, default=func.now())
     edition_date = Column(DateTime, default=func.now())
 
@@ -131,7 +147,8 @@ class Note(Entity):
     def to_dic(self):
         return {
             "id": self.id,
-            "board_id": self.board_id,
+            #"board_id": self.board_id,
+            "creator": self.user_id,
             "text": self.text,
             "width": self.width,
             "height": self.height,
@@ -140,7 +157,7 @@ class Note(Entity):
             "z": self.z,
             "color": self.color,
             "template": self.template,
-            "level": self.access_level
+            "level": self.access_level,
         }
     
     def to_export(self):

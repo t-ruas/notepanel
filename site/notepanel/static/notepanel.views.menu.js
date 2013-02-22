@@ -90,7 +90,7 @@ notepanel.views.menu = function (me) {
             .done(function (data) {
                 $('#i_create_board').val(null);
                 board.id = data.id;
-                notepanel.views.panel.setBoard(board);
+                notepanel.views.panel.setBoard(board, notepanel.enums.userGroups.OWNER);
                 me.refreshBoards();
             })
             .fail(notepanel.ajaxErrorHandler);
@@ -121,17 +121,23 @@ notepanel.views.menu = function (me) {
     };
 
     var onChooseBoard = function (e) {
-        notepanel.views.wait.enable();
-        var board = {id: parseInt($(this).val()), name: $(this).text()};
-        notepanel.views.panel.setBoard(board);
-        $.ajax({type: 'GET',
-                url: '/board/' + board.id + '/users',
-                xhrFields: {withCredentials: true},
-                dataType: 'json'})
-            .done(function (data) {
-                notepanel.template.templates.loadBoardUserList(data.boardUsers);
-            })
-            .fail(notepanel.ajaxErrorHandler);
+        if($(this).val() > 0) {
+            notepanel.views.wait.enable();
+            var board = {id: parseInt($(this).val()), name: $(this).text()};
+            notepanel.views.panel.setBoard(board, notepanel.enums.userGroups.VIEWER);
+            $.ajax({type: 'GET',
+                    url: '/board/' + board.id,
+                    xhrFields: {withCredentials: true},
+                    dataType: 'json'})
+                .done(function (data) {
+                    notepanel.views.panel.setBoard(data.board, data.user_group);
+                    notepanel.template.templates.loadBoardUserList(data.boardUsers);
+                })
+                .fail(notepanel.ajaxErrorHandler);
+        } else {
+            notepanel.views.panel.setBoard(null, notepanel.enums.userGroups.VIEWER);
+            notepanel.template.templates.loadBoardUserList(null);
+        }
     };
 
     var onInviteUser = function(e) {

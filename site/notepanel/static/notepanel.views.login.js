@@ -62,7 +62,7 @@ notepanel.views.login = function (me) {
                 xhrFields: {withCredentials: true},
                 dataType: 'json',
                 data: postData})
-            .done(function (data) {});
+            .done(function (data) { console.log(data.identified); });
         return false;
     };
 

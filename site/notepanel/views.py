@@ -7,7 +7,7 @@ from . import app
 from . import settings
 from . import log_monitor
 from data.services import UserService, BoardService
-from data.model import User, Board, Note
+from data.model import User, Board, Note, UserGroup
 from data import db
 from utils import azure_logging
 
@@ -65,6 +65,8 @@ def logout():
 
 # ================================================================
 # board services
+
+# retrieve board users data
 @app.route("/board/<id>/users", methods=["GET"])
 @login_required
 def board_users(id):
@@ -74,6 +76,22 @@ def board_users(id):
     for user in users:
         json_users.append(user.to_dic()) 
     return flask.jsonify(boardUsers=json_users)
+
+# retrieve board data and board users data
+@app.route("/board/<id>", methods=["GET"])
+@login_required
+def board(id):
+    # TODO : check if the user id in session is a user of the requested board
+    flask.session['board_id'] = id
+    board = BoardService().get(id)
+    users = BoardService().get_users(id)
+    json_users = [];
+    user_group = UserGroup.VIEWER
+    for user in users:
+        json_users.append(user.to_dic()) 
+        if user.id == flask.session['user_id']:
+            user_group = user.user_group
+    return flask.jsonify(board=board.to_dic(), user_group=user_group,  boardUsers=json_users)
 
 @app.route("/board/<board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
 @login_required
