@@ -19,17 +19,9 @@ notepanel.views.panel = function (me) {
     
     // user group of the current user
     var currentUserGroup = notepanel.enums.userGroups.VIEWER;
-    
-    // Board privacies
-    var boardPrivacies = {
-        PRIVATE: 1,
-        INTERNAL_READONLY: 2,
-        INTERNAL_EDITABLE: 3,
-        PUBLIC: 4
-    };
-    
+
     // privacy of the current board
-    var boardPrivacy = boardPrivacies.public_readonly;
+    var boardPrivacy = notepanel.enums.boardPrivacies.PUBLIC;
 
     var $canvas = null;
 
@@ -288,6 +280,8 @@ notepanel.views.panel = function (me) {
                                     notes[i].x = data[j].note.x;
                                     notes[i].y = data[j].note.y;
                                     notes[i].z = data[j].note.z;
+                                    notes[i].options = data[j].note.options;
+                                    console.log("on poll, options for note " + notes[i].id + " : " + notes[i].options);
                                 }
                                 found = true;
                                 break;
@@ -347,13 +341,12 @@ notepanel.views.panel = function (me) {
                 xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
-                
                 // Set notes
                 for (var i = 0, imax = data.notes.length; i < imax; i++) {
                     var nt = new notepanel.notes.Note(data.notes[i]);
                     nt.adapter = adapter;
                     nt.relocate();
-                    /* TODO
+                    /* TODO */
                     var menuItems = [];
                     if(nt.options & notepanel.enums.noteOptions.EDITABLE) {
                         menuItems.push(notepanel.notes.menuButtons.edit);
@@ -362,8 +355,8 @@ notepanel.views.panel = function (me) {
                         menuItems.push(notepanel.notes.menuButtons.remove);
                     }
                     nt.setMenuItems(menuItems);
-                    */
-                    nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                    
+                    //nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                     notes.push(nt);
                 }
 
@@ -384,8 +377,12 @@ notepanel.views.panel = function (me) {
 
     // Add a new note to the list (from the menu)
     me.addNote = function () {
-        //var nt = new notepanel.notes.Note({x: 50, y: 50});
-        var nt = new notepanel.notes.Note({x: 50, y: 50, options: notepanel.enums.noteOptions.ALL });
+        var nt = new notepanel.notes.Note({x: 50, y: 50});
+        nt.defaultOptions = notepanel.enums.noteOptions.ALL;
+        nt.ownerOptions = notepanel.enums.noteOptions.ALL;
+        nt.adminOptions = notepanel.enums.noteOptions.ALL;
+        nt.contributorOptions = notepanel.enums.noteOptions.EDITABLE;
+        
         var data = {
             boardId: currentBoard.id,
             userId: notepanel.user.id,
@@ -394,10 +391,15 @@ notepanel.views.panel = function (me) {
             height: nt.height,
             x: nt.x,
             y: nt.y,
-            z: notes.length, //-1,
+            z: notes.length,
             color: nt.color,
-            template: nt.template
+            template: nt.template,
+            defaultOptions: nt.defaultOptions,
+            ownerOptions: nt.ownerOptions,
+            adminOptions: nt.adminOptions,
+            contributorOptions: nt.contributorOptions
         };
+
         $.ajax({type: 'POST',
                 url: notepanel.servicesUrl + '/notes',
                 xhrFields: {withCredentials: true},
@@ -438,5 +440,81 @@ notepanel.views.panel = function (me) {
         }
     };
 
+/*    
+    // calculate note option for a user (logged or not) according to the board privacy
+    var calculateBoardNoteOptions = function(note) {
+        var options = 0;
+        var user = notepanel.user;
+        console.log(user);
+        switch (boardPrivacy) {
+            case notepanel.enums.boardPrivacies.PUBLIC:
+                if(user) { // user is a user of this board
+                    options = calculateNoteOptions(note);
+                } else { // user is not a user of this board (logged or not)
+                    options = notepanel.enums.noteOptions.NONE;
+                }
+                break;
+            case notepanel.enums.boardPrivacies.INTERNAL_READONLY:
+                if(user) { // user is a user of this board
+                    options = calculateNoteOptions(note);
+                } else { // user is not a user of this board (only logged)
+                    options = notepanel.enums.noteOptions.NONE;
+                }
+                break;
+            case notepanel.enums.boardPrivacies.INTERNAL_ALTERABLE:
+                if(user) { // user is a user of this board
+                    options = calculateNoteOptions(note);
+                } else { // user is not a user of this board (only logged)
+                    // note keep its default options
+                    options = note.defaultOptions;
+                }
+                break;
+            case notepanel.enums.boardPrivacies.PRIVATE:
+                if(user) { // user is a user of this board
+                    options = calculateNoteOptions(note);
+                } else { // user is not a user of this board (only logged)
+                    // note keep its default options
+                    options = note.defaultOptions;
+                }
+                break;
+            default:
+                // TODO : throw exception ?
+                options = notepanel.enums.noteOptions.NONE;
+                break;
+        }
+        return options;
+    }
+
+    // calculate note option for a user
+    var calculateNoteOptions = function(note) {
+        var options = 0;
+        console.log('user goup : ' + currentUserGroup);
+        switch (currentUserGroup) {
+            case notepanel.enums.userGroups.OWNER:
+                console.log(" note.ownerOptions : " + note.ownerOptions);
+                options = note.ownerOptions;
+                console.log(" user is owner with options : " + options);
+                break;
+            case notepanel.enums.userGroups.ADMIN:
+                options = note.adminOptions;
+                break;
+            case notepanel.enums.userGroups.CONTRIBUTOR:
+                options = note.contributorOptions;
+                break;
+            case notepanel.enums.userGroups.VIEWER:
+                options = notepanel.enums.noteOptions.NONE;
+                break;
+            default:
+                // TODO : throw exception ?
+                options = notepanel.enums.noteOptions.NONE;
+                break;
+        }
+        if(note.lock && note.lock <= currentUserGroup) {// note is locked by a user with a higher or same profile (from 1 to 4, with 1 the highest) than the current user
+            options = notepanel.enums.noteOptions.NONE;
+        }
+        return options;
+    }
+*/
+    
     return me;
 }(notepanel.views.panel || {});

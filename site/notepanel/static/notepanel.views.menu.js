@@ -124,7 +124,6 @@ notepanel.views.menu = function (me) {
         if($(this).val() > 0) {
             notepanel.views.wait.enable();
             var board = {id: parseInt($(this).val()), name: $(this).text()};
-            notepanel.views.panel.setBoard(board, notepanel.enums.userGroups.VIEWER);
             $.ajax({type: 'GET',
                     url: '/board/' + board.id,
                     xhrFields: {withCredentials: true},

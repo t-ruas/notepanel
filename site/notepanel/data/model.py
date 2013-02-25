@@ -132,7 +132,7 @@ class Note(Entity):
     y = Column(Integer)
     z = Column(Integer) # z-position of the note compared to the other (highest on the top)
     color = Column(String(6))
-    options = Column(Integer, default=NoteOptions.ALL)
+    default_options = Column(Integer, default=NoteOptions.ALL)
     owner_options = Column(Integer, default=NoteOptions.ALL)
     admin_options = Column(Integer, default=NoteOptions.ALL)
     contributor_options = Column(Integer, default=NoteOptions.ALL)

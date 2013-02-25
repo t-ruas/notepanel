@@ -103,7 +103,7 @@ notepanel.notes.Note = function (options) {
     this.text = 'new sticky note';
     this.color = '66aaee';
     this.template = 'default';
-    this.options = notepanel.enums.noteOptions.ALL;
+    this.options = notepanel.enums.noteOptions.NONE;
     this.menu = {
         x: 0,
         y: 0,

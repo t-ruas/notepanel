@@ -11,6 +11,8 @@ notepanel.ajaxErrorHandler = function (xhr) {
 
 notepanel.reset = function () {
 
+    
+
     notepanel.user = null;
 
     notepanel.views.wait.enable();

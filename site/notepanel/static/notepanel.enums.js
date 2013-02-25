@@ -19,6 +19,13 @@ notepanel.enums = {
         // TODO : ALL : REMOVABLE | MOVABLE | RESISZEABLE | EDITABLE | COLORABLE
         //ALL : this.REMOVABLE | this.MOVABLE | this.RESISZEABLE | this.COLORABLE
         ALL : (1 | 2 | 4 | 8 | 16)
-    }
+    },
     
+    // Board privacies
+    boardPrivacies: {
+        PRIVATE: 1,
+        INTERNAL_READONLY: 2,
+        INTERNAL_EDITABLE: 3,
+        PUBLIC: 4
+    }
 };
