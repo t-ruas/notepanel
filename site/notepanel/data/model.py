@@ -126,13 +126,13 @@ class Note(Entity):
     id = Column(Integer, primary_key=True)
     board_id = Column(Integer, ForeignKey("board.id"))
     user_id = Column(Integer, ForeignKey("user.id"))
-    text = Column(String(1000))
+    value = Column(String(1000))
     width = Column(Integer)
     height = Column(Integer)
     x = Column(Integer)
     y = Column(Integer)
     z = Column(Integer) # z-position of the note compared to the other (highest on the top)
-    color = Column(String(6))
+    #color = Column(String(6))
     default_options = Column(Integer, default=NoteOptions.ALL)
     owner_options = Column(Integer, default=NoteOptions.ALL)
     admin_options = Column(Integer, default=NoteOptions.ALL)
@@ -150,26 +150,26 @@ class Note(Entity):
             "id": self.id,
             #"board_id": self.board_id,
             "creator": self.user_id,
-            "text": self.text,
+            "value": self.value,
             "width": self.width,
             "height": self.height,
             "x": self.x,
             "y": self.y,
             "z": self.z,
-            "color": self.color,
+            #"color": self.color,
             "template": self.template,
             "level": self.access_level,
         }
     
     def to_export(self):
         return {
-            "text": self.text,
+            "value": self.value,
             "width": self.width,
             "height": self.height,
             "x": self.x,
             "y": self.y,
             "z": self.z,
-            "color": self.color,
+            #"color": self.color,
             "template": self.template,
             "access_level": self.access_level
         }
