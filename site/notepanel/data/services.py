@@ -1,5 +1,5 @@
 from datetime import datetime
-from model import Board, User, BoardUser, Note, UserGroup
+from model import Board, User, BoardUser, Note, UserGroup, BoardPrivacy
 from serializer import JsonSerializer
 from . import db
 from sqlalchemy import func, and_
@@ -41,14 +41,34 @@ class UserService(object):
 class BoardService(object):
     
     session = db.Session()
-
+    
+    # retrieve a board
     def get(self, board_id):
         board = self.session.query(Board).\
             filter(Board.id == board_id).\
             first()
         self.session.commit()
         return board
-
+    
+    # get all boards of a user
+    def getByUser(self, user_id):
+        boards = self.session.query(Board).\
+            join(BoardUser).\
+            filter(BoardUser.user_id == user_id).\
+            all()
+        self.session.commit()
+        return boards
+        
+    # get n last created  public boards
+    def getPublic(self, limit):
+        boards = self.session.query(Board).\
+            filter(Board.privacy == BoardPrivacy.PUBLIC).\
+            order_by(Board.creation_date.desc()).\
+            limit(limit)
+        self.session.commit()
+        return boards
+    
+    # create board
     def add(self, creator_id, board_name, board_privacy):
         board = Board(name=board_name,privacy=board_privacy)
         self.session.add(board)
@@ -58,7 +78,9 @@ class BoardService(object):
         self.session.commit()
         return board
     
+    # import board from file
     def import_board(self, creator_id, board_json):
+        # TODO : check data format and integrity
         board = JsonSerializer().deserialize_board(board_json)
         notes = JsonSerializer().deserialize_notes(board_json)
         for note in notes:
@@ -72,10 +94,12 @@ class BoardService(object):
         self.session.commit()
         return board      
     
+    # export board to a file
     def export_board(self, board_id):
         board = self.get(board_id)
         return JsonSerializer().serialize(board)
-
+    
+    # delete board
     def remove(self, board_id):
         board = Board(id=board_id)
         self.session.delete(board)
@@ -86,14 +110,8 @@ class BoardService(object):
             join(BoardUser).\
             filter(BoardUser.user_id == user.id).\
             first()
-
-    def add_user(self, board, user_id):
-        user = User(id=user_id)
-        if not user in board.users:
-            board.users.append(user)
-            self.session.commit()
-        return board
-        
+    
+    # add a user to a board
     def add_user(self, board_id, user_name, user_group):
         board = self.get(board_id=board_id)
         user = UserService().get_by_name(name=user_name)
@@ -103,7 +121,8 @@ class BoardService(object):
             self.session.commit()
         # TODO : else
         return board
-
+    
+    # remove a user from a board
     def remove_user(self, board, user_id):
         user = User(id=user_id)
         if user in board.users:
@@ -111,8 +130,8 @@ class BoardService(object):
             self.session.commit()
         return board
     
+    # retrieve the users of a board
     def get_users(self, board_id):
-        #return self.session.query(User).\
         users_array = self.session.query(User.id, User.name, User.email, BoardUser.user_group).\
             join(BoardUser).\
             filter(BoardUser.board_id == board_id).\

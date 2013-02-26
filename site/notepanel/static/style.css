@@ -1,8 +1,38 @@
+ol, ul {
+    list-style: none;
+}
+
+strong {
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:hover {
+    color: #FFF;
+}
+
+.clear {clear:both}
+
+
 
 html, body {
     width:  100%;
     height: 100%;
     margin: 0px;
+}
+
+
+#div_main_menu {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 2em;
+    background-color: rgba(128, 128, 128, 0.5);
 }
 
 #div_menu {
@@ -14,7 +44,7 @@ html, body {
     background-color: rgba(128, 128, 128, 0.5);
 }
 
-#div_login, #div_register {
+#div_login, #div_register, #div_new_board, #div_choose_board, #div_import_board {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -51,4 +81,16 @@ html, body {
     left: 50%;
     top: 50%;
     margin: -50px 0 0 -100px;
+}
+
+.button {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    min-width: 54px;
+    height: 27px;
+    line-height: 27px;
+    border: 1px solid transparent;
+    color: #fff;
+    background-color: #d14836;
+    background-image: -webkit-linear-gradient(top,#dd4b39,#d14836);
 }

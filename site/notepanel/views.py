@@ -93,22 +93,27 @@ def board(id):
             user_group = user.user_group
     return flask.jsonify(board=board.to_dic(), user_group=user_group,  boardUsers=json_users)
 
+# add a user to a board
 @app.route("/board/<board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
 @login_required
 def board_users_add(board_id, user_name, user_group):    
     board = BoardService().add_user(board_id=board_id, user_name=user_name, user_group=user_group)
-    json_users = [];
+    json_users = []
     for user in board.users:
         json_users.append(user.to_dic()) 
     return flask.jsonify(boardUsers=json_users)
 
-@app.route("/board/add/<name>/<privacy>", methods=["GET"])
+# create a board
+@app.route("/board/add", methods=["POST"])
 @login_required
-def board_add(name, privacy):   
-    board = BoardService().add(user_id=flask.session['user_id'], board_name=name, board_privacy=privacy)
+def board_add():
+    board_name = flask.request.form["boardName"];
+    board_privacy = flask.request.form["boardPrivacy"];
+    board = BoardService().add(creator_id=flask.session['user_id'], board_name=board_name, board_privacy=board_privacy)
     flask.session['board_id'] = board.id
-    return flask.jsonify(board=board.toDic())
+    return flask.jsonify(board=board.to_dic())
 
+#export a board to a file
 @app.route("/board/<id>/export", methods=["GET"])
 @login_required
 def board_export(id):       
@@ -119,8 +124,31 @@ def board_export(id):
                        headers={"Content-Disposition":
                                     "attachment;filename=" + file_name})
 
-JSON_EXPORT_FILE_EXTENSION = 'nt'
+# retrieve all private boards of the current user
+@app.route("/board/user", methods=["GET"])
+@login_required
+def board_user():
+    user_id = flask.session['user_id'];
+    boards = BoardService().getByUser(user_id=user_id)
+    json_boards = []
+    for board in boards:
+        json_boards.append(board.to_dic()) 
+    return flask.jsonify(boards=json_boards)
 
+# retrieve last n created public boards
+@app.route("/board/public", methods=["GET"])
+@login_required
+def board_public():
+    limit = 10 # TODO : set in settings
+    boards = BoardService().getPublic(limit=limit)
+    json_boards = []
+    for board in boards:
+        json_boards.append(board.to_dic()) 
+    return flask.jsonify(boards=json_boards)
+
+
+JSON_EXPORT_FILE_EXTENSION = 'nt'
+# import a board from file
 @app.route("/board/import", methods=["POST"])
 @login_required
 def board_import():

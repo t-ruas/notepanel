@@ -19,7 +19,7 @@ notepanel.template.templates = function(me) {
                 $("#ph_color_picker").html(htmlColors);
                 $("#ph_color_picker div").on("click", onClick);
             } else {
-                console.log('template not found');
+                console.log('Template not found');
             }
         } else {
             console.log('Templates not loaded');
@@ -38,14 +38,31 @@ notepanel.template.templates = function(me) {
                     var htmlBoardUserList = template.render({users: boardUsers});
                 $("#ph_board_user_list").html(htmlBoardUserList);
             } else {
-                console.log('template not found');
+                console.log('Template not found');
             }
         } else {
             console.log('Templates not loaded');
             loadTemplates(me.loadBoardUserList, null);
         }
     }
-
+    
+    me.loadBoardList = function(placeHolderId, list) {
+        if(loaded) {
+            var template = compiledTemplates['hogan-tpl-board-list'];
+            if(template != null) {
+                var htmlBoards = template.render({label: list.label, id: list.id, boards: list.boards});
+                $("#"+placeHolderId).html(htmlBoards);
+                //$("#ph_color_picker").html(htmlColors);
+                //$("#ph_color_picker div").on("click", onClick);
+            } else {
+                console.log('Template not found');
+            }
+        } else {
+            console.log('Templates not loaded');
+            loadTemplates(me.loadColorPicker, onClick);
+        }
+    }
+    
     var loadTemplates = function(callback, callbackArgs) {
         if(me.templatesFile && !loaded) {
             $.get(me.templatesFile, function(html) {

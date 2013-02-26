@@ -12,8 +12,9 @@ class UserGroup:
 
 class BoardPrivacy:
     PRIVATE = 1 # only invited people are allowed to see it
-    PUBLIC_ALTERABLE = 2 # everybody is allowed to modify it
-    PUBLIC_READONLY = 3 # everybody is allowed to see it but only contributor, admin, and owner are allowed to modify if
+    INTERNAL_READONLY = 2 # all registerd users are allowed to view it
+    INTERNAL_ALTERABLE = 3 # all registerd users are allowed to modify it
+    PUBLIC = 4 # all users (even not registered one's) are allowed to view it
 
 class BoardOptions:
     ZOOMABLE = 1

@@ -105,6 +105,7 @@ notepanel.views.panel = function (me) {
             me.unlock();
             //$('#a_close_edit').on('click.notepanel', onCloseEdit);
             $('#div_panel').show();
+            notepanel.views.mainmenu.activate();
             notepanel.views.menu.activate();
             enabled = true;
         }
@@ -113,6 +114,7 @@ notepanel.views.panel = function (me) {
     // Disable this view
     me.disable = function () {
         if (enabled) {
+            notepanel.views.mainmenu.disactivate();
             notepanel.views.menu.disactivate();
             me.lock();
             $('#div_panel').hide();

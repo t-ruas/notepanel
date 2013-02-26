@@ -22,6 +22,10 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.login.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.register.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.newboard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.chooseboard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.importboard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.mainmenu.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.wait.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.edit.js')}}"></script>
@@ -35,14 +39,14 @@
         <div id="div_panel">
             <canvas id="canvas_board"></canvas>
         </div>
+        <div id="div_main_menu">
+            {% include "partials/main_menu.html" %}
+        </div>
         <div id="div_menu">
-            <a href="#" id="a_logout">Log out</a>
+            
             <a href="#" id="a_add_note">Add a new note</a>
             
             <div>Board :</div>
-            <select id="sel_choose_board"></select>
-            <a id="a_refresh_boards" href="#">refresh list</a>
-            <div id="ph_board_user_list"></div>
             
             <input type="text" id="i_invite_user" size="15" />
             <a href="#" id="a_invite_user">Invite a user as</a>
@@ -51,20 +55,8 @@
                 <option value="3">Contributor</option>
                 <option value="2">Admin</option>                
             </select>
-            
-            <input type="text" id="i_create_board" size="15" />
-            <select id="sel_choose_board_type">
-                <option value="1">Private</option>
-                <option value="2">Public (alterable)</option>
-                <option value="3">Public (read only)</option>                
-            </select>
-            <a href="#" id="a_create_board">Create new board</a>
             <a href="#" id="a_export_board">Export board</a>
-            <form name="f_import_board" enctype="multipart/form-data">
-                <input type="file" id="i_import_board" name="i_import_board" />
-                <a href="#" id="a_import_board">Import board</a>
-                <span id="s_import_board" style="display: none"></span>
-            </form>
+            <div id="ph_board_user_list"></div>
         </div>
         <div id="div_login">
             <input type="text" name="username" />
@@ -93,5 +85,11 @@
         <div id="div_fatal">
             Error
         </div>
+        {% include "partials/import_board.html" %}
+        {% include "partials/choose_board.html" %}
+        {% include "partials/new_board.html" %}
+        
+        <!--
+        -->
     </body>
 </html>

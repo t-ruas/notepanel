@@ -39,5 +39,4 @@ notepanel.reset = function () {
 
 notepanel.setUser = function (user) {
     notepanel.user = user;
-    notepanel.views.menu.refreshBoards();
 };
