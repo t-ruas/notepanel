@@ -21,75 +21,77 @@ notepanel.notes.menuButtons = {
     }
 };
 
+notepanel.notes.editorType = {
+    textarea: 0,
+    colorPicker: 1
+};
+
+notepanel.notes.ShapeType = {
+    rectangle: 0,
+    photo: 1
+};
+
 notepanel.notes.designers = {
     'default': {
-        draw: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(this.location.x, this.location.y);
-            ctx.lineTo(this.location.x + this.location.width, this.location.y);
-            ctx.lineTo(this.location.x + this.location.width, this.location.y + this.location.height);
-            ctx.lineTo(this.location.x, this.location.y + this.location.height);
-            ctx.closePath();
-            if (this.moving) {
-                ctx.strokeStyle = '#202020';
-            } else {
-                ctx.strokeStyle = '#A0A0A0';
+        title: 'Simple note',
+        shapes: [
+            {
+                type: notepanel.notes.ShapeType.rectangle,
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
+                stroke: '#A0A0A0',
+                text: {
+                    type: notepanel.notes.editorType.textarea,
+                    title: 'Note text',
+                    name: 'contents'
+                },
+                fill: {
+                    type: notepanel.notes.editorType.colorPicker,
+                    title: 'Background color',
+                    name: 'color'
+                },
+                shadow: true
             }
-            if (this.hovered) {
-                var col = notepanel.colors.parse(this.color);
-                notepanel.colors.lighten(col, 0x10);
-                var c = notepanel.colors.toString(col, notepanel.colors.type.rgb);
-                ctx.fillStyle = '#' + c;
-            } else {
-                ctx.fillStyle = '#' + this.color;
-            }
-            ctx.stroke();
-            ctx.fill();
-
-            // Shadow.
-            ctx.beginPath();
-            ctx.moveTo(this.location.x + this.location.width, this.location.y + 4);
-            ctx.lineTo(this.location.x + this.location.width + 4, this.location.y + 4);
-            ctx.lineTo(this.location.x + this.location.width + 4, this.location.y + this.location.height + 4);
-            ctx.lineTo(this.location.x + 4, this.location.y + this.location.height + 4);
-            ctx.lineTo(this.location.x + 4, this.location.y + this.location.height);
-            ctx.lineTo(this.location.x + this.location.width, this.location.y + this.location.height);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-            ctx.fill();
-
-            // draw note menu
-            if (this.hovered) {
-                // draw note menu on the hovered note
-                ctx.font = '14 px "FontAwesome"';
-                ctx.fillStyle = "#fff";
-                ctx.textBaseline = 'bottom';
-                ctx.textAlign = 'start';
-                // TODO : manage template with menu starting either from left and right
-                var startX = this.location.x + this.location.width; // from right
-                this.menu.x = startX - this.menu.width;
-                //this.menu.items.reverse();
-                // menu starting from left
-                //startX = boardX + this.x
-                //menu.x = startX
-                // drawing menu from left
-                this.menu.y = this.location.y;
-                for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
-                    var item = this.menu.items[i];
-                    item.y = this.menu.y;
-                    item.x = this.menu.x + (i * item.width);
-                    ctx.fillText(item.text, item.x, item.y + this.menu.height);
+        ]
+    },
+    'polaroid': {
+        title: 'Note with photo',
+        shapes: [
+            {
+                type: notepanel.notes.ShapeType.rectangle,
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
+                color: '#FFFFFF'
+            },
+            {
+                type: notepanel.notes.ShapeType.photo,
+                x: 10,
+                y: 10,
+                width: 80,
+                height: 60,
+                url: {
+                    type: notepanel.notes.editorType.textarea,
+                    title: 'Image URL',
+                    name: 'imageUrl'
+                }
+            },
+            {
+                type: notepanel.notes.ShapeType.rectangle,
+                x: 10,
+                y: 80,
+                width: 80,
+                height: 80,
+                text: {
+                    type: notepanel.notes.editorType.textarea,
+                    title: 'Legend',
+                    name: 'legend'
                 }
             }
-            // draw note text
-            notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
-            notepanel.template.canvasText.drawText({
-                text: this.text,
-                x: this.location.x + this.scale(10),
-                y: this.location.y + this.menu.height + parseInt(notepanel.template.canvasText.lineHeight),
-                boxWidth: this.location.width - (this.scale(10) + this.scale(10))
-            });
-        }
+        ]
     }
 };
 
@@ -100,8 +102,7 @@ notepanel.notes.Note = function (options) {
     this.z = 0;
     this.width = 350;
     this.height = 275;
-    this.text = 'new sticky note';
-    this.color = '66aaee';
+    this.value = {contents: 'new sticky note', color: '#66AAEE'};
     this.template = 'default';
     this.options = notepanel.enums.noteOptions.NONE;
     this.menu = {
@@ -119,6 +120,7 @@ notepanel.notes.Note = function (options) {
     $.extend(this, options);
 };
 
+// Adjust node screen relative location based on zoom and board offset.
 notepanel.notes.Note.prototype.relocate = function () {
     var pt = this.adapter.move.call(this.adapter, this);
     this.location.x = pt.x;
@@ -146,11 +148,111 @@ notepanel.notes.Note.prototype.remove = function() {
 };
 
 notepanel.notes.Note.prototype.draw = function (ctx) {
-    notepanel.notes.designers[this.template].draw.call(this, ctx);
+
+    var shapes = notepanel.notes.designers[this.template].shapes;
+
+    for (var i = 0, imax = shapes.length; i < imax; i++) {
+    
+        var shape = shapes[i];
+        
+        if (shape.type === notepanel.notes.ShapeType.rectangle
+                || shape.type === notepanel.notes.ShapeType.photo) {
+            
+            var x1 = this.location.x + (this.location.width * shape.x / 100);
+            var x2 = x1 + (this.location.width * shape.width / 100);
+            var y1 = this.location.y + (this.location.height * shape.y / 100);
+            var y2 = y1 + (this.location.height * shape.height / 100);
+            
+            if (shape.shadow) {
+                ctx.beginPath();
+                ctx.moveTo(x1 + 4, y1 + 4);
+                ctx.lineTo(x2 + 4, y1 + 4);
+                ctx.lineTo(x2 + 4, y2 + 4);
+                ctx.lineTo(x1 + 4, y2 + 4);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fill();
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y1);
+            ctx.lineTo(x2, y2);
+            ctx.lineTo(x1, y2);
+            ctx.closePath();
+        }
+        
+        if ('stroke' in shape) {
+            switch (typeof shape.stroke) {
+                case 'object':
+                    ctx.strokeStyle = this.value[shape.stroke.name];
+                    ctx.stroke();
+                    break;
+                case 'number':
+                    ctx.strokeStyle = shape.stroke;
+                    ctx.stroke();
+                    break;
+            }
+        }
+        
+        if ('fill' in shape) {
+            switch (typeof shape.fill) {
+                case 'object':
+                    ctx.fillStyle = this.value[shape.fill.name];
+                    ctx.fill();
+                    break;
+                case 'number':
+                    ctx.fillStyle = shape.fill;
+                    ctx.fill();
+                    break;
+            }
+        }
+        
+        if ('text' in shape) {
+            var options = {
+                x: this.location.x + (this.location.width * shape.x / 100) + this.scale(10),
+                y: this.location.y + (this.location.height * shape.y / 100) + this.scale(parseInt(notepanel.template.canvasText.lineHeight)),
+                boxWidth: (this.location.width * shape.width / 100) - (this.scale(10) + this.scale(10))
+            };
+            switch (typeof shape.fill) {
+                case 'object':
+                    options.text = this.value[shape.text.name];
+                    break;
+                case 'string':
+                    options.text = shape.text;
+                    break;
+            }
+            notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
+            notepanel.template.canvasText.drawText(options);
+        }
+    }
+    
+    if (this.hovered) {
+        // draw note menu on the hovered note
+        ctx.font = '14 px "FontAwesome"';
+        ctx.fillStyle = "#000000";
+        ctx.textBaseline = 'bottom';
+        ctx.textAlign = 'start';
+        // TODO : manage template with menu starting either from left and right
+        var startX = this.location.x + this.location.width; // from right
+        this.menu.x = startX - this.menu.width;
+        //this.menu.items.reverse();
+        // menu starting from left
+        //startX = boardX + this.x
+        //menu.x = startX
+        // drawing menu from left
+        this.menu.y = this.location.y - this.menu.height;
+        for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
+            var item = this.menu.items[i];
+            item.y = this.menu.y;
+            item.x = this.menu.x + (i * item.width);
+            ctx.fillText(item.text, item.x, item.y + this.menu.height);
+        }
+    }
 };
 
 notepanel.notes.Note.prototype.isMouseOver = function (pt) {
-    return notepanel.utils.isInRectangle(pt, this.location);
+    return notepanel.utils.isInRectangle(pt, this.location) || notepanel.utils.isInRectangle(pt, this.menu);
 };
 
 notepanel.notes.Note.prototype.scale = function (len) {

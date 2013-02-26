@@ -215,11 +215,9 @@ notepanel.views.panel = function (me) {
             var data = {
                 boardId: currentBoard.id,
                 id: movingNote.id,
-                text: movingNote.text,
                 x: movingNote.x,
                 y: movingNote.y,
-                z: movingNote.z,
-                color: movingNote.color
+                z: movingNote.z
             };
             $.ajax({type: 'POST',
                     url: notepanel.servicesUrl + '/notes',
@@ -275,11 +273,14 @@ notepanel.views.panel = function (me) {
                                     setZNotes(0); // recalculate z for notes
                                 } else {
                                     // Copy all the new properties
-                                    notes[i].text = data[j].note.text;
-                                    notes[i].color = data[j].note.color;
-                                    notes[i].x = data[j].note.x;
-                                    notes[i].y = data[j].note.y;
-                                    notes[i].z = data[j].note.z;
+                                    if (data[j].note.value) {
+                                        // TODO : type of update enum
+                                        notes[i].value = data[j].note.value;
+                                    } else {
+                                        notes[i].x = data[j].note.x;
+                                        notes[i].y = data[j].note.y;
+                                        notes[i].z = data[j].note.z;
+                                    }
                                     notes[i].options = data[j].note.options;
                                     console.log("on poll, options for note " + notes[i].id + " : " + notes[i].options);
                                 }
@@ -386,13 +387,12 @@ notepanel.views.panel = function (me) {
         var data = {
             boardId: currentBoard.id,
             userId: notepanel.user.id,
-            text: nt.text,
+            value: nt.value,
             width: nt.width,
             height: nt.height,
             x: nt.x,
             y: nt.y,
             z: notes.length,
-            color: nt.color,
             template: nt.template,
             defaultOptions: nt.defaultOptions,
             ownerOptions: nt.ownerOptions,
