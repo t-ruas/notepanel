@@ -40,13 +40,6 @@ body {
     font-size: 14px;
 }
 
-#div_main_menu ul li {
-    display: block;
-    float: left;
-    margin: -0.8em 1em 0em 1em;
-    padding: 0;
-}
-
 #div_menu {
     position: absolute;
     right: 0px;
@@ -66,9 +59,10 @@ body {
     margin-top: -10em;
     margin-left: -15em;
     border: 1px solid rgb(128, 128, 128);
-    background-color: rgb(212, 212, 212);
+    background-color: #eee; /*rgb(212, 212, 212);*/
     font-size: 0.8em;
-    /*-webkit-border-radius: 3px;border-radius: 3px;*/
+    -webkit-border-radius: 6px;border-radius: 6px;
+    color: inherit;
 }
 
 .box span.close {
@@ -76,11 +70,15 @@ body {
     font-size: 1.5em;
     cursor: pointer;
     font-family: "FontAwesome";
-    margin: 0.1em
+    margin: 0.1em;
 }
 
 .box div.innerbox {
-    margin: 1em;
+    margin: 1.2em;
+}
+
+.box div.innerbox  div.controls{
+    margin: 100px;
 }
 
 .icon {
