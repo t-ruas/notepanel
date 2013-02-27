@@ -1,12 +1,12 @@
 
 notepanel.views.edit = function (me) {
-    
+
     var context = null;
-    
+
     var enabled = false;
 
     var note = null;
-    
+
     $(document).ready(function () {
         $('#div_edit').hide();
     });
@@ -25,19 +25,18 @@ notepanel.views.edit = function (me) {
                         (function (property) {
                             $fields.append('<p>' + property.title + '</p>');
                             switch (property.type) {
-                                case notepanel.notes.editorType.textarea:
-                                    var $ta = $('<textarea rows="5" cols="25" name="' + property.name + '">' + note.value[property.name] + '</textarea>');
+                                case notepanel.notes.editorType.TEXTAREA:
+                                    var $ta = $('<textarea rows="5" cols="25">' + note.value[property.name] + '</textarea>');
                                     $ta.on('keyup', function () {
                                         note.value[property.name] = $(this).val();
                                     });
                                     $fields.append($ta);
                                     break;
-                                case notepanel.notes.editorType.colorPicker:
-                                    var $inpt = $('<input type="hidden" name="' + property.name + ' value="' + note.value[property.name] + '" />');
-                                    $fields.append($inpt);
-                                    $inpt.on('change', function () {
-                                        note.value[property.name] = $(this).val();
+                                case notepanel.notes.editorType.COLORPICKER:
+                                    var $picker = notepanel.template.templates.loadColorPicker(function () {
+                                        note.value[property.name] = this.id;
                                     });
+                                    $fields.append($picker);
                                     break;
                             }
                         })(property);
@@ -45,47 +44,28 @@ notepanel.views.edit = function (me) {
                 }
             }
             notepanel.utils.positionNearNote($divEdit, note);
+            $('#a_close_edit').on('click', onClose);
             $divEdit.show();
             enabled = true;
         }
-        
-        /*
-        var note = currentNote;
-        $('#texta_note').val(note.text);
-        
-            $divEdit = $("#div_edit");
-            // color picker
-            var onClick = function(event) { 
-                currentNote.color = this.id; 
-                event.stopPropagation();
-            };
-            notepanel.template.templates.loadColorPicker(onClick);
-            notepanel.utils.positionNearNote($divEdit, note)
-            $('#a_close_edit').on('click', onCloseEdit);
-            $('#texta_note').on('keyup', { note: note }, onKeyUp);
-            $('#div_edit').show();
-            enabled = true;
-        }
-        */
     };
 
     // Disable this view
     me.disable = function () {
         if (enabled) {
+            note = null;
             $('#a_close_edit').off('click');
-            //$('#texta_note').off('keyup');
-            //$('#sel_choose_fontsize').off('change');
             $('#div_edit').hide();
             $('#div_edit_fields').empty();
             enabled = false;
         }
     };
-    
+
     var onClose = function (e) {
         var data = {
-            boardId: note.boardId,
             id: note.id,
-            value: note.value
+            value: note.value,
+            update: notepanel.notes.updateType.VALUE
         };
         $.ajax({type: 'POST',
                 url: notepanel.servicesUrl + '/notes',
@@ -95,21 +75,8 @@ notepanel.views.edit = function (me) {
             .fail(notepanel.globalErrorHandler);
         me.disable();
         notepanel.views.panel.unlock();
+        return false;
     };
-    
-    /*
-    var onKeyUp = function (e) {
-        var text = $('#texta_note').val();
-        e.data.note.text = text;
-        e.data.note.drawText(context);
-    };
-    
-    var onFontSizeChante = function (e) {
-        e.data.note.fontsize = ('#sel_choose_fontsize').val();
-        console.log("new font size : " + e.data.note.fontsize);
-        //e.data.note.drawText(context);
-    }
-    */
-    
+
     return me;
 }(notepanel.views.edit || {});

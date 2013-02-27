@@ -15,9 +15,9 @@ notepanel.template.templates = function(me) {
         if(loaded) {
             var template = compiledTemplates['hogan-tpl-color-picker'];
             if(template != null) {
-                var htmlColors = template.render({colors: notepanel.template.noteColors});
-                $("#ph_color_picker").html(htmlColors);
-                $("#ph_color_picker div").on("click", onClick);
+                var $htmlColors = $(template.render({colors: notepanel.template.noteColors}));
+                $htmlColors.find('div').on('click', onClick);
+                return $htmlColors;
             } else {
                 console.log('template not found');
             }

@@ -1,6 +1,48 @@
 ﻿
 notepanel.notes = {};
 
+notepanel.notes.updateType = {
+    ADD: 0,
+    POSITION: 1,
+    VALUE: 2,
+    RIGHTS: 3,
+    REMOVE: 4
+};
+
+notepanel.notes.editorType = {
+    TEXTAREA: 0,
+    COLORPICKER: 1
+};
+
+notepanel.notes.ShapeType = {
+    RECTANGLE: 0,
+    PHOTO: 1
+};
+
+notepanel.notes.adapter = {
+    scale: {
+        ratio: 1,
+        x: 0,
+        y: 0
+    },
+    offset: {
+        x: 0,
+        y: 0
+    },
+    move: function (pt) {
+        return {
+            x: this.scale.x + ((pt.x + this.offset.x - this.scale.x) / this.scale.ratio),
+            y: this.scale.y + ((pt.y + this.offset.y - this.scale.y) / this.scale.ratio)
+        };
+    },
+    resize: function (dim) {
+        return {
+            width: dim.width / this.scale.ratio,
+            height: dim.height / this.scale.ratio
+        };
+    }
+};
+
 notepanel.notes.menuButtons = {
     remove: {
         text: '\uF00d',
@@ -21,34 +63,24 @@ notepanel.notes.menuButtons = {
     }
 };
 
-notepanel.notes.editorType = {
-    textarea: 0,
-    colorPicker: 1
-};
-
-notepanel.notes.ShapeType = {
-    rectangle: 0,
-    photo: 1
-};
-
 notepanel.notes.designers = {
     'default': {
         title: 'Simple note',
         shapes: [
             {
-                type: notepanel.notes.ShapeType.rectangle,
+                type: notepanel.notes.ShapeType.RECTANGLE,
                 x: 0,
                 y: 0,
                 width: 100,
                 height: 100,
                 stroke: '#A0A0A0',
                 text: {
-                    type: notepanel.notes.editorType.textarea,
+                    type: notepanel.notes.editorType.TEXTAREA,
                     title: 'Note text',
                     name: 'contents'
                 },
                 fill: {
-                    type: notepanel.notes.editorType.colorPicker,
+                    type: notepanel.notes.editorType.COLORPICKER,
                     title: 'Background color',
                     name: 'color'
                 },
@@ -60,7 +92,7 @@ notepanel.notes.designers = {
         title: 'Note with photo',
         shapes: [
             {
-                type: notepanel.notes.ShapeType.rectangle,
+                type: notepanel.notes.ShapeType.RECTANGLE,
                 x: 0,
                 y: 0,
                 width: 100,
@@ -68,25 +100,25 @@ notepanel.notes.designers = {
                 color: '#FFFFFF'
             },
             {
-                type: notepanel.notes.ShapeType.photo,
+                type: notepanel.notes.ShapeType.PHOTO,
                 x: 10,
                 y: 10,
                 width: 80,
                 height: 60,
                 url: {
-                    type: notepanel.notes.editorType.textarea,
+                    type: notepanel.notes.editorType.TEXTAREA,
                     title: 'Image URL',
                     name: 'imageUrl'
                 }
             },
             {
-                type: notepanel.notes.ShapeType.rectangle,
+                type: notepanel.notes.ShapeType.RECTANGLE,
                 x: 10,
                 y: 80,
                 width: 80,
                 height: 80,
                 text: {
-                    type: notepanel.notes.editorType.textarea,
+                    type: notepanel.notes.editorType.TEXTAREA,
                     title: 'Legend',
                     name: 'legend'
                 }
@@ -116,16 +148,15 @@ notepanel.notes.Note = function (options) {
         x: 0,
         y: 0
     };
-    this.adapter = null;
     $.extend(this, options);
 };
 
 // Adjust node screen relative location based on zoom and board offset.
 notepanel.notes.Note.prototype.relocate = function () {
-    var pt = this.adapter.move.call(this.adapter, this);
+    var pt = notepanel.notes.adapter.move.call(notepanel.notes.adapter, this);
     this.location.x = pt.x;
     this.location.y = pt.y;
-    var dim = this.adapter.resize.call(this.adapter, this);
+    var dim = notepanel.notes.adapter.resize.call(notepanel.notes.adapter, this);
     this.location.width = dim.width;
     this.location.height = dim.height;
 };
@@ -155,8 +186,8 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
     
         var shape = shapes[i];
         
-        if (shape.type === notepanel.notes.ShapeType.rectangle
-                || shape.type === notepanel.notes.ShapeType.photo) {
+        if (shape.type === notepanel.notes.ShapeType.RECTANGLE
+                || shape.type === notepanel.notes.ShapeType.PHOTO) {
             
             var x1 = this.location.x + (this.location.width * shape.x / 100);
             var x2 = x1 + (this.location.width * shape.width / 100);
@@ -256,7 +287,7 @@ notepanel.notes.Note.prototype.isMouseOver = function (pt) {
 };
 
 notepanel.notes.Note.prototype.scale = function (len) {
-    return len / this.adapter.scale.ratio;
+    return len / notepanel.notes.adapter.scale.ratio;
 };
 
 notepanel.notes.Note.prototype.activateMenu = function (pt) {
