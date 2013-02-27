@@ -73,7 +73,7 @@ notepanel.notes.designers = {
                 y: 0,
                 width: 100,
                 height: 100,
-                stroke: '#A0A0A0',
+                stroke: 0xA0A0A0,
                 text: {
                     type: notepanel.notes.editorType.TEXTAREA,
                     title: 'Note text',
@@ -83,7 +83,7 @@ notepanel.notes.designers = {
                     type: notepanel.notes.editorType.COLORPICKER,
                     title: 'Background color',
                     name: 'color',
-                    def: '#FFFFFF',
+                    def: 0xFFFFFF,
                 },
                 shadow: true
             }
@@ -98,7 +98,7 @@ notepanel.notes.designers = {
                 y: 0,
                 width: 100,
                 height: 100,
-                fill: '#FFFFFF'
+                fill: 0xFFFFFF
             },
             {
                 type: notepanel.notes.ShapeType.PHOTO,
@@ -207,7 +207,7 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                 ctx.lineTo(x2 + 4, y2 + 4);
                 ctx.lineTo(x1 + 4, y2 + 4);
                 ctx.closePath();
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillStyle = notepanel.colors.toCssString({r: 0, g: 0, b: 0, a: 64});
                 ctx.fill();
             }
 
@@ -220,40 +220,42 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         }
 
         if ('stroke' in shape) {
+            var col = null;
             switch (typeof shape.stroke) {
                 case 'object':
-                    if (typeof this.value[shape.stroke.name] === 'string') {
-                        ctx.strokeStyle = this.value[shape.stroke.name];
-                    } else if (typeof shape.stroke.def === 'string') {
-                        ctx.strokeStyle = this.value[shape.stroke.name];
-                    } else {
-                        break;
+                    if (typeof this.value[shape.stroke.name] === 'number') {
+                        col = this.value[shape.stroke.name];
+                    } else if (typeof shape.stroke.def === 'number') {
+                        col = shape.stroke.def;
                     }
-                    ctx.stroke();
                     break;
-                case 'string':
-                    ctx.strokeStyle = shape.stroke;
-                    ctx.stroke();
+                case 'number':
+                    col = shape.stroke;
                     break;
+            }
+            if (col) {
+                ctx.strokeStyle = notepanel.colors.toCssString(notepanel.colors.fromRgbInt(col));
+                ctx.stroke();
             }
         }
 
         if ('fill' in shape) {
+            var col = null;
             switch (typeof shape.fill) {
                 case 'object':
-                    if (typeof this.value[shape.fill.name] === 'string') {
-                        ctx.fillStyle = this.value[shape.fill.name];
-                    } else if (typeof shape.fill.def === 'string') {
-                        ctx.fillStyle = shape.fill.def;
-                    } else {
-                        break;
+                    if (typeof this.value[shape.fill.name] === 'number') {
+                        col = this.value[shape.fill.name];
+                    } else if (typeof shape.fill.def === 'number') {
+                        col = shape.fill.def;
                     }
-                    ctx.fill();
                     break;
-                case 'string':
-                    ctx.fillStyle = shape.fill;
-                    ctx.fill();
+                case 'number':
+                    col = shape.fill;
                     break;
+            }
+            if (col) {
+                ctx.fillStyle = notepanel.colors.toCssString(notepanel.colors.fromRgbInt(col));
+                ctx.fill();
             }
         }
 

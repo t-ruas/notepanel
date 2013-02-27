@@ -1,10 +1,5 @@
-function Color(name, code) {
-    this.name = name;
-    this.code = code;
-};
 
-if (typeof notepanel == 'undefined') var notepanel = {}; 
-notepanel.template = notepanel.template || {};
+notepanel.template = {};
 
 notepanel.template.formatNoteText = function(note) {
     var formattedText = note.text;
@@ -13,13 +8,21 @@ notepanel.template.formatNoteText = function(note) {
     return formattedText;
 };
 
+notepanel.template.makeColor = function (value) {
+    var col = notepanel.colors.fromRgbInt(value);
+    return {
+        code: notepanel.colors.toRgbHexString(col),
+        css: notepanel.colors.toCssString(col)
+    };
+};
+
 notepanel.template.noteColors = [
-    new Color("blue", "29a1f1"), 
-    new Color("pink", "ff5e99"),
-    new Color("red", "FF0000"),
-    new Color("yellow", "FFFF99"),
-    new Color("green", "66FF66"),
-    new Color("white", "ffffff")
+    notepanel.template.makeColor(0x29A1F1),
+    notepanel.template.makeColor(0xFF5E99),
+    notepanel.template.makeColor(0xFF0000),
+    notepanel.template.makeColor(0xFFFF99),
+    notepanel.template.makeColor(0x66FF66),
+    notepanel.template.makeColor(0xFFFFFF)
 ];
 
 notepanel.template.canvasText = new CanvasText();

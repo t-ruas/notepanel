@@ -47,12 +47,19 @@ body {
     padding: 0;
 }
 
+#div_edit {
+    border: 1px solid rgb(128, 128, 128);
+    padding: 8px;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
 #div_menu {
     position: absolute;
     right: 0px;
     top: 0px;
     width: 20em;
     height: 100%;
+    border-left: 2px solid rgb(128, 128, 128);
     background-color: rgba(128, 128, 128, 0.5);
 }
 
