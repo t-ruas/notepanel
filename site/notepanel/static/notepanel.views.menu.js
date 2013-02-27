@@ -5,6 +5,18 @@ notepanel.views.menu = function (me) {
 
     $(document).ready(function () {
         $('#div_menu').hide();
+        var $templates = $('#ul_node_templates');
+        for (var n in notepanel.notes.designers) {
+            var $li = $('<li>');
+            $li.append(
+                $('<a href="#">' + notepanel.notes.designers[n].title + '</a>')
+                    .on('click', function (e) {
+                        notepanel.views.panel.addNote(n);
+                        me.disable();
+                        return false;
+                    }));
+            $templates.append($li);
+        }
     });
 
     me.activate = function () {
@@ -18,7 +30,6 @@ notepanel.views.menu = function (me) {
     // Enable this view
     me.enable = function () {
         if (!enabled) {
-            $('#a_add_note').on('click', onAddNote);
             $('#a_invite_user').on('click', onInviteUser);
             $('#a_export_board').on('click', onExportBoard);
             $('#div_menu').show();
@@ -29,7 +40,6 @@ notepanel.views.menu = function (me) {
     // Disable this view
     me.disable = function () {
         if (enabled) {
-            $('#a_add_note').off('click');
             $('#a_invite_user').off('click');
             $('#a_export_board').off('click');
             $('#div_menu').hide();
@@ -61,12 +71,6 @@ notepanel.views.menu = function (me) {
                 xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {});
-        return false;
-    };
-
-    var onAddNote = function (e) {
-        notepanel.views.panel.addNote();
-        me.disable();
         return false;
     };
 

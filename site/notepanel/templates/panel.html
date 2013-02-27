@@ -44,29 +44,29 @@
             {% include "partials/main_menu.html" %}
         </div>
         <div id="div_menu">
-            
-            <a href="#" id="a_add_note">Add a new note</a>
-            
+            <a href="#" id="a_logout">Log out</a>
+            <div>Add a new note :</div>
+            <ul id="ul_node_templates"></ul>
             <div>Board :</div>
-            
+
             <input type="text" id="i_invite_user" size="15" />
             <a href="#" id="a_invite_user">Invite a user as</a>
             <select id="sel_choose_user_group">
                 <option value="4">Viewer</option>
                 <option value="3">Contributor</option>
-                <option value="2">Admin</option>                
+                <option value="2">Admin</option>
             </select>
+
             <a href="#" id="a_export_board">Export board</a>
-            <div id="ph_board_user_list"></div>
         </div>
-        <div id="div_login" class="box">
+        <div id="div_login">
             <input type="text" name="username" />
             <input type="password" name="password" />
             <a href="#" id="a_login">Log in</a>
             New? <a href="#" id="a_to_register">register</a>
             <div id="div_login_result"></div>
         </div>
-        <div id="div_register" class="box">
+        <div id="div_register">
             <input type="text" name="username" />
             <input type="password" name="password" />
             <input type="text" name="email" />
@@ -85,9 +85,8 @@
         <div id="div_fatal">
             Error
         </div>
-        {% include "partials/import_board.html" %}
         {% include "partials/choose_board.html" %}
+        {% include "partials/import_board.html" %}
         {% include "partials/new_board.html" %}
-        
     </body>
 </html>

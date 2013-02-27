@@ -244,48 +244,59 @@ notepanel.views.panel = function (me) {
             .done(function (data, status, xhr) {
                 // Ignore the response if it's from a previous, aborted ajax call
                 if (xhr === currentPollXhr) {
-                    for (var j = 0, jmax = data.length; j < jmax; j++) {
-                        found = false;
+                    var searchById = function (id) {
                         for (var i = notes.length - 1; i >= 0; i--) {
-                            if (data[j].note.id === notes[i].id) {
-                                // Copy all the new properties
-                                switch (data[j].note.update) {
-                                    case notepanel.notes.updateType.REMOVE:
-                                        notes.splice(i, 1);
-                                        setZNotes(0); // recalculate z for notes
-                                        break;
-                                    case notepanel.notes.updateType.VALUE:
-                                        notes[i].value = data[j].note.value;
-                                        break;
-                                    case notepanel.notes.updateType.POSITION:
-                                        notes[i].x = data[j].note.x;
-                                        notes[i].y = data[j].note.y;
-                                        notes[i].z = data[j].note.z;
-                                        notes[i].width = data[j].note.width;
-                                        notes[i].height = data[j].note.height;
-                                        break;
-                                    case notepanel.notes.updateType.RIGHTS:
-                                        notes[i].options = data[j].note.options;
-                                        break;
-                                }
-                                console.log("on poll, options for note " + notes[i].id + " : " + notes[i].options);
-                                found = true;
-                                break;
+                            if (id === notes[i].id) {
+                                return i;
                             }
                         }
-                        if (!found) {
-                            var nt = new notepanel.notes.Note(data[j].note);
-                            nt.relocate();
-                            var menuItems = [];
-                            if(nt.options & notepanel.enums.noteOptions.EDITABLE) {
-                                menuItems.push(notepanel.notes.menuButtons.edit);
+                        throw 'sync error';
+                    };
+                    for (var j = 0, jmax = data.length; j < jmax; j++) {
+                        var nt = data[j].note;
+                        switch (nt.update) {
+                            case notepanel.notes.updateType.ADD: {
+                                var note = new notepanel.notes.Note(nt);
+                                note.relocate();
+                                var menuItems = [];
+                                /*
+                                if(note.options & notepanel.enums.noteOptions.EDITABLE) {
+                                    menuItems.push(notepanel.notes.menuButtons.edit);
+                                }
+                                if(note.options & notepanel.enums.noteOptions.REMOVABLE) {
+                                    menuItems.push(notepanel.notes.menuButtons.remove);
+                                }
+                                */
+                                note.setMenuItems(menuItems);
+                                //nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                                notes.push(note);
+                                break;
                             }
-                            if(nt.options & notepanel.enums.noteOptions.REMOVABLE) {
-                                menuItems.push(notepanel.notes.menuButtons.remove);
+                            case notepanel.notes.updateType.REMOVE: {
+                                var i = searchById(nt.id);
+                                notes.splice(i, 1);
+                                setZNotes(0); // recalculate z for notes
+                                break;
                             }
-                            nt.setMenuItems(menuItems);
-                            //nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
-                            notes.push(nt);
+                            case notepanel.notes.updateType.VALUE: {
+                                var note = notes[searchById(nt.id)];
+                                note.value = nt.value;
+                                break;
+                            }
+                            case notepanel.notes.updateType.POSITION: {
+                                var note = notes[searchById(nt.id)];
+                                note.x = nt.x;
+                                note.y = nt.y;
+                                note.z = nt.z;
+                                note.width = nt.width;
+                                note.height = nt.height;
+                                break;
+                            }
+                            case notepanel.notes.updateType.RIGHTS: {
+                                var note = notes[searchById(nt.id)];
+                                note.options = nt.options;
+                                break;
+                            }
                         }
                         // Double check in case they aren't ordered
                         version = data[j].version > version ? data[j].version : version;
@@ -360,30 +371,25 @@ notepanel.views.panel = function (me) {
     };
 
     // Add a new note to the list (from the menu)
-    me.addNote = function () {
-        var nt = new notepanel.notes.Note({x: 50, y: 50});
-        nt.defaultOptions = notepanel.enums.noteOptions.ALL;
-        nt.ownerOptions = notepanel.enums.noteOptions.ALL;
-        nt.adminOptions = notepanel.enums.noteOptions.ALL;
-        nt.contributorOptions = notepanel.enums.noteOptions.EDITABLE;
-        
+    me.addNote = function (designer) {
+
         var data = {
             update: notepanel.notes.updateType.ADD,
             boardId: currentBoard.id,
             userId: notepanel.user.id,
-            value: nt.value,
-            width: nt.width,
-            height: nt.height,
-            x: nt.x,
-            y: nt.y,
+            value: {},
+            width: 350,
+            height: 250,
+            x: 50,
+            y: 50,
             z: notes.length,
-            width: nt.width,
-            height: nt.height,
-            template: nt.template,
-            defaultOptions: nt.defaultOptions,
-            ownerOptions: nt.ownerOptions,
-            adminOptions: nt.adminOptions,
-            contributorOptions: nt.contributorOptions
+            width: 350,
+            height: 275,
+            template: designer,
+            defaultOptions: notepanel.enums.noteOptions.ALL,
+            ownerOptions: notepanel.enums.noteOptions.ALL,
+            adminOptions: notepanel.enums.noteOptions.ALL,
+            contributorOptions: notepanel.enums.noteOptions.EDITABLE
         };
 
         $.ajax({type: 'POST',
