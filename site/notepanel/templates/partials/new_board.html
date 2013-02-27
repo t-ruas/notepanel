@@ -1,12 +1,15 @@
-<div id="div_new_board" class="box">
-    <span id="s_new_board_close">Close</span><br/>
-    <label for="i_create_board"> Board name : <label><input type="text" id="i_create_board" size="30" /><br/>
-    <label for="sel_choose_board_type"> Board privacy : <label>
-    <select id="sel_choose_board_type">
-        <option value="1">Private</option>
-        <option value="2">Internal (read only)</option>
-        <option value="3">Internal (editable)</option>
-        <option value="4">Public</option>
-    </select><br/>
-    <a href="#" id="a_create_board">Create board</a>
-<div>
+{% extends "partials/box_base.html" %}
+
+{% block content %}
+    <div class="innerbox">
+        <label for="i_create_board"> Board name : <label><input type="text" id="i_create_board" size="30" /><br/>
+        <label for="sel_choose_board_type"> Board privacy : <label>
+        <select id="sel_choose_board_type">
+            <option value="1">Private</option>
+            <option value="2">Internal (read only)</option>
+            <option value="3">Internal (editable)</option>
+            <option value="4">Public</option>
+        </select><br/>
+        <a href="#" id="a_create_board">Create board</a>
+    <div>
+{% endblock %}

@@ -52,8 +52,6 @@ notepanel.template.templates = function(me) {
             if(template != null) {
                 var htmlBoards = template.render({label: list.label, id: list.id, boards: list.boards});
                 $("#"+placeHolderId).html(htmlBoards);
-                //$("#ph_color_picker").html(htmlColors);
-                //$("#ph_color_picker div").on("click", onClick);
             } else {
                 console.log('Template not found');
             }
