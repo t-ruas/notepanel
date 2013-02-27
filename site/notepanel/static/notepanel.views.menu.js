@@ -7,15 +7,18 @@ notepanel.views.menu = function (me) {
         $('#div_menu').hide();
         var $templates = $('#ul_node_templates');
         for (var n in notepanel.notes.designers) {
-            var $li = $('<li>');
-            $li.append(
-                $('<a href="#">' + notepanel.notes.designers[n].title + '</a>')
-                    .on('click', function (e) {
-                        notepanel.views.panel.addNote(n);
-                        me.disable();
-                        return false;
-                    }));
-            $templates.append($li);
+            (function (n) {
+                $templates.append(
+                    $('<li>').append(
+                        $('<a href="#">' + notepanel.notes.designers[n].title + '</a>')
+                            .on('click', function (e) {
+                                notepanel.views.panel.addNote(n);
+                                me.disable();
+                                return false;
+                            })
+                    )
+                );
+            })(n);
         }
     });
 
