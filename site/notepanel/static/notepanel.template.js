@@ -26,7 +26,8 @@ notepanel.template.canvasText = new CanvasText();
 
 notepanel.template.canvasText.config({
     canvasId: "canvas_board",
-    fontFamily: "GoodDogRegular",
+    //fontFamily: "GoodDogRegular",
+    fontFamily: "JournalRegular",
     fontSize: "32px",
     fontWeight: "normal",
     fontColor: "#000",
