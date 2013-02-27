@@ -26,7 +26,7 @@ notepanel.views.edit = function (me) {
                             $fields.append('<p>' + property.title + '</p>');
                             switch (property.type) {
                                 case notepanel.notes.editorType.TEXTAREA:
-                                    var $ta = $('<textarea rows="5" cols="25">' + note.value[property.name] || '' + '</textarea>');
+                                    var $ta = $('<textarea rows="5" cols="25">' + (note.value[property.name] || '') + '</textarea>');
                                     $ta.on('keyup', function () {
                                         note.value[property.name] = $(this).val();
                                     });

@@ -266,7 +266,7 @@ notepanel.views.panel = function (me) {
                                 }
                                 */
                                 note.setMenuItems(menuItems);
-                                //nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                                note.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                                 notes.push(note);
                                 break;
                             }
