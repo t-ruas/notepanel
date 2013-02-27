@@ -239,8 +239,7 @@ notepanel.views.panel = function (me) {
         currentPollXhr = $.ajax({type: 'GET',
                 url: notepanel.servicesUrl + '/boards/poll?boardId=' + currentBoard.id + '&version=' + version,
                 xhrFields: {withCredentials: true},
-                dataType: 'json',
-                /* timeout: 30000,*/})
+                dataType: 'json'/*,timeout: 10000*/})
             .done(function (data, status, xhr) {
                 // Ignore the response if it's from a previous, aborted ajax call
                 if (xhr === currentPollXhr) {
@@ -305,9 +304,14 @@ notepanel.views.panel = function (me) {
                     poll();
                 }
             })
-            .fail(function (xhr) {
+            .fail(function (xhr, status) {
                 if (xhr === currentPollXhr) {
-                    notepanel.ajaxErrorHandler.apply(this, arguments);
+                    if (status === 'timeout') {
+                        currentPollXhr = null;
+                        poll();
+                    } else {
+                        notepanel.ajaxErrorHandler.apply(this, arguments);
+                    }
                 }
             });
     };

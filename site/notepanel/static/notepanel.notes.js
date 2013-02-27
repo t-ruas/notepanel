@@ -82,7 +82,8 @@ notepanel.notes.designers = {
                 fill: {
                     type: notepanel.notes.editorType.COLORPICKER,
                     title: 'Background color',
-                    name: 'color'
+                    name: 'color',
+                    def: '#FFFFFF',
                 },
                 shadow: true
             }
@@ -223,8 +224,12 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                 case 'object':
                     if (typeof this.value[shape.stroke.name] === 'string') {
                         ctx.strokeStyle = this.value[shape.stroke.name];
-                        ctx.stroke();
+                    } else if (typeof shape.stroke.def === 'string') {
+                        ctx.strokeStyle = this.value[shape.stroke.name];
+                    } else {
+                        break;
                     }
+                    ctx.stroke();
                     break;
                 case 'string':
                     ctx.strokeStyle = shape.stroke;
@@ -238,6 +243,10 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                 case 'object':
                     if (typeof this.value[shape.fill.name] === 'string') {
                         ctx.fillStyle = this.value[shape.fill.name];
+                    } else if (typeof shape.fill.def === 'string') {
+                        ctx.fillStyle = shape.fill.def;
+                    } else {
+                        break;
                     }
                     ctx.fill();
                     break;
