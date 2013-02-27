@@ -123,7 +123,8 @@ notepanel.notes.designers = {
                 text: {
                     type: notepanel.notes.editorType.TEXTAREA,
                     title: 'Legend',
-                    name: 'legend'
+                    name: 'legend',
+                    max: 20
                 }
             }
         ]
@@ -318,10 +319,13 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         }
 
         if ('text' in shape) {
+            var lh = this.scale(32);
+            notepanel.template.canvasText.lineHeight = lh + 'px';
+            notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
             var options = {
                 x: x1,
-                y: y1 + this.scale(parseInt(notepanel.template.canvasText.lineHeight) + 4),
-                boxWidth: (this.location.width * shape.width / 100)
+                y: y1 + lh,
+                boxWidth: w
             };
             switch (typeof shape.text) {
                 case 'object':
@@ -334,7 +338,6 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                     break;
             }
             if (options.text) {
-                notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
                 notepanel.template.canvasText.drawText(options);
             }
         }
