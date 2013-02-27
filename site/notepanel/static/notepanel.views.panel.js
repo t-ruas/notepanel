@@ -43,30 +43,6 @@ notepanel.views.panel = function (me) {
     // Loop timer so we can stop drawing during an update
     var currentTimer = null;
 
-    var adapter = {
-        scale: {
-            ratio: 1,
-            x: 0,
-            y: 0
-        },
-        offset: {
-            x: 0,
-            y: 0
-        },
-        move: function (pt) {
-            return {
-                x: this.scale.x + ((pt.x + this.offset.x - this.scale.x) / this.scale.ratio),
-                y: this.scale.y + ((pt.y + this.offset.y - this.scale.y) / this.scale.ratio)
-            };
-        },
-        resize: function (dim) {
-            return {
-                width: dim.width / this.scale.ratio,
-                height: dim.height / this.scale.ratio
-            };
-        }
-    };
-
     // Last mouse coordinates.
     var mouse = {
         x: 0,
@@ -79,8 +55,8 @@ notepanel.views.panel = function (me) {
         $canvas = $('#canvas_board');
         context = $canvas.get(0).getContext('2d');
         adjustCanvas();
-        adapter.scale.x = $canvas.width() / 2;
-        adapter.scale.y = $canvas.height() / 2;
+        notepanel.notes.adapter.scale.x = $canvas.width() / 2;
+        notepanel.notes.adapter.scale.y = $canvas.height() / 2;
         $('#div_panel').hide();
     });
 
@@ -126,8 +102,8 @@ notepanel.views.panel = function (me) {
 
     var onMouseWheel = function (e, delta, deltaX, deltaY) {
         delta = -delta / 2;
-        if ((delta < 0 && adapter.scale.ratio > 1) || (delta > 0 && adapter.scale.ratio < 4)) {
-            adapter.scale.ratio += delta;
+        if ((delta < 0 && notepanel.notes.adapter.scale.ratio > 1) || (delta > 0 && notepanel.notes.adapter.scale.ratio < 4)) {
+            notepanel.notes.adapter.scale.ratio += delta;
             for (var i = 0, imax = notes.length; i < imax; i++) {
                 notes[i].relocate();
             }
@@ -143,18 +119,18 @@ notepanel.views.panel = function (me) {
                 y: pt.y - mouse.y
             };
             if (mode === modes.board) {
-                adapter.offset.x += mvmnt.x;
-                adapter.offset.y += mvmnt.y;
-                adapter.scale.x += mvmnt.x;
-                adapter.scale.y += mvmnt.y;
+                notepanel.notes.adapter.offset.x += mvmnt.x;
+                notepanel.notes.adapter.offset.y += mvmnt.y;
+                notepanel.notes.adapter.scale.x += mvmnt.x;
+                notepanel.notes.adapter.scale.y += mvmnt.y;
                 for (var i = 0, imax = notes.length; i < imax; i++) {
                     var note = notes[i];
                     note.location.x += mvmnt.x;
                     note.location.y += mvmnt.y;
                 }
             } else if (mode === modes.note) {
-                movingNote.x += mvmnt.x * adapter.scale.ratio;
-                movingNote.y += mvmnt.y * adapter.scale.ratio;
+                movingNote.x += mvmnt.x * notepanel.notes.adapter.scale.ratio;
+                movingNote.y += mvmnt.y * notepanel.notes.adapter.scale.ratio;
                 movingNote.location.x += mvmnt.x;
                 movingNote.location.y += mvmnt.y;
             }
@@ -215,11 +191,13 @@ notepanel.views.panel = function (me) {
     var onMouseUp = function (e) {
         if (mode === modes.note) {
             var data = {
-                boardId: currentBoard.id,
                 id: movingNote.id,
                 x: movingNote.x,
                 y: movingNote.y,
-                z: movingNote.z
+                z: movingNote.z,
+                width: movingNote.width,
+                height: movingNote.height,
+                update: notepanel.notes.updateType.POSITION
             };
             $.ajax({type: 'POST',
                     url: notepanel.servicesUrl + '/notes',
@@ -270,29 +248,33 @@ notepanel.views.panel = function (me) {
                         found = false;
                         for (var i = notes.length - 1; i >= 0; i--) {
                             if (data[j].note.id === notes[i].id) {
-                                if (data[j].note.deleted) {
-                                    notes.splice(i, 1);
-                                    setZNotes(0); // recalculate z for notes
-                                } else {
-                                    // Copy all the new properties
-                                    if (data[j].note.value) {
-                                        // TODO : type of update enum
+                                // Copy all the new properties
+                                switch (data[j].note.update) {
+                                    case notepanel.notes.updateType.REMOVE:
+                                        notes.splice(i, 1);
+                                        setZNotes(0); // recalculate z for notes
+                                        break;
+                                    case notepanel.notes.updateType.VALUE:
                                         notes[i].value = data[j].note.value;
-                                    } else {
+                                        break;
+                                    case notepanel.notes.updateType.POSITION:
                                         notes[i].x = data[j].note.x;
                                         notes[i].y = data[j].note.y;
                                         notes[i].z = data[j].note.z;
-                                    }
-                                    notes[i].options = data[j].note.options;
-                                    console.log("on poll, options for note " + notes[i].id + " : " + notes[i].options);
+                                        notes[i].width = data[j].note.width;
+                                        notes[i].height = data[j].note.height;
+                                        break;
+                                    case notepanel.notes.updateType.RIGHTS:
+                                        notes[i].options = data[j].note.options;
+                                        break;
                                 }
+                                console.log("on poll, options for note " + notes[i].id + " : " + notes[i].options);
                                 found = true;
                                 break;
                             }
                         }
                         if (!found) {
                             var nt = new notepanel.notes.Note(data[j].note);
-                            nt.adapter = adapter;
                             nt.relocate();
                             var menuItems = [];
                             if(nt.options & notepanel.enums.noteOptions.EDITABLE) {
@@ -347,7 +329,6 @@ notepanel.views.panel = function (me) {
                 // Set notes
                 for (var i = 0, imax = data.notes.length; i < imax; i++) {
                     var nt = new notepanel.notes.Note(data.notes[i]);
-                    nt.adapter = adapter;
                     nt.relocate();
                     /* TODO */
                     var menuItems = [];
@@ -387,6 +368,7 @@ notepanel.views.panel = function (me) {
         nt.contributorOptions = notepanel.enums.noteOptions.EDITABLE;
         
         var data = {
+            update: notepanel.notes.updateType.ADD,
             boardId: currentBoard.id,
             userId: notepanel.user.id,
             value: nt.value,
@@ -395,6 +377,8 @@ notepanel.views.panel = function (me) {
             x: nt.x,
             y: nt.y,
             z: notes.length,
+            width: nt.width,
+            height: nt.height,
             template: nt.template,
             defaultOptions: nt.defaultOptions,
             ownerOptions: nt.ownerOptions,
