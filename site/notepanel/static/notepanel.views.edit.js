@@ -23,7 +23,7 @@ notepanel.views.edit = function (me) {
                     var property = shapes[i][m];
                     if (typeof property === 'object') {
                         (function (property) {
-                            $fields.append('<p>' + property.title + '</p>');
+                            $fields.append('<div>' + property.title + '</div>');
                             switch (property.type) {
                                 case notepanel.notes.editorType.TEXTAREA:
                                     var $ta = $('<textarea rows="5" cols="25">' + (note.value[property.name] || '') + '</textarea>');
@@ -34,7 +34,7 @@ notepanel.views.edit = function (me) {
                                     break;
                                 case notepanel.notes.editorType.COLORPICKER:
                                     var $picker = notepanel.template.templates.loadColorPicker(function () {
-                                        note.value[property.name] = this.id;
+                                        note.value[property.name] = notepanel.colors.toRgbInt(notepanel.colors.fromHexString(this.id));
                                     });
                                     $fields.append($picker);
                                     break;

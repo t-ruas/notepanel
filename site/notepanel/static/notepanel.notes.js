@@ -73,7 +73,7 @@ notepanel.notes.designers = {
                 y: 0,
                 width: 100,
                 height: 100,
-                stroke: '#A0A0A0',
+                stroke: 0xA0A0A0,
                 text: {
                     type: notepanel.notes.editorType.TEXTAREA,
                     title: 'Note text',
@@ -83,9 +83,9 @@ notepanel.notes.designers = {
                     type: notepanel.notes.editorType.COLORPICKER,
                     title: 'Background color',
                     name: 'color',
-                    def: '#FFFFFF',
+                    def: 0xFFFFFF,
                 },
-                shadow: true
+                base: true
             }
         ]
     },
@@ -98,7 +98,9 @@ notepanel.notes.designers = {
                 y: 0,
                 width: 100,
                 height: 100,
-                fill: '#FFFFFF'
+                fill: 0xFFFFFF,
+                stroke: 0xC0C0C0,
+                base: true
             },
             {
                 type: notepanel.notes.ShapeType.PHOTO,
@@ -182,10 +184,16 @@ notepanel.notes.Note.prototype.remove = function() {
 // Cache for images displayed in notes
 notepanel.notes.imageCache = {};
 
+notepanel.notes.movingElev = 12;
+notepanel.notes.baseElev = 4;
+
 notepanel.notes.Note.prototype.draw = function (ctx) {
 
     var shapes = notepanel.notes.designers[this.template].shapes;
-
+    
+    var movingElev = this.scale(notepanel.notes.movingElev);
+    var baseElev = this.scale(notepanel.notes.baseElev);
+    
     for (var i = 0, imax = shapes.length; i < imax; i++) {
 
         var shape = shapes[i];
@@ -200,14 +208,25 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             var h = (this.location.height * shape.height / 100);
             var y2 = y1 + h;
 
-            if (shape.shadow) {
+            if (this.moving) {
+                x1 -= movingElev;
+                x2 -= movingElev;
+                y1 -= movingElev;
+                y2 -= movingElev;
+            }
+
+            if (shape.base) {
+                var dist = baseElev;
+                if (this.moving) {
+                    dist += movingElev;
+                }
                 ctx.beginPath();
-                ctx.moveTo(x1 + 4, y1 + 4);
-                ctx.lineTo(x2 + 4, y1 + 4);
-                ctx.lineTo(x2 + 4, y2 + 4);
-                ctx.lineTo(x1 + 4, y2 + 4);
+                ctx.moveTo(x1 + dist, y1 + dist);
+                ctx.lineTo(x2 + dist, y1 + dist);
+                ctx.lineTo(x2 + dist, y2 + dist);
+                ctx.lineTo(x1 + dist, y2 + dist);
                 ctx.closePath();
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillStyle = notepanel.colors.toCssString({r: 0, g: 0, b: 0, a: 64});
                 ctx.fill();
             }
 
@@ -220,40 +239,50 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         }
 
         if ('stroke' in shape) {
+            var col = null;
             switch (typeof shape.stroke) {
                 case 'object':
-                    if (typeof this.value[shape.stroke.name] === 'string') {
-                        ctx.strokeStyle = this.value[shape.stroke.name];
-                    } else if (typeof shape.stroke.def === 'string') {
-                        ctx.strokeStyle = this.value[shape.stroke.name];
-                    } else {
-                        break;
+                    if (typeof this.value[shape.stroke.name] === 'number') {
+                        col = this.value[shape.stroke.name];
+                    } else if (typeof shape.stroke.def === 'number') {
+                        col = shape.stroke.def;
                     }
-                    ctx.stroke();
                     break;
-                case 'string':
-                    ctx.strokeStyle = shape.stroke;
-                    ctx.stroke();
+                case 'number':
+                    col = shape.stroke;
                     break;
+            }
+            if (col) {
+                var c = notepanel.colors.fromRgbInt(col);
+                if (this.hovered) {
+                    notepanel.colors.darken(c, 64);
+                }
+                ctx.strokeStyle = notepanel.colors.toCssString(c);
+                ctx.stroke();
             }
         }
 
         if ('fill' in shape) {
+            var col = null;
             switch (typeof shape.fill) {
                 case 'object':
-                    if (typeof this.value[shape.fill.name] === 'string') {
-                        ctx.fillStyle = this.value[shape.fill.name];
-                    } else if (typeof shape.fill.def === 'string') {
-                        ctx.fillStyle = shape.fill.def;
-                    } else {
-                        break;
+                    if (typeof this.value[shape.fill.name] === 'number') {
+                        col = this.value[shape.fill.name];
+                    } else if (typeof shape.fill.def === 'number') {
+                        col = shape.fill.def;
                     }
-                    ctx.fill();
                     break;
-                case 'string':
-                    ctx.fillStyle = shape.fill;
-                    ctx.fill();
+                case 'number':
+                    col = shape.fill;
                     break;
+            }
+            if (col) {
+                var c = notepanel.colors.fromRgbInt(col);
+                if (this.hovered) {
+                    notepanel.colors.lighten(c, 16);
+                }
+                ctx.fillStyle = notepanel.colors.toCssString(c);
+                ctx.fill();
             }
         }
 
@@ -290,8 +319,8 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
 
         if ('text' in shape) {
             var options = {
-                x: this.location.x + (this.location.width * shape.x / 100),
-                y: this.location.y + (this.location.height * shape.y / 100) + this.scale(parseInt(notepanel.template.canvasText.lineHeight)),
+                x: x1,
+                y: y1 + this.scale(parseInt(notepanel.template.canvasText.lineHeight) + 4),
                 boxWidth: (this.location.width * shape.width / 100)
             };
             switch (typeof shape.text) {
@@ -310,7 +339,7 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             }
         }
     }
-
+    
     if (this.hovered) {
         // draw note menu on the hovered note
         ctx.font = '14 px "FontAwesome"';
@@ -318,7 +347,10 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         ctx.textBaseline = 'bottom';
         ctx.textAlign = 'start';
         // TODO : manage template with menu starting either from left and right
-        var startX = this.location.x + this.location.width; // from right
+        var startX = this.location.x + this.location.width;
+        if (this.moving) {
+            startX -= movingElev;
+        }
         this.menu.x = startX - this.menu.width;
         //this.menu.items.reverse();
         // menu starting from left
@@ -326,6 +358,9 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         //menu.x = startX
         // drawing menu from left
         this.menu.y = this.location.y - this.menu.height;
+        if (this.moving) {
+            this.menu.y -= movingElev;
+        }
         for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
             var item = this.menu.items[i];
             item.y = this.menu.y;

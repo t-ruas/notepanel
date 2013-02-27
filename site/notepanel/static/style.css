@@ -39,6 +39,11 @@ body {
     background-color: rgba(128, 128, 128, 0.5);
     font-size: 14px;
 }
+#div_edit {
+    border: 1px solid rgb(128, 128, 128);
+    padding: 8px;
+    background-color: rgba(128, 128, 128, 0.5);
+}
 
 #div_menu {
     position: absolute;
@@ -46,10 +51,10 @@ body {
     top: 0px;
     width: 20em;
     height: 100%;
+    border-left: 2px solid rgb(128, 128, 128);
     background-color: rgba(128, 128, 128, 0.5);
 }
 
-/*#div_login, #div_register, #div_new_board, #div_choose_board, #div_import_board*/ 
 .box {
     position: absolute;
     top: 50%;
