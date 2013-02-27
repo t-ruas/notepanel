@@ -5,6 +5,18 @@ notepanel.views.menu = function (me) {
 
     $(document).ready(function () {
         $('#div_menu').hide();
+        var $templates = $('#ul_node_templates');
+        for (var n in notepanel.notes.designers) {
+            var $li = $('<li>');
+            $li.append(
+                $('<a href="#">' + notepanel.notes.designers[n].title + '</a>')
+                    .on('click', function (e) {
+                        notepanel.views.panel.addNote(n);
+                        me.disable();
+                        return false;
+                    }));
+            $templates.append($li);
+        }
     });
 
     me.activate = function () {
@@ -19,7 +31,6 @@ notepanel.views.menu = function (me) {
     me.enable = function () {
         if (!enabled) {
             $('#a_logout').on('click', onLogout);
-            $('#a_add_note').on('click', onAddNote);
             $('#a_create_board').on('click', onCreateBoard);
             $('#a_refresh_boards').on('click', onRefreshBoards);
             $('#sel_choose_board').on('change', onChooseBoard);
@@ -35,7 +46,6 @@ notepanel.views.menu = function (me) {
     me.disable = function () {
         if (enabled) {
             $('#a_logout').off('click');
-            $('#a_add_note').off('click');
             $('#a_create_board').off('click');
             $('#a_refresh_boards').off('click');
             $('#sel_choose_board').off('change');
@@ -73,13 +83,7 @@ notepanel.views.menu = function (me) {
             .done(function (data) {});
         return false;
     };
-
-    var onAddNote = function (e) {
-        notepanel.views.panel.addNote();
-        me.disable();
-        return false;
-    };
-
+    
     var onCreateBoard = function (e) {
         var board = {name: $('#i_create_board').val()};
         $.ajax({type: 'POST',

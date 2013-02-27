@@ -97,7 +97,7 @@ notepanel.notes.designers = {
                 y: 0,
                 width: 100,
                 height: 100,
-                color: '#FFFFFF'
+                fill: '#FFFFFF'
             },
             {
                 type: notepanel.notes.ShapeType.PHOTO,
@@ -134,9 +134,9 @@ notepanel.notes.Note = function (options) {
     this.z = 0;
     this.width = 350;
     this.height = 275;
-    this.value = {contents: 'new sticky note', color: '#66AAEE'};
+    this.value = {};
     this.template = 'default';
-    this.options = notepanel.enums.noteOptions.NONE;
+    //this.options = notepanel.enums.noteOptions.NONE;
     this.menu = {
         x: 0,
         y: 0,
@@ -178,22 +178,27 @@ notepanel.notes.Note.prototype.remove = function() {
         .fail(notepanel.globalErrorHandler);
 };
 
+// Cache for images displayed in notes
+notepanel.notes.imageCache = {};
+
 notepanel.notes.Note.prototype.draw = function (ctx) {
 
     var shapes = notepanel.notes.designers[this.template].shapes;
 
     for (var i = 0, imax = shapes.length; i < imax; i++) {
-    
+
         var shape = shapes[i];
-        
+
         if (shape.type === notepanel.notes.ShapeType.RECTANGLE
                 || shape.type === notepanel.notes.ShapeType.PHOTO) {
-            
+
             var x1 = this.location.x + (this.location.width * shape.x / 100);
-            var x2 = x1 + (this.location.width * shape.width / 100);
+            var w = (this.location.width * shape.width / 100);
+            var x2 = x1 + w;
             var y1 = this.location.y + (this.location.height * shape.y / 100);
-            var y2 = y1 + (this.location.height * shape.height / 100);
-            
+            var h = (this.location.height * shape.height / 100);
+            var y2 = y1 + h;
+
             if (shape.shadow) {
                 ctx.beginPath();
                 ctx.moveTo(x1 + 4, y1 + 4);
@@ -204,7 +209,7 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                 ctx.fill();
             }
-            
+
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y1);
@@ -212,52 +217,91 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             ctx.lineTo(x1, y2);
             ctx.closePath();
         }
-        
+
         if ('stroke' in shape) {
             switch (typeof shape.stroke) {
                 case 'object':
-                    ctx.strokeStyle = this.value[shape.stroke.name];
-                    ctx.stroke();
+                    if (typeof this.value[shape.stroke.name] === 'string') {
+                        ctx.strokeStyle = this.value[shape.stroke.name];
+                        ctx.stroke();
+                    }
                     break;
-                case 'number':
+                case 'string':
                     ctx.strokeStyle = shape.stroke;
                     ctx.stroke();
                     break;
             }
         }
-        
+
         if ('fill' in shape) {
             switch (typeof shape.fill) {
                 case 'object':
-                    ctx.fillStyle = this.value[shape.fill.name];
+                    if (typeof this.value[shape.fill.name] === 'string') {
+                        ctx.fillStyle = this.value[shape.fill.name];
+                    }
                     ctx.fill();
                     break;
-                case 'number':
+                case 'string':
                     ctx.fillStyle = shape.fill;
                     ctx.fill();
                     break;
             }
         }
-        
+
+        if (shape.type === notepanel.notes.ShapeType.PHOTO) {
+            var url;
+            switch (typeof shape.url) {
+                case 'object':
+                    if (typeof this.value[shape.url.name] === 'string') {
+                        url = this.value[shape.url.name];
+                    }
+                    break;
+                case 'string':
+                    url = shape.url;
+                    break;
+            }
+            if (url) {
+                if (url in notepanel.notes.imageCache) {
+                    if (notepanel.notes.imageCache[url].loaded) {
+                        ctx.drawImage(notepanel.notes.imageCache[url].image, x1, y1, w, h);
+                    }
+                } else {
+                    var img = new Image();
+                    notepanel.notes.imageCache[url] = {
+                        loaded: false,
+                        image: img
+                    }
+                    img.onload = function () {
+                        notepanel.notes.imageCache[url].loaded = true;
+                    };
+                    img.src = url;
+                }
+            }
+        }
+
         if ('text' in shape) {
             var options = {
-                x: this.location.x + (this.location.width * shape.x / 100) + this.scale(10),
+                x: this.location.x + (this.location.width * shape.x / 100),
                 y: this.location.y + (this.location.height * shape.y / 100) + this.scale(parseInt(notepanel.template.canvasText.lineHeight)),
-                boxWidth: (this.location.width * shape.width / 100) - (this.scale(10) + this.scale(10))
+                boxWidth: (this.location.width * shape.width / 100)
             };
-            switch (typeof shape.fill) {
+            switch (typeof shape.text) {
                 case 'object':
-                    options.text = this.value[shape.text.name];
+                    if (typeof this.value[shape.text.name] === 'string') {
+                        options.text = this.value[shape.text.name];
+                    }
                     break;
                 case 'string':
                     options.text = shape.text;
                     break;
             }
-            notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
-            notepanel.template.canvasText.drawText(options);
+            if (options.text) {
+                notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
+                notepanel.template.canvasText.drawText(options);
+            }
         }
     }
-    
+
     if (this.hovered) {
         // draw note menu on the hovered note
         ctx.font = '14 px "FontAwesome"';
