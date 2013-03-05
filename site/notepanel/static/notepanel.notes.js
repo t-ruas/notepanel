@@ -176,7 +176,7 @@ notepanel.notes.Note.prototype.setMenuItems = function (items) {
 
 notepanel.notes.Note.prototype.remove = function() {
     $.ajax({type: 'DELETE',
-            url: notepanel.servicesUrl + '/notes?noteId=' + this.id + '&boardId=' + this.boardId,
+            url: notepanel.servicesUrl + '/notes/' + this.id,
             xhrFields: {withCredentials: true},
             dataType: 'json'})
         .fail(notepanel.globalErrorHandler);

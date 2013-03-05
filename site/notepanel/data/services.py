@@ -19,7 +19,7 @@ class UserService(object):
         return self.session.query(User).\
             filter(User.id == id).\
             first()
-            
+
     def get_by_name(self, name):
         return self.session.query(User).\
             filter(User.name == name).\

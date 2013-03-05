@@ -59,21 +59,13 @@ notepanel.views.menu = function (me) {
     }
 
     var onLogout = function (e) {
-        // logout from board server
         $.ajax({type: 'GET',
-                url: notepanel.servicesUrl + '/users/logout',
-                xhrFields: {withCredentials: true},
+                url: '/users/logout',
                 dataType: 'json'})
             .done(function (data) {
                 notepanel.reset();
             })
             .fail(notepanel.ajaxErrorHandler);
-        // logout from website
-        $.ajax({type: 'GET',
-                url: '/logout',
-                xhrFields: {withCredentials: true},
-                dataType: 'json'})
-            .done(function (data) {});
         return false;
     };
 

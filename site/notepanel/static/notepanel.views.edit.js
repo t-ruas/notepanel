@@ -68,7 +68,7 @@ notepanel.views.edit = function (me) {
             update: notepanel.notes.updateType.VALUE
         };
         $.ajax({type: 'POST',
-                url: notepanel.servicesUrl + '/notes',
+                url: notepanel.servicesUrl + '/notes/' + note.id,
                 xhrFields: {withCredentials: true},
                 dataType: 'json',
                 data: JSON.stringify(data)})

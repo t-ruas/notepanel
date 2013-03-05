@@ -10,16 +10,10 @@ notepanel.ajaxErrorHandler = function (xhr) {
 };
 
 notepanel.reset = function () {
-
-    
-
     notepanel.user = null;
-
     notepanel.views.wait.enable();
-
     $.ajax({type: 'GET',
-            url: notepanel.servicesUrl + '/users/identify',
-            xhrFields: {withCredentials: true},
+            url: '/users/identify',
             dataType: 'json'})
         .done(function (data) {
             notepanel.setUser(data);

@@ -52,7 +52,6 @@ notepanel.views.chooseboard = function (me) {
     var loadBoardList = function(placeHolder, url, listId, listLabel) {
         $.ajax({type: 'GET',
                 url: url,
-                xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
                 // check if data.boards.length > 0
@@ -71,7 +70,6 @@ notepanel.views.chooseboard = function (me) {
         //notepanel.views.wait.enable();
         $.ajax({type: 'GET',
                 url: '/board/' + this.id,
-                xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
                 notepanel.views.panel.setBoard(data.board, data.user_group);

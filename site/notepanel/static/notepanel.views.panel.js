@@ -200,7 +200,7 @@ notepanel.views.panel = function (me) {
                 update: notepanel.notes.updateType.POSITION
             };
             $.ajax({type: 'POST',
-                    url: notepanel.servicesUrl + '/notes',
+                    url: notepanel.servicesUrl + '/notes/' + movingNote.id,
                     xhrFields: {withCredentials: true},
                     dataType: 'json',
                     data: JSON.stringify(data)})
@@ -237,7 +237,7 @@ notepanel.views.panel = function (me) {
     var poll = function () {
         interruptPolling();
         currentPollXhr = $.ajax({type: 'GET',
-                url: notepanel.servicesUrl + '/boards/poll?boardId=' + currentBoard.id + '&version=' + version,
+                url: notepanel.servicesUrl + '/notes/poll/' + version,
                 xhrFields: {withCredentials: true},
                 dataType: 'json'/*,timeout: 10000*/})
             .done(function (data, status, xhr) {
@@ -337,7 +337,7 @@ notepanel.views.panel = function (me) {
         interruptDrawing();
         notes.length = 0;
         $.ajax({type: 'GET',
-                url: notepanel.servicesUrl + '/notes?boardId=' + me.getBoardId(),
+                url: notepanel.servicesUrl + '/notes',
                 xhrFields: {withCredentials: true},
                 dataType: 'json'})
             .done(function (data) {
@@ -345,7 +345,7 @@ notepanel.views.panel = function (me) {
                 for (var i = 0, imax = data.notes.length; i < imax; i++) {
                     var nt = new notepanel.notes.Note(data.notes[i]);
                     nt.relocate();
-                    /* TODO */
+                    /* TODO 
                     var menuItems = [];
                     if(nt.options & notepanel.enums.noteOptions.EDITABLE) {
                         menuItems.push(notepanel.notes.menuButtons.edit);
@@ -354,8 +354,8 @@ notepanel.views.panel = function (me) {
                         menuItems.push(notepanel.notes.menuButtons.remove);
                     }
                     nt.setMenuItems(menuItems);
-                    
-                    //nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                    */
+                    nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
                     notes.push(nt);
                 }
 
@@ -396,7 +396,7 @@ notepanel.views.panel = function (me) {
             contributorOptions: notepanel.enums.noteOptions.EDITABLE
         };
 
-        $.ajax({type: 'POST',
+        $.ajax({type: 'PUT',
                 url: notepanel.servicesUrl + '/notes',
                 xhrFields: {withCredentials: true},
                 dataType: 'json',

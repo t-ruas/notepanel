@@ -38,7 +38,6 @@ notepanel.views.importboard = function (me) {
         if($('#i_import_board').val()) {
             $.ajax({type: 'POST',
                         url: '/board/import',
-                        xhrFields: {withCredentials: true},
                         dataType: 'json',
                         data: formData,
                         processData: false,

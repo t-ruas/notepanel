@@ -18,21 +18,9 @@ logger = logging.getLogger("notepanel.views")
 @app.route("/", methods=["GET"])
 def index():
     return flask.render_template("panel.html", services_url=settings["services_url"])
-    
+
 # ================================================================
 # user services
-@app.route("/login", methods=["POST"])
-def login():
-    user = UserService().get_by_log(flask.request.form["username"], flask.request.form["password"])
-    if user is not None:
-        logged_user = user
-        flask.session['user_id'] = logged_user.id   
-        flask.session['board_id'] = -1;
-        return flask.jsonify(
-            identified=True,
-            user=logged_user.to_dic(),
-            boards=None)
-    return flask.jsonify(identified=False)
 
 def login_required(f):
     @wraps(f)
@@ -45,23 +33,38 @@ def login_required(f):
 def is_logged():
     return 'user_id' in flask.session
 
-@app.route("/register", methods=["POST"])
+@app.route('/users/identify', methods=["GET"])
+def identify():
+    if 'user_id' in flask.session:
+        user = UserService().get_by_id(flask.session['user_id'])
+        if user is not None:
+            return flask.jsonify(user.to_dic())
+        else:
+            flask.session.pop('user_id', None)
+    return '', 403
+
+@app.route('/users/login', methods=["POST"])
+def login():
+    user = UserService().get_by_log(flask.request.form["username"], flask.request.form["password"])
+    if user is not None:
+        flask.session['user_id'] = user.id
+        flask.session.pop('board_id', None)
+        return flask.jsonify(user.to_dic())
+    flask.session.pop('user_id', None)
+    return '', 403
+
+@app.route('/users/register', methods=["PUT"])
 def register():
     user = UserService().add(flask.request.form["username"], flask.request.form["email"], flask.request.form["password"])
     # TODO board = BoardService().add(db.Session(), name, user)
     if user is not None:
-        return flask.jsonify(
-            identified=True,
-            user = user.to_dic(),
-            boards=None)
+        return flask.jsonify(user.to_dic())
     return flask.jsonify(identified=False)
 
-@app.route("/logout", methods=["GET"])
+@app.route('/users/logout', methods=["GET"])
 def logout():
     flask.session.pop("user_id", None)
     flask.session.pop("board_id", None)
-    return flask.jsonify(identified=False)
-
 
 # ================================================================
 # board services
@@ -74,7 +77,7 @@ def board_users(id):
     users = BoardService().get_users(id)
     json_users = [];
     for user in users:
-        json_users.append(user.to_dic()) 
+        json_users.append(user.to_dic())
     return flask.jsonify(boardUsers=json_users)
 
 # retrieve board data and board users data
@@ -88,7 +91,7 @@ def board(id):
     json_users = [];
     user_group = UserGroup.VIEWER
     for user in users:
-        json_users.append(user.to_dic()) 
+        json_users.append(user.to_dic())
         if user.id == flask.session['user_id']:
             user_group = user.user_group
     return flask.jsonify(board=board.to_dic(), user_group=user_group,  boardUsers=json_users)
@@ -96,11 +99,11 @@ def board(id):
 # add a user to a board
 @app.route("/board/<board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
 @login_required
-def board_users_add(board_id, user_name, user_group):    
+def board_users_add(board_id, user_name, user_group):
     board = BoardService().add_user(board_id=board_id, user_name=user_name, user_group=user_group)
     json_users = []
     for user in board.users:
-        json_users.append(user.to_dic()) 
+        json_users.append(user.to_dic())
     return flask.jsonify(boardUsers=json_users)
 
 # create a board
@@ -116,8 +119,8 @@ def board_add():
 #export a board to a file
 @app.route("/board/<id>/export", methods=["GET"])
 @login_required
-def board_export(id):       
-    file_name = 'board' + id + '_' + datetime.now().strftime("%Y%m%d%H%M%S") + '.nt'  
+def board_export(id):
+    file_name = 'board' + id + '_' + datetime.now().strftime("%Y%m%d%H%M%S") + '.nt'
     serialized_board = BoardService().export_board(id)
     return flask.Response(serialized_board,
                        mimetype="text/plain",
@@ -132,7 +135,7 @@ def board_user():
     boards = BoardService().getByUser(user_id=user_id)
     json_boards = []
     for board in boards:
-        json_boards.append(board.to_dic()) 
+        json_boards.append(board.to_dic())
     return flask.jsonify(boards=json_boards)
 
 # retrieve last n created public boards
@@ -143,7 +146,7 @@ def board_public():
     boards = BoardService().getPublic(limit=limit)
     json_boards = []
     for board in boards:
-        json_boards.append(board.to_dic()) 
+        json_boards.append(board.to_dic())
     return flask.jsonify(boards=json_boards)
 
 
@@ -159,7 +162,7 @@ def board_import():
         return flask.jsonify(uploaded = True, boardId = board.id)
     else:
         return flask.jsonify(uploaded = False, message = 'Wrong file type')
-                                    
+
 # ================================================================
 # admin
 @app.route("/admin/login/<password>", methods=["GET"])
@@ -194,7 +197,7 @@ def admin_only(f):
 
 def is_admin():
     return 'is_admin' in flask.session and flask.session['is_admin'] == True
-    
+
 @app.route("/test", methods=["GET"])
 def test():
     #if is_admin():
@@ -210,7 +213,7 @@ def logs():
     if is_admin():
         return flask.render_template('logs.html', logs=azure_logging.get_logs())
     else:
-        return "Not authorized", 401 
+        return "Not authorized", 401
 
 @app.route("/logs/clear", methods=["GET"])
 def logs_clear():
@@ -226,7 +229,7 @@ def logs_init():
         azure_logging.init_storage()
         return flask.redirect('/logs')
     else:
-        return "Not authorized", 401 
+        return "Not authorized", 401
 
 
 # ================================================================

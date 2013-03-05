@@ -30,12 +30,12 @@ notepanel.views.register = function (me) {
         notepanel.views.wait.enable();
         $('#div_register_result').empty();
         var data = $('#div_register :input').serializeObject();
-        $.ajax({type: 'POST',
-                url: notepanel.servicesUrl + '/users',
+        $.ajax({type: 'PUT',
+                url: '/users',
                 dataType: 'json',
                 data: JSON.stringify(data)})
             .done(function (data) {
-                notepanel.user = data.user;
+                notepanel.setUser(data);
                 me.disable();
                 notepanel.views.panel.enable();
             })
