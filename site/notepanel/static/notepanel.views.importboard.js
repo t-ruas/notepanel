@@ -14,7 +14,7 @@ notepanel.views.importboard = function (me) {
             notepanel.views.menu.disactivate();
             notepanel.views.panel.lock();
             $('#a_import_board').on('click', onImportBoard);
-            $('#s_import_board_close').on('click', onClose);
+            $('#div_import_board #s_close').on('click', onClose);
             $('#div_import_board').show();
             enabled = true;
         }
@@ -27,7 +27,7 @@ notepanel.views.importboard = function (me) {
             notepanel.views.menu.activate();
             notepanel.views.panel.unlock();
             $('#a_import_board').off('click');
-            $('#s_import_board_close').off('click');
+            $('#div_import_board #s_close').off('click');
             $('#div_import_board').hide();
             enabled = false;
         }

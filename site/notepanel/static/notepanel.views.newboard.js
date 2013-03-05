@@ -10,12 +10,13 @@ notepanel.views.newboard = function (me) {
     // Enable this view
     me.enable = function () {
         if (!enabled) {
+        
             notepanel.views.mainmenu.disactivate();
             notepanel.views.menu.disactivate();
             notepanel.views.panel.lock();
             $('#a_create_board').on('click', onCreateBoard);
-            $('#s_new_board_close').on('click', onClose);
-            $('#div_new_board').show();
+            $('#div_new_board #s_close').on('click', onClose);
+            $('#div_new_board').show(10);
             enabled = true;
         }
     };
@@ -27,7 +28,7 @@ notepanel.views.newboard = function (me) {
             notepanel.views.menu.activate();
             notepanel.views.panel.unlock();
             $('#a_create_board').off('click');
-            $('#s_new_board_close').off('click');
+            $('#div_new_board #s_close').off('click');
             $('#div_new_board').hide();
             enabled = false;
         }

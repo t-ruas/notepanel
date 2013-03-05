@@ -15,7 +15,7 @@ notepanel.views.chooseboard = function (me) {
             notepanel.views.panel.lock();
             loadUserBoards();
             loadPublicBoards();
-            $('#s_choose_board_close').on('click', onClose);
+            $('#div_choose_board #s_close').on('click', onClose);
             $('#div_choose_board').show();
             enabled = true;
         }
@@ -30,7 +30,7 @@ notepanel.views.chooseboard = function (me) {
             $('#a_choose_board').off('click');
             $('#a_refresh_boards').off('click');
             $('#sel_choose_board').off('change');
-            $('#s_choose_board_close').off('click');
+            $('#div_choose_board #s_close').off('click');
             $('#div_choose_board').hide();
             enabled = false;
         }

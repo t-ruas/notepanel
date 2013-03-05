@@ -12,6 +12,7 @@ notepanel.views.login = function (me) {
         if (!enabled) {
             $('#a_login').on('click', onLogin);
             $('#a_to_register').on('click', onToRegister);
+            $('#div_login #s_close').on('click', onClose);
             $('#div_login').show();
             enabled = true;
         }
@@ -22,6 +23,7 @@ notepanel.views.login = function (me) {
         if (enabled) {
             $('#a_login').off('click');
             $('#a_to_register').off('click');
+            $('#div_login #s_close').off('click');
             $('#div_login').hide();
             $('#div_login_result').empty();
             enabled = false;
@@ -70,6 +72,10 @@ notepanel.views.login = function (me) {
         me.disable();
         notepanel.views.register.enable();
         return false;
+    };
+    
+    var onClose = function (e) {
+        me.disable();
     };
 
     return me;

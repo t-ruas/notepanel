@@ -61,20 +61,8 @@
 
             <a href="#" id="a_export_board">Export board</a>
         </div>
-        <div id="div_login">
-            <input type="text" name="username" />
-            <input type="password" name="password" />
-            <a href="#" id="a_login">Log in</a>
-            New? <a href="#" id="a_to_register">register</a>
-            <div id="div_login_result"></div>
-        </div>
-        <div id="div_register">
-            <input type="text" name="username" />
-            <input type="password" name="password" />
-            <input type="text" name="email" />
-            <a href="#" id="a_register">Register</a>
-            <div id="div_register_result"></div>
-        </div>
+        {% include "partials/login.html" %}
+        {% include "partials/register.html" %}
         <div id="div_wait">
             <div id="div_wait_centered_content">
                 <img src="{{url_for('static', filename='wait.gif')}}" />
@@ -88,7 +76,9 @@
             Error
         </div>
         {% include "partials/choose_board.html" %}
-        {% include "partials/import_board.html" %}
         {% include "partials/new_board.html" %}
+        {% include "partials/import_board.html" %}
+        
+        
     </body>
 </html>
