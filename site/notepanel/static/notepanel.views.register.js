@@ -11,6 +11,7 @@ notepanel.views.register = function (me) {
     me.enable = function () {
         if (!enabled) {
             $('#a_register').on('click.notepanel', onRegister);
+            $('#div_register #s_close').on('click', onClose);
             $('#div_register').show();
             enabled = true;
         }
@@ -20,6 +21,7 @@ notepanel.views.register = function (me) {
     me.disable = function () {
         if (enabled) {
             $('#a_register').off('.notepanel');
+            $('#div_register #s_close').off('click');
             $('#div_register').hide();
             $('#div_register_result').empty();
             enabled = false;
@@ -41,6 +43,10 @@ notepanel.views.register = function (me) {
             })
             .fail(notepanel.ajaxErrorHandler);
         return false;
+    };
+    
+    var onClose = function (e) {
+        me.disable();
     };
 
     return me;
