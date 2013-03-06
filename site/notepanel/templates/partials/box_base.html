@@ -1,6 +1,8 @@
-<div id="div_{% block id %}{% endblock %}" class="box">
+<div id="div_{% block id %}{% endblock %}" class="box large">
     <div><span id="s_close" class="close">&#xf00d;</span></div>
+    <div class="clear"></div>
     <div class="innerbox">
+        <div><span class="title">{% block title %}{% endblock %}</span></div><div class="clear"></div>
     {% block content %}{% endblock %}
     </div>
 </div>

@@ -69,8 +69,8 @@ class BoardService(object):
         return boards
     
     # create board
-    def add(self, creator_id, board_name, board_privacy):
-        board = Board(name=board_name,privacy=board_privacy)
+    def add(self, creator_id, board_name, board_privacy, default_options):
+        board = Board(name=board_name, privacy=board_privacy, default_options=default_options)
         self.session.add(board)
         self.session.commit()
         board_user = BoardUser(user_id=creator_id, board_id=board.id, user_group=UserGroup.OWNER)

@@ -44,3 +44,5 @@ test.py
 *.log
 *.log.*
 
+# debugger launcher
+*.bat

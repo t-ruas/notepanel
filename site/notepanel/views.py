@@ -7,7 +7,7 @@ from . import app
 from . import settings
 from . import log_monitor
 from data.services import UserService, BoardService
-from data.model import User, Board, Note, UserGroup
+from data.model import User, Board, Note, UserGroup, BoardPrivacy, BoardOptions
 from data import db
 from utils import azure_logging
 
@@ -65,6 +65,7 @@ def register():
 def logout():
     flask.session.pop("user_id", None)
     flask.session.pop("board_id", None)
+    return ''
 
 # ================================================================
 # board services
@@ -110,9 +111,12 @@ def board_users_add(board_id, user_name, user_group):
 @app.route("/board/add", methods=["POST"])
 @login_required
 def board_add():
-    board_name = flask.request.form["boardName"];
-    board_privacy = flask.request.form["boardPrivacy"];
-    board = BoardService().add(creator_id=flask.session['user_id'], board_name=board_name, board_privacy=board_privacy)
+    board_name = flask.request.form["boardName"]
+    board_privacy = flask.request.form["boardPrivacy"]
+    board_default_options = flask.request.form["defaultOptions"]
+    # addnote checkbox in the create board form is meaningfull only for public board
+    default_options = default_options if (board_privacy==BoardPrivacy.PUBLIC) else BoardOptions.ADDNOTE
+    board = BoardService().add(creator_id=flask.session['user_id'], board_name=board_name, board_privacy=board_privacy, default_options=board_default_options)   
     flask.session['board_id'] = board.id
     return flask.jsonify(board=board.to_dic())
 

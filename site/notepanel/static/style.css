@@ -59,15 +59,26 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 30em;
+    /*width: 50em;*/
     height: 20em;
     margin-top: -10em;
     margin-left: -15em;
     border: 1px solid rgb(128, 128, 128);
     background-color: #eee; /*rgb(212, 212, 212);*/
-    font-size: 0.8em;
+    font-size: 1em;
     -webkit-border-radius: 6px;border-radius: 6px;
     color: inherit;
+}
+
+.box.large {
+    width: 40em;
+    margin-left: -25em;
+}
+
+.box span.title {
+    float: left;
+    font-size: 2em;
+    margin: 0em 0em 0.8em 0em;
 }
 
 .box span.close {
@@ -79,11 +90,16 @@ body {
 }
 
 .box div.innerbox {
-    margin: 1.2em;
+    margin: 0em 1em 1em 2em;
 }
 
-.box div.innerbox  div.controls{
-    margin: 100px;
+.box div.innerbox  div.inline label{
+    float: left;
+}
+
+.box div.innerbox div.actions{
+    margin: 2em;
+    text-align: center;
 }
 
 .icon {

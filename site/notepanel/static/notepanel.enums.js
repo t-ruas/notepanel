@@ -8,7 +8,7 @@ notepanel.enums = {
         VIEWER : 4,
     },
     
-    // Note option
+    // Note options
     noteOptions: {
         NONE : 0,
         REMOVABLE : 1,
@@ -24,8 +24,15 @@ notepanel.enums = {
     // Board privacies
     boardPrivacies: {
         PRIVATE: 1,
-        INTERNAL_READONLY: 2,
-        INTERNAL_EDITABLE: 3,
-        PUBLIC: 4
+        PUBLIC: 2
+    },
+    
+    // Board options
+    boardOptions: {
+        NONE : 0,
+        ADDNOTE : 1,
+        ZOOMABLE : 2,
+        COLORABLE : 4,
+        ALL : (1 | 2 | 4)
     }
 };

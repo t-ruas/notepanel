@@ -1,13 +1,18 @@
 {% extends "partials/box_base.html" %}
-{% block id %}new_board{% endblock %} 
+{% block id %}new_board{% endblock %}
+{% block title %}Create a new board{% endblock %} 
 {% block content %}
-<label for="i_create_board"> Board name : <label><input type="text" id="i_create_board" size="30" /><br/>
-<label for="sel_choose_board_type"> Board privacy : <label>
-<select id="sel_choose_board_type">
-    <option value="1">Private</option>
-    <option value="2">Internal (read only)</option>
-    <option value="3">Internal (editable)</option>
-    <option value="4">Public</option>
-</select><br/>
-<a href="#" id="a_create_board" class="btn">Create board</a>
+<div class="inline">
+<label for="i_create_board"> Board name : </label><input type="text" id="i_board_name" size="30" required/>
+</div>
+<label class="radio">
+    <input id="i_board_privacy_private" type="radio" name="i_board_privacy" value="1">
+    Private (only selected logged user can access it)</label>
+<label class="radio">
+    <input id="i_board_privacy_public" type="radio" name="i_board_privacy" value="2">
+   Public (all people can view/edit it)</label>
+<label id="l_public_add_note" class="checkbox"><input type="checkbox" id="i_public_add_note" value="1" />Logged users are allowed to add notes on your public board</label>
+<div class="actions">
+    <a href="#" id="a_create_board" class="btn">Create board</a>
+</div>
 {% endblock %}

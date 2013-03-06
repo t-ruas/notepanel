@@ -12,14 +12,14 @@ class UserGroup:
 
 class BoardPrivacy:
     PRIVATE = 1 # only invited people are allowed to see it
-    INTERNAL_READONLY = 2 # all registerd users are allowed to view it
-    INTERNAL_ALTERABLE = 3 # all registerd users are allowed to modify it
-    PUBLIC = 4 # all users (even not registered one's) are allowed to view it
+    PUBLIC = 2 # all users (even not registered one's) are allowed to view it
 
 class BoardOptions:
-    ZOOMABLE = 1
-    COLORABLE = 2
-    ALL = ZOOMABLE | COLORABLE
+    NONE = 0
+    ADDNOTE = 1
+    ZOOMABLE = 2
+    COLORABLE = 4
+    ALL = ADDNOTE | ZOOMABLE | COLORABLE
 
 class NoteOptions:
     NONE = 0
@@ -83,7 +83,10 @@ class Board(Entity):
     height = Column(Integer, default=2000)
     privacy = Column(Integer, default=BoardPrivacy.PRIVATE)
     color = Column(String(7))
-    options = Column(Integer, default=BoardOptions.ALL)
+    default_options = Column(Integer, default=BoardOptions.NONE)
+    owner_options = Column(Integer, default=BoardOptions.ALL)
+    admin_options = Column(Integer, default=BoardOptions.ALL)
+    contributor_options = Column(Integer, default=BoardOptions.ADDNOTE)
     comments = Column(String(500))
     creation_date = Column(DateTime, default=func.now())
     edition_date = Column(DateTime, default=func.now())
