@@ -75,6 +75,11 @@ body {
     margin-left: -25em;
 }
 
+.box.medium {
+    width: 30em;
+    margin-left: -15em;
+}
+
 .box span.title {
     float: left;
     font-size: 2em;

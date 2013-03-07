@@ -24,7 +24,8 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.register.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.newboard.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.chooseboard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.myboards.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.publicboards.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.importboard.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.mainmenu.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
@@ -72,10 +73,11 @@
         <div id="div_fatal">
             Error
         </div>
-        {% include "partials/choose_board.html" %}
+        
         {% include "partials/new_board.html" %}
         {% include "partials/import_board.html" %}
-        
-        
+        {% include "partials/my_boards.html" %}
+        {% include "partials/public_boards.html" %}
+
     </body>
 </html>
