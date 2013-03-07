@@ -11,3 +11,5 @@ logs_path = "logs\\"
 
 services_url = "http://notepanel-services.azurewebsites.net"
 # services_url = ""
+
+open_id_storage_path = "openid"
