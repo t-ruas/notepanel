@@ -105,8 +105,8 @@ logger.addHandler(file_log_handler)
 logger = logging.getLogger("notepanel")
 logger.setLevel(logging.DEBUG)
 
-# TODO : uncomment for azure deployment
-#logger.addHandler(azure_log_handler)
+if "WeAreInTheCloud" in os.environ:
+    logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 # ================================================================
