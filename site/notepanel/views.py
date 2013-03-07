@@ -53,6 +53,37 @@ def login():
     flask.session.pop('user_id', None)
     return '', 403
 
+
+from flask.ext.openid import OpenID
+oid = OpenID(app, '/openid/store')
+
+@app.route('/users/openid', methods=['GET'])
+@oid.loginhandler
+def users_openid():
+    if is_logged():
+        print '**************************** logged'
+        return flask.redirect(oid.get_next_url())
+    provider_url = flask.request.args.get("u")
+    if provider_url:
+        return oid.try_login(provider_url, ask_for=['email', 'fullname', 'nickname'])
+    return flask.render_template('panel.html', next=oid.get_next_url(),
+                           error=oid.fetch_error())
+
+@oid.after_login
+def create_or_login(resp):
+    email = resp.email
+    user = UserService().get_by_email(email)
+    if user is not None:
+        flask.session['user_id'] = user.id
+        return flask.redirect(oid.get_next_url())
+    else:
+        user = UserService().add_with_openid(
+            name=resp.fullname or resp.nickname, 
+            email=email)
+        flask.session['user_id'] = user.id
+        return flask.redirect(oid.get_next_url()) 
+
+
 @app.route('/users/register', methods=["PUT"])
 def register():
     user = UserService().add(flask.request.form["username"], flask.request.form["email"], flask.request.form["password"])
@@ -61,11 +92,13 @@ def register():
         return flask.jsonify(user.to_dic())
     return flask.jsonify(identified=False)
 
+
 @app.route('/users/logout', methods=["GET"])
 def logout():
     flask.session.pop("user_id", None)
     flask.session.pop("board_id", None)
     return ''
+
 
 # ================================================================
 # board services

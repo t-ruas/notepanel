@@ -23,7 +23,7 @@ notepanel.template.templates = function(me) {
             }
         } else {
             console.log('Templates not loaded');
-            loadTemplates(me.loadColorPicker, onClick);
+            loadTemplates(me.loadColorPicker, [onClick]);
         }
     }
 
@@ -42,7 +42,7 @@ notepanel.template.templates = function(me) {
             }
         } else {
             console.log('Templates not loaded');
-            loadTemplates(me.loadBoardUserList, null);
+            loadTemplates(me.loadBoardUserList, [boardUsers]);
         }
     }
     
@@ -57,7 +57,22 @@ notepanel.template.templates = function(me) {
             }
         } else {
             console.log('Templates not loaded');
-            loadTemplates(me.loadColorPicker, onClick);
+            loadTemplates(me.loadBoardList, [placeHolderId, list]);
+        }
+    }
+    
+    me.loadOpenidProviders = function(providers) {
+        if(loaded) {
+            var template = compiledTemplates['hogan-tpl-provider-list'];
+            if(template != null) {
+                var htmlProviders = template.render({providers: providers});
+                $("#ph_provider_list").html(htmlProviders);
+            } else {
+                console.log('Template not found');
+            }
+        } else {
+            console.log('Templates not loaded');
+            loadTemplates(me.loadOpenidProviders, [providers]);
         }
     }
     
@@ -74,7 +89,9 @@ notepanel.template.templates = function(me) {
                 loaded = true;
                 if(callback) {
                     if(callbackArgs) {
-                        callback(callbackArgs);
+                        //console.log('callbackArgs');
+                        //console.log(callbackArgs);
+                        callback.apply(this, callbackArgs);
                     } else {
                         callback();
                     }

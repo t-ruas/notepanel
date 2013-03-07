@@ -1,10 +1,26 @@
 ﻿
 notepanel.views.login = function (me) {
 
+    var openidProviders = [
+        {
+            name: 'google',
+            url: window.encodeURIComponent('https://www.google.com/accounts/o8/id'),
+            imageUrl: 'http://www.google.com/favicon.ico',
+            imageTitle: 'Sigin with Google'
+        },
+        {
+            name: 'yahoo',
+            url: window.encodeURIComponent('https://yahoo.com/'),
+            imageUrl: 'http://www.yahoo.com/favicon.ico',
+            imageTitle: 'Sigin with Yahoo'
+        }
+    ];
+
     var enabled = false;
 
     $(document).ready(function () {
         $('#div_login').hide();
+        notepanel.template.templates.loadOpenidProviders(openidProviders);
     });
 
     // Enable this view
@@ -67,6 +83,6 @@ notepanel.views.login = function (me) {
     var onClose = function (e) {
         me.disable();
     };
-
+        
     return me;
 }(notepanel.views.login || {});

@@ -35,6 +35,18 @@ app.secret_key = settings['secret']
 
 
 # ================================================================
+# http call behind proxy management
+
+if "proxy_host" in settings:
+    import urllib2
+    proxy_url = 'http://%s:%s' % (settings["proxy_host"], settings["proxy_port"])
+    proxies = {"http":proxy_url, "https":proxy_url}
+    proxy = urllib2.ProxyHandler(proxies) 
+    opener = urllib2.build_opener(proxy)
+    urllib2.install_opener(opener)
+
+
+# ================================================================
 # set path to packages for local environment
 
 if "packages_path" in settings:
@@ -93,7 +105,8 @@ logger.addHandler(file_log_handler)
 logger = logging.getLogger("notepanel")
 logger.setLevel(logging.DEBUG)
 
-logger.addHandler(azure_log_handler)
+# TODO : uncomment for azure deployment
+#logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 # ================================================================

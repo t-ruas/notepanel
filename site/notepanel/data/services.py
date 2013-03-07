@@ -24,6 +24,11 @@ class UserService(object):
         return self.session.query(User).\
             filter(User.name == name).\
             first()
+    
+    def get_by_email(self, email):
+        return self.session.query(User).\
+            filter(User.email == email).\
+            first()
 
     def add(self, name, email, password):
         user = User(
@@ -32,6 +37,15 @@ class UserService(object):
             email=email)
         self.session.add(user)
         self.session.commit()
+        return user
+    
+    def add_with_openid(self, name, email):
+        user = User(
+             name=name,
+             email=email)
+        self.session.add(user)
+        self.session.commit()
+        return user
 
     def remove(self, user_id):
         user = User(id=user_id)

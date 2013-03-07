@@ -24,3 +24,14 @@
     </ul>
 </script>
 
+<script id="hogan-tpl-provider-list" type="text">
+    <ul id="ul_provider_list">
+        {{#providers}}
+        <li id="{{name}}" class="">
+            <a href="/users/openid?u={{url}}">
+                <img src="{{imageUrl}}" title="{{imageTitle}}" alt="{{imageTitle}}" style="width:16px;height" />
+            {{imageTitle}}</a>
+        </li>
+        {{/providers}}
+    </ul>
+</script>
