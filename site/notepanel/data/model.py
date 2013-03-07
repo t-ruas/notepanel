@@ -41,7 +41,7 @@ class User(Entity):
     __tablename__ = "user"
     id = Column(Integer, primary_key=True)
     email = Column(String(100))
-    name = Column(String(20))
+    name = Column(String(50))
     password = Column(String(32))
     last_seen_date = Column(DateTime, default=func.now())
     creation_date = Column(DateTime, default=func.now())

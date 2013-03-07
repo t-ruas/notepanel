@@ -3,7 +3,7 @@ import os
 import logging
 from datetime import datetime
 from functools import wraps
-from . import app
+from . import app, oid
 from . import settings
 from . import log_monitor
 from data.services import UserService, BoardService
@@ -35,12 +35,11 @@ def is_logged():
 
 @app.route('/users/identify', methods=["GET"])
 def identify():
-    if 'user_id' in flask.session:
+    if is_logged():
         user = UserService().get_by_id(flask.session['user_id'])
         if user is not None:
             return flask.jsonify(user.to_dic())
-        else:
-            flask.session.pop('user_id', None)
+        flask.session.pop('user_id', None)
     return '', 403
 
 @app.route('/users/login', methods=["POST"])
@@ -52,10 +51,6 @@ def login():
         return flask.jsonify(user.to_dic())
     flask.session.pop('user_id', None)
     return '', 403
-
-
-from flask.ext.openid import OpenID
-oid = OpenID(app, '/openid/store')
 
 @app.route('/users/openid', methods=['GET'])
 @oid.loginhandler
@@ -73,16 +68,10 @@ def users_openid():
 def create_or_login(resp):
     email = resp.email
     user = UserService().get_by_email(email)
-    if user is not None:
-        flask.session['user_id'] = user.id
-        return flask.redirect(oid.get_next_url())
-    else:
-        user = UserService().add_with_openid(
-            name=resp.fullname or resp.nickname, 
-            email=email)
-        flask.session['user_id'] = user.id
-        return flask.redirect(oid.get_next_url()) 
-
+    if user is None:
+        user = UserService().add_with_openid(resp.fullname or resp.nickname, email)
+    flask.session['user_id'] = user.id
+    return flask.redirect(oid.get_next_url())
 
 @app.route('/users/register', methods=["PUT"])
 def register():
@@ -104,34 +93,57 @@ def logout():
 # board services
 
 # retrieve board users data
-@app.route("/board/<id>/users", methods=["GET"])
+@app.route("/board/<int:id>/users", methods=["GET"])
 @login_required
 def board_users(id):
-    flask.session['board_id'] = id
-    users = BoardService().get_users(id)
-    json_users = [];
-    for user in users:
-        json_users.append(user.to_dic())
-    return flask.jsonify(boardUsers=json_users)
+    flask.session["board_id"] = id
+    bs = BoardService()
+    board_user = bs.get_user(id, flask.session["user_id"])
+    if board_user is None:
+        return "", 404
+    else:
+        users = bs.get_users(id)
+        json_users = [];
+        for user in users:
+            json_users.append(user.to_dic())
+        return flask.jsonify(boardUsers=json_users)
 
 # retrieve board data and board users data
-@app.route("/board/<id>", methods=["GET"])
+@app.route("/board/<int:id>", methods=["GET"])
 @login_required
 def board(id):
-    # TODO : check if the user id in session is a user of the requested board
-    flask.session['board_id'] = id
-    board = BoardService().get(id)
-    users = BoardService().get_users(id)
-    json_users = [];
-    user_group = UserGroup.VIEWER
-    for user in users:
-        json_users.append(user.to_dic())
-        if user.id == flask.session['user_id']:
-            user_group = user.user_group
-    return flask.jsonify(board=board.to_dic(), user_group=user_group,  boardUsers=json_users)
+    flask.session["board_id"] = id
+    bs = BoardService()
+    board_user = bs.get_user(id, flask.session["user_id"])
+    if board_user is None:
+        return "", 404
+    else:
+        board = bs.get(id)
+        users = bs.get_users(id)
+        json_users = [];
+        user_group = UserGroup.VIEWER
+        for user in users:
+            json_users.append(user.to_dic())
+            if user.id == flask.session["user_id"]:
+                user_group = user.user_group
+        return flask.jsonify(board=board.to_dic(), user_group=user_group, boardUsers=json_users)
+
+# Delete a board.
+@app.route("/boards/<int:id>", methods=["DELETE"])
+@login_required
+def boards_delete(id):
+    flask.session["board_id"] = id
+    bs = BoardService()
+    board_user = bs.get_user(id, flask.session["user_id"])
+    if board_user is None:
+        return "", 404
+    if board_user.user_group != UserGroup.OWNER:
+        return "", 403
+    bs.remove(id)
+    return "", 200
 
 # add a user to a board
-@app.route("/board/<board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
+@app.route("/board/<int:board_id>/users/add/<user_name>/<user_group>", methods=["GET"])
 @login_required
 def board_users_add(board_id, user_name, user_group):
     board = BoardService().add_user(board_id=board_id, user_name=user_name, user_group=user_group)
@@ -149,7 +161,7 @@ def board_add():
     board_default_options = flask.request.form["defaultOptions"]
     # addnote checkbox in the create board form is meaningfull only for public board
     default_options = default_options if (board_privacy==BoardPrivacy.PUBLIC) else BoardOptions.ADDNOTE
-    board = BoardService().add(creator_id=flask.session['user_id'], board_name=board_name, board_privacy=board_privacy, default_options=board_default_options)   
+    board = BoardService().add(creator_id=flask.session['user_id'], board_name=board_name, board_privacy=board_privacy, default_options=board_default_options)
     flask.session['board_id'] = board.id
     return flask.jsonify(board=board.to_dic())
 

@@ -9,7 +9,7 @@ engine = None
 def configure(connection_string):
     global engine, Session
     engine_string = get_mysql_engine_string(connection_string)
-    engine = create_engine(engine_string, echo=True)
+    engine = create_engine(engine_string, convert_unicode=True, encoding='utf8', echo=True)
     Session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 def get_mysql_engine_string(connection_string):
@@ -25,7 +25,3 @@ def get_mysql_engine_string(connection_string):
 
 def create_model():
     Entity.metadata.create_all(engine)
-
-def initialize(dbname):
-    engine.execute("CREATE DATABASE IF NOT EXISTS %s;" % dbname)
-    engine.execute("USE %s;" % dbname)

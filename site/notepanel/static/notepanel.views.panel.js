@@ -82,7 +82,6 @@ notepanel.views.panel = function (me) {
             //$('#a_close_edit').on('click.notepanel', onCloseEdit);
             $('#div_panel').show();
             notepanel.views.mainmenu.activate();
-            notepanel.views.menu.activate();
             enabled = true;
         }
     };
@@ -320,16 +319,17 @@ notepanel.views.panel = function (me) {
     me.setBoard = function (board, userGroup) {
         currentBoard = board;
         currentUserGroup = userGroup;
-        if(board) {
+        if (board) {
             getBoardNotes();
         } else {
-            notes = []; // clear panel
+            // Clear panel.
+            notes = [];
         }
     };
-    
+
     me.getBoardId = function () {
         return currentBoard ? currentBoard.id : 0;
-    }
+    };
 
     // Refresh the current board's note list
     var getBoardNotes = function () {

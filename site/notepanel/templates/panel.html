@@ -11,7 +11,6 @@
         <script type="text/javascript" src="{{url_for('static', filename='jquery.serialize-object.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='CanvasText-0.4.1.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='hogan.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='transform.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.enums.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.labels.en.js')}}"></script>
@@ -31,7 +30,6 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.wait.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.edit.js')}}"></script>
-        <script type="text/html" src="{{url_for('static', filename='templates.html')}}"></script>
         <script type="text/javascript">
             notepanel.template.templates.templatesFile = "{{url_for('static', filename='templates.html')}}";
             notepanel.servicesUrl = '{{services_url}}';
@@ -46,11 +44,9 @@
             {% include "partials/main_menu.html" %}
         </div>
         <div id="div_menu">
-            <a href="#" id="a_logout">Log out</a>
+            <div id="div_menu_board_name" style="font-weight: bold;"></div>
             <div>Add a new note :</div>
             <ul id="ul_node_templates"></ul>
-            <div>Board :</div>
-
             <input type="text" id="i_invite_user" size="15" />
             <a href="#" id="a_invite_user">Invite a user as</a>
             <select id="sel_choose_user_group">
@@ -58,8 +54,9 @@
                 <option value="3">Contributor</option>
                 <option value="2">Admin</option>
             </select>
-
-            <a href="#" id="a_export_board">Export board</a>
+            <a href="#" id="a_export_board">Export board</a><br />
+            <a href="#" id="a_close_board">Close board</a><br />
+            <a href="#" id="a_delete_board">Delete board</a><br />
         </div>
         {% include "partials/login.html" %}
         {% include "partials/register.html" %}

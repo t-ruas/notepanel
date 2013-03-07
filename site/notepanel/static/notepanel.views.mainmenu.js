@@ -8,11 +8,11 @@ notepanel.views.mainmenu = function (me) {
     });
 
     me.activate = function () {
-        $(window).on('mousemove.notepanel', onWindowMouseMove);
+        $(window).on('mousemove.mainmenu', onWindowMouseMove);
     };
 
     me.disactivate = function () {
-        $(window).off('mousemove.notepanel');
+        $(window).off('mousemove.mainmenu');
         $('#div_main_menu').hide();
     };
 

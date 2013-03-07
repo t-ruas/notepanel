@@ -23,11 +23,11 @@ notepanel.views.menu = function (me) {
     });
 
     me.activate = function () {
-        $(window).on('mousemove.notepanel', onWindowMouseMove);
+        $(window).on('mousemove.menu', onWindowMouseMove);
     };
 
     me.disactivate = function () {
-        $(window).off('mousemove.notepanel');
+        $(window).off('mousemove.menu');
     };
 
     // Enable this view
@@ -35,6 +35,8 @@ notepanel.views.menu = function (me) {
         if (!enabled) {
             $('#a_invite_user').on('click', onInviteUser);
             $('#a_export_board').on('click', onExportBoard);
+            $('#a_delete_board').on('click', onDeleteBoard);
+            $('#a_close_board').on('click', onCloseBoard);
             $('#div_menu').show();
             enabled = true;
         }
@@ -45,6 +47,8 @@ notepanel.views.menu = function (me) {
         if (enabled) {
             $('#a_invite_user').off('click');
             $('#a_export_board').off('click');
+            $('#a_delete_board').off('click');
+            $('#a_close_board').off('click');
             $('#div_menu').hide();
             enabled = false;
         }
@@ -76,7 +80,6 @@ notepanel.views.menu = function (me) {
         if(userName.length>0) {
             $.ajax({type: 'GET',
                     url: '/board/' + boardId + '/users/add/' + userName + '/' + userGroup,
-                    xhrFields: {withCredentials: true},
                     dataType: 'json'})
                 .done(function (data) {
                     $('#i_invite_user').val('');
@@ -86,7 +89,34 @@ notepanel.views.menu = function (me) {
         }
         return false;
     };
-    
+
+    var onDeleteBoard = function(e) {
+        me.disable();
+        var boardId = notepanel.views.panel.getBoardId();
+        if (boardId) {
+            $.ajax({type: 'DELETE',
+                    url: '/boards/' + boardId,
+                    dataType: 'json'})
+                .done(function (data) {
+                    notepanel.views.panel.setBoard();
+                    notepanel.views.menu.disactivate();
+                })
+                .fail(notepanel.ajaxErrorHandler);
+        } else {
+            // Shouldn't be here.
+            notepanel.views.panel.setBoard();
+            notepanel.views.menu.disactivate();
+        }
+        return false;
+    };
+
+    var onCloseBoard = function(e) {
+        me.disable();
+        notepanel.views.panel.setBoard();
+        notepanel.views.menu.disactivate();
+        return false;
+    };
+
     var onExportBoard = function(e) {
         var boardId = $('#sel_choose_board').val();
         if(boardId>0) {
@@ -94,8 +124,8 @@ notepanel.views.menu = function (me) {
             downloadURL(url);
         }
         return false;
-    }    
-    
+    }
+
     var downloadURL = function downloadURL(url) {
         var hiddenIFrameID = 'hiddenDownloader',
             iframe = document.getElementById(hiddenIFrameID);
@@ -106,6 +136,10 @@ notepanel.views.menu = function (me) {
             document.body.appendChild(iframe);
         }
         iframe.src = url;
+    };
+
+    me.setBoardName = function (name) {
+        $('#div_menu_board_name').html(name);
     };
 
     return me;

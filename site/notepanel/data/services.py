@@ -63,7 +63,16 @@ class BoardService(object):
             first()
         self.session.commit()
         return board
-    
+
+    def get_user(self, board_id, user_id):
+        assoc = self.session.query(BoardUser).\
+            filter(and_(
+                    BoardUser.board_id == board_id,
+                    BoardUser.user_id == user_id)).\
+            first()
+        self.session.commit()
+        return assoc
+
     # get all boards of a user
     def getByUser(self, user_id):
         boards = self.session.query(Board).\
@@ -115,8 +124,9 @@ class BoardService(object):
     
     # delete board
     def remove(self, board_id):
-        board = Board(id=board_id)
-        self.session.delete(board)
+        self.session.query(BoardUser).filter(BoardUser.board_id == board_id).delete()
+        self.session.query(Note).filter(Note.board_id == board_id).delete()
+        self.session.query(Board).filter(Board.id == board_id).delete()
         self.session.commit()
 
     def get_default(self, user):

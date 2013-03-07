@@ -74,6 +74,8 @@ notepanel.views.chooseboard = function (me) {
             .done(function (data) {
                 notepanel.views.panel.setBoard(data.board, data.user_group);
                 notepanel.template.templates.loadBoardUserList(data.boardUsers);
+                notepanel.views.menu.activate();
+                notepanel.views.menu.setBoardName(data.board.name);
                 me.disable();
             })
             .fail(notepanel.ajaxErrorHandler);

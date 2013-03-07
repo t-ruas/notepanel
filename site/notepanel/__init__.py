@@ -33,6 +33,11 @@ execfile(settings_path, settings)
 
 app.secret_key = settings['secret']
 
+# ================================================================
+# OpenId
+
+from flask.ext.openid import OpenID
+oid = OpenID(app, settings['open_id_storage_path'])
 
 # ================================================================
 # http call behind proxy management
@@ -134,7 +139,6 @@ try:
     from data import mocker
 
     db.configure(settings["db"])
-    db.initialize("notepanel")
 
     mocker.empty_db()
 

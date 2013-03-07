@@ -46,3 +46,6 @@ test.py
 
 # debugger launcher
 *.bat
+
+# openid folder
+openid/
