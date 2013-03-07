@@ -47,5 +47,7 @@ test.py
 # debugger launcher
 *.bat
 
+Thumbs.db
+
 # openid folder
 openid/
