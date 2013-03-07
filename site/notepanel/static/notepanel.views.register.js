@@ -10,6 +10,10 @@ notepanel.views.register = function (me) {
     // Enable this view
     me.enable = function () {
         if (!enabled) {
+            // reset form
+            $('#div_register :input[type=text]').val('');
+            $('#div_register :input[type=password]').val('');
+            // event
             $('#a_register').on('click.notepanel', onRegister);
             $('#div_register #s_close').on('click', onClose);
             $('#div_register').show();

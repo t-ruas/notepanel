@@ -26,6 +26,10 @@ notepanel.views.login = function (me) {
     // Enable this view
     me.enable = function () {
         if (!enabled) {
+            // reset form
+            $('#i_username').val('');
+            $('#i_password').val('');
+            // events
             $('#a_login').on('click', onLogin);
             $('#a_to_register').on('click', onToRegister);
             $('#div_login #s_close').on('click', onClose);
