@@ -45,7 +45,7 @@ notepanel.notes.adapter = {
 
 notepanel.notes.menuButtons = {
     remove: {
-        text: '\uF00d',
+        text: '\uF00D',
         width: 16,
         height: 16,
         onClick: function () {
@@ -59,6 +59,15 @@ notepanel.notes.menuButtons = {
         onClick: function () {
             notepanel.views.panel.lock();
             notepanel.views.edit.enable(this);
+        }
+    },
+    resize: {
+        text: '\uF065',
+        width: 16,
+        height: 16,
+        onClick: function () {
+            notepanel.views.panel.resize();
+            this.resizing = true;
         }
     }
 };
@@ -258,8 +267,14 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                 if (this.hovered) {
                     notepanel.colors.darken(c, 64);
                 }
+                if (shape.base && this.resizing) {
+                    ctx.lineWidth = 8;
+                }
                 ctx.strokeStyle = notepanel.colors.toCssString(c);
                 ctx.stroke();
+                if (shape.base && this.resizing) {
+                    ctx.lineWidth = 1;
+                }
             }
         }
 
@@ -373,8 +388,12 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
     }
 };
 
+notepanel.notes.Note.prototype.isMouseOverMenu = function (pt) {
+    return notepanel.utils.isInRectangle(pt, this.menu);
+};
+
 notepanel.notes.Note.prototype.isMouseOver = function (pt) {
-    return notepanel.utils.isInRectangle(pt, this.location) || notepanel.utils.isInRectangle(pt, this.menu);
+    return notepanel.utils.isInRectangle(pt, this.location);
 };
 
 notepanel.notes.Note.prototype.scale = function (len) {
@@ -382,14 +401,15 @@ notepanel.notes.Note.prototype.scale = function (len) {
 };
 
 notepanel.notes.Note.prototype.activateMenu = function (pt) {
-    if (notepanel.utils.isInRectangle(pt, this.menu)) {
+    //if (notepanel.utils.isInRectangle(pt, this.menu)) {
         for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
             var item = this.menu.items[i];
             if (notepanel.utils.isInRectangle(pt, item)) {
                 item.onClick.apply(this);
-                return true;
+                break;
+                //return true;
             }
         }
-    }
-    return false;
+    //}
+    //return false;
 };

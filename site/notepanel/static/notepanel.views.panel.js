@@ -12,11 +12,13 @@ notepanel.views.panel = function (me) {
 
     // Dragging modes
     var modes = {
-        still: 0,
-        board: 1,
-        note: 2
+        STILL: 0,
+        BOARD: 1,
+        NOTE: 2,
+        AWAIT_RESIZE: 3,
+        RESIZE: 4
     };
-    
+
     // user group of the current user
     var currentUserGroup = notepanel.enums.userGroups.VIEWER;
 
@@ -32,7 +34,7 @@ notepanel.views.panel = function (me) {
     var currentPollXhr = null;
 
     // Current dragging mode
-    var mode = modes.still;
+    var mode = modes.STILL;
 
     // Currently dragged note
     var movingNote = null;
@@ -61,7 +63,7 @@ notepanel.views.panel = function (me) {
     });
 
     me.lock = function () {
-        mode === modes.still;
+        mode === modes.STILL;
         $canvas.off('mousedown');
         $canvas.off('mousemove');
         $canvas.off('mouseup');
@@ -111,13 +113,13 @@ notepanel.views.panel = function (me) {
 
     var onMouseMove = function (e) {
         var pt = {x: e.offsetX, y: e.offsetY};
-        if (mode !== modes.still) {
+        if (mode !== modes.STILL) {
             $canvas.css('cursor', 'pointer');
             var mvmnt = {
                 x: pt.x - mouse.x,
                 y: pt.y - mouse.y
             };
-            if (mode === modes.board) {
+            if (mode === modes.BOARD) {
                 notepanel.notes.adapter.offset.x += mvmnt.x;
                 notepanel.notes.adapter.offset.y += mvmnt.y;
                 notepanel.notes.adapter.scale.x += mvmnt.x;
@@ -127,17 +129,19 @@ notepanel.views.panel = function (me) {
                     note.location.x += mvmnt.x;
                     note.location.y += mvmnt.y;
                 }
-            } else if (mode === modes.note) {
+            } else if (mode === modes.NOTE) {
                 movingNote.x += mvmnt.x * notepanel.notes.adapter.scale.ratio;
                 movingNote.y += mvmnt.y * notepanel.notes.adapter.scale.ratio;
                 movingNote.location.x += mvmnt.x;
                 movingNote.location.y += mvmnt.y;
+            } else if (mode === modes.SIZE) {
+                
             }
         } else {
             hoveredNote = null;
             for (var i = notes.length - 1; i >= 0; i--) {
                 var note = notes[i];
-                if (hoveredNote === null && note.isMouseOver(pt)) {
+                if (hoveredNote === null && (note.isMouseOver(pt) || note.isMouseOverMenu(pt))) {
                     note.hovered = true;
                     hoveredNote = note;
                 } else {
@@ -168,50 +172,73 @@ notepanel.views.panel = function (me) {
 
     var onMouseDown = function (e) {
         var pt = {x: e.offsetX, y: e.offsetY};
-        mode = modes.board;
+        var noteFound = false;
+        var prevMode = mode;
         for (var i = notes.length - 1; i >= 0; i--) {
             var note = notes[i];
-            note.moving = false;
             if (note.isMouseOver(pt)) {
-                // set the moving note on the top
-                moveNoteToTop(note.z);
-                if (note.activateMenu(pt)) {
-                    mode = modes.still;
+                if (mode === modes.AWAIT_RESIZE && note.resizing) {
+                    mode = modes.RESIZE;
                 } else {
-                    mode = modes.note;
+                    mode = modes.NOTE;
                     note.moving = true;
                     movingNote = note;
                 }
-                break;
+            } else if (note.isMouseOverMenu(pt)) {
+                mode = modes.STILL;
+                note.activateMenu(pt);
+            } else {
+                continue;
+            }
+            noteFound = true;
+            moveNoteToTop(note.z);
+            break;
+        }
+        if (!noteFound) {
+            mode = modes.BOARD;
+        }
+        if (prevMode === modes.AWAIT_RESIZE && mode !== modes.RESIZE) {
+            for (var i = 0, imax = notes.length; i < imax; i++) {
+                if (notes[i].resizing) {
+                    notes[i].resizing = false;
+                    break;
+                }
             }
         }
     };
 
     var onMouseUp = function (e) {
-        if (mode === modes.note) {
-            var data = {
-                id: movingNote.id,
-                x: movingNote.x,
-                y: movingNote.y,
-                z: movingNote.z,
-                width: movingNote.width,
-                height: movingNote.height,
-                update: notepanel.notes.updateType.POSITION
-            };
-            $.ajax({type: 'POST',
-                    url: notepanel.servicesUrl + '/notes/' + movingNote.id,
-                    xhrFields: {withCredentials: true},
-                    dataType: 'json',
-                    data: JSON.stringify(data)})
-                .fail(notepanel.globalErrorHandler);
-            for (var i = 0, imax = notes.length; i < imax; i++) {
-                var note = notes[i];
-                note.moving = false;
-            }
-            movingNote = null;
+        switch (mode) {
+            case modes.RESIZE:
+                mode = modes.AWAIT_RESIZE;
+                break;
+            case modes.NOTE:
+                var data = {
+                    id: movingNote.id,
+                    x: movingNote.x,
+                    y: movingNote.y,
+                    z: movingNote.z,
+                    width: movingNote.width,
+                    height: movingNote.height,
+                    update: notepanel.notes.updateType.POSITION
+                };
+                $.ajax({type: 'POST',
+                        url: notepanel.servicesUrl + '/notes/' + movingNote.id,
+                        xhrFields: {withCredentials: true},
+                        dataType: 'json',
+                        data: JSON.stringify(data)})
+                    .fail(notepanel.globalErrorHandler);
+                for (var i = 0, imax = notes.length; i < imax; i++) {
+                    notes[i].moving = false;
+                }
+                movingNote = null;
+                mode = modes.STILL;
+                break;
+            case modes.BOARD:
+                mode = modes.STILL;
+                break;
         }
         $canvas.css('cursor', 'default');
-        mode = modes.still;
     };
 
     var onCloseEdit = function (e) {
@@ -266,7 +293,7 @@ notepanel.views.panel = function (me) {
                                 }
                                 */
                                 note.setMenuItems(menuItems);
-                                note.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                                note.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit, notepanel.notes.menuButtons.resize]);
                                 notes.push(note);
                                 break;
                             }
@@ -331,6 +358,10 @@ notepanel.views.panel = function (me) {
         return currentBoard ? currentBoard.id : 0;
     };
 
+    me.resize = function () {
+        mode = modes.AWAIT_RESIZE;
+    };
+
     // Refresh the current board's note list
     var getBoardNotes = function () {
         interruptPolling();
@@ -355,7 +386,7 @@ notepanel.views.panel = function (me) {
                     }
                     nt.setMenuItems(menuItems);
                     */
-                    nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit]);
+                    nt.setMenuItems([notepanel.notes.menuButtons.remove, notepanel.notes.menuButtons.edit, notepanel.notes.menuButtons.resize]);
                     notes.push(nt);
                 }
 
