@@ -1,9 +1,12 @@
-{% extends "partials/box_base.html" %}
+{% import 'macros.html' as macros %}
+{% extends "partials/box_base.html" %} 
 {% block id %}register{% endblock %} 
+{% block title %}Sign up{% endblock %}
 {% block content %}
-    <input type="text" name="username" />
-    <input type="password" name="password" />
-    <input type="text" name="email" />
-    <a href="#" id="a_register">Register</a>
+    <p><strong>Or you can log in with specific credentials:</strong></p>
+    {{ macros.inline_input('Your login : ', 'username') }}
+    {{ macros.inline_input('Your password : ', 'username', type='password') }}
+    {{ macros.inline_input('Your email : ', 'username') }}
+    <a href="#" id="a_register" class="btn">Register</a>
     <div id="div_register_result"></div>
 {% endblock %}

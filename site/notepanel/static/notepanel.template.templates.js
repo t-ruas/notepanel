@@ -50,7 +50,7 @@ notepanel.template.templates = function(me) {
         if(loaded) {
             var template = compiledTemplates['hogan-tpl-board-list'];
             if(template != null) {
-                var htmlBoards = template.render({label: list.label, id: list.id, boards: list.boards});
+                var htmlBoards = template.render({id: list.id, boards: list.boards});
                 $("#"+placeHolderId).html(htmlBoards);
             } else {
                 console.log('Template not found');

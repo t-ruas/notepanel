@@ -1,0 +1,5 @@
+{% macro inline_input(label, name, type='text', size=20) %}
+    <div class="inline">
+        <label for="i_{{ name }}"> {{ label }} </label><input type="{{ type }}" name="{{ name }}" id="i_{{ name }}" size="{{ size }}"/>
+    </div>
+{% endmacro %}

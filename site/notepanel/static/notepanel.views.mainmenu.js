@@ -20,8 +20,8 @@ notepanel.views.mainmenu = function (me) {
     me.enable = function () {
         if (!enabled) {
             $('#a_menu_logout').on('click', onLogout);
-            $('#a_menu_new_board').on('click', onNewBoard);
-            $('#a_menu_choose_board').on('click', onChooseBoard);
+            $('#a_menu_my_boards').on('click', onMyBoards);
+            $('#a_menu_public_boards').on('click', onPublicBoards);
             $('#a_menu_import_board').on('click', onImportBoard);
             $('#div_main_menu').show();
             enabled = true;
@@ -32,8 +32,8 @@ notepanel.views.mainmenu = function (me) {
     me.disable = function () {
         if (enabled) {
             $('#a_logout').off('click');
-            $('#a_new_board').off('click');
-            $('#a_menu_choose_board').off('click');
+            $('#a_menu_my_boards').off('click');
+            $('#a_menu_public_boards').off('click');
             $('#a_menu_import_board').off('click');
             $('#div_main_menu').hide();
             enabled = false;
@@ -56,16 +56,17 @@ notepanel.views.mainmenu = function (me) {
                 notepanel.reset();
             })
             .fail(notepanel.ajaxErrorHandler);
+            notepanel.views.panel.reset();
         return false;
     };
 
-    var onNewBoard = function (e) {
-        notepanel.views.newboard.enable();
+    var onMyBoards = function (e) {
+        notepanel.views.myboards.enable();
         return false;
     };
     
-    var onChooseBoard = function (e) {
-        notepanel.views.chooseboard.enable();
+    var onPublicBoards = function (e) {
+        notepanel.views.publicboards.enable();
         return false;
     };
     

@@ -1,10 +1,10 @@
 ﻿
-notepanel.views.chooseboard = function (me) {
+notepanel.views.publicboards = function (me) {
 
     var enabled = false;
 
     $(document).ready(function () {
-        $('#div_choose_board').hide();
+        $('#div_public_boards').hide();
     });
 
     // Enable this view
@@ -13,10 +13,9 @@ notepanel.views.chooseboard = function (me) {
             notepanel.views.mainmenu.disactivate();
             notepanel.views.menu.disactivate();
             notepanel.views.panel.lock();
-            loadUserBoards();
             loadPublicBoards();
-            $('#div_choose_board #s_close').on('click', onClose);
-            $('#div_choose_board').show();
+            $('#div_public_boards #s_close').on('click', onClose);
+            $('#div_public_boards').show();
             enabled = true;
         }
     };
@@ -30,8 +29,8 @@ notepanel.views.chooseboard = function (me) {
             $('#a_choose_board').off('click');
             $('#a_refresh_boards').off('click');
             $('#sel_choose_board').off('change');
-            $('#div_choose_board #s_close').off('click');
-            $('#div_choose_board').hide();
+            $('#div_public_boards #s_close').off('click');
+            $('#div_public_boards').hide();
             enabled = false;
         }
     };
@@ -41,15 +40,11 @@ notepanel.views.chooseboard = function (me) {
         return false;
     };
 
-    var loadUserBoards = function() {
-        loadBoardList("ph_private_board_list", "/board/user", "private_boards", "Your boards");
-    }
-    
     var loadPublicBoards = function() {
-        loadBoardList("ph_public_board_list", "/board/public", "public_boards", "Public boards");
+        loadBoardList("ph_public_board_list", "/board/public", "public_boards");
     }
     
-    var loadBoardList = function(placeHolder, url, listId, listLabel) {
+    var loadBoardList = function(placeHolder, url, listId) {
         $.ajax({type: 'GET',
                 url: url,
                 dataType: 'json'})
@@ -57,16 +52,15 @@ notepanel.views.chooseboard = function (me) {
                 // check if data.boards.length > 0
                 var list = {
                     id: listId,
-                    label: listLabel,
                     boards: data.boards
                 };
                 notepanel.template.templates.loadBoardList(placeHolder, list);
-                $('#'+ placeHolder + ' li').on('click', onChooseBoard);
+                $('#'+ placeHolder + ' li').on('click', onpublicboards);
             })
             .fail(notepanel.ajaxErrorHandler);
     }
     
-    var onChooseBoard = function (e) {
+    var onpublicboards = function (e) {
         //notepanel.views.wait.enable();
         $.ajax({type: 'GET',
                 url: '/board/' + this.id,
@@ -86,4 +80,4 @@ notepanel.views.chooseboard = function (me) {
     };
     
     return me;
-}(notepanel.views.chooseboard || {});
+}(notepanel.views.publicboards || {});
