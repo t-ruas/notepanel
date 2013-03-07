@@ -47,6 +47,7 @@ notepanel.views.register = function (me) {
     
     var onClose = function (e) {
         me.disable();
+        notepanel.views.login.enable();
     };
 
     return me;

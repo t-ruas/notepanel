@@ -51,6 +51,7 @@ notepanel.views.login = function (me) {
         $('#div_login_result').empty();
         // log in to board server
         var data = $('#div_login :input').serialize();
+        console.log(data);
         $.ajax({type: 'POST',
                 url: '/users/login',
                 dataType: 'json',
