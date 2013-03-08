@@ -24,6 +24,7 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.login.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.register.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.boardsettings.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.newboard.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.myboards.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.publicboards.js')}}"></script>
@@ -56,6 +57,7 @@
                 <option value="3">Contributor</option>
                 <option value="2">Admin</option>
             </select>
+            <a href="#" id="a_board_settings">Board settings</a><br />
             <a href="#" id="a_export_board">Export board</a><br />
             <a href="#" id="a_close_board">Close board</a><br />
             <a href="#" id="a_delete_board">Delete board</a><br />
@@ -79,6 +81,6 @@
         {% include "partials/import_board.html" %}
         {% include "partials/my_boards.html" %}
         {% include "partials/public_boards.html" %}
-
+        {% include "partials/board_settings.html" %}
     </body>
 </html>

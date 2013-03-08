@@ -34,3 +34,34 @@
         {{/providers}}
     </ul>
 </script>
+
+<script id="hogan-tpl-board-permissions-form" type="text">
+</script>
+
+<script id="hogan-tpl-board-permissions-line-form" type="text">
+</script>
+
+<script id="hogan-tpl-inline-input-form" type="text">
+    <span>in the partial</span>
+    <div class="inline">
+        <label for="i_{{ name }}"> {{ label }} </label><input type="{{ type }}" name="{{ name }}" id="i_{{ name }}" size="{{ size }}"/>
+    </div>
+</script>
+
+<script id="hogan-tpl-board-settings-form" type="text">
+    <span>in the template</span>
+    {{#board}}
+        <span>in the board</span>
+        {{#color}}
+            <span>in the color</span>
+            {{> textInput }}
+        {{/color}}
+        {{^color}}
+          No color :(
+        {{/color}}
+    {{/board}}
+</script>
+
+
+
+

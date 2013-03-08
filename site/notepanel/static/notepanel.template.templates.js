@@ -101,6 +101,45 @@ notepanel.template.templates = function(me) {
             console.log('no template file defined');
         }
     }
+
+    
+    
+    me.loadBoardSettingsForm = function(board) {
+        if(loaded) {
+            var template = compiledTemplates['hogan-tpl-board-settings-form'];
+            if(template != null) {
+                boardSettingsForm.name.value = board.name;
+                boardSettingsForm.color.value = board.color;
+                console.log(boardSettingsForm);
+                var partials = {};
+                partials.textInput = compiledTemplates['hogan-tpl-inline-input-form'];
+                var htmlBoardSettings = template.render({board: boardSettingsForm}, partials);
+                $("#ph_board_settings").html(htmlBoardSettings);
+            } else {
+                console.log('Template not found');
+            }
+        } else {
+            console.log('Templates not loaded');
+            loadTemplates(me.loadBoardSettingsForm, [board]);
+        }
+    }
+    
+    var boardSettingsForm = {
+        name: {
+            label: 'Name:',
+            name: 'name',
+            type: 'text',
+            size: '30',
+            value: ''
+        },
+        color: {
+            label: 'Color:',
+            name: 'color',
+            type: 'text',
+            size: '30',
+            value: ''
+        }
+    }
     
     return me;
 }(notepanel.template.templates|| {});
