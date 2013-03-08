@@ -1,4 +1,4 @@
-import os
+﻿import os
 
 secret = os.environ["secret"]
 azaccount = os.environ["azaccount"]

@@ -1,4 +1,4 @@
-from datetime import datetime
+﻿from datetime import datetime
 from model import Board, User, BoardUser, Note, UserGroup, BoardPrivacy
 from serializer import JsonSerializer
 from . import db

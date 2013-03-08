@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, DateTime, Integer, String, Boolean, ForeignKey, func
+﻿from sqlalchemy import Table, Column, DateTime, Integer, String, Boolean, ForeignKey, func
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy
 from db import Entity
