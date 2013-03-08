@@ -41,9 +41,9 @@ notepanel.views.mainmenu = function (me) {
     };
 
     var onWindowMouseMove = function (e) {
-        if (e.clientY < 10) {
+        if (e.clientY < 20) {
             me.enable();
-        } else if (e.clientY > $('#div_main_menu').height()) {
+        } else if (e.clientY > $('#div_main_menu').height() + 10) {
             me.disable();
         }
     }

@@ -357,6 +357,11 @@ notepanel.views.panel = function (me) {
     me.getBoardId = function () {
         return currentBoard ? currentBoard.id : 0;
     };
+    
+    me.getBoard = function () {
+        return currentBoard;
+    };
+    
 
     me.resize = function () {
         mode = modes.AWAIT_RESIZE;

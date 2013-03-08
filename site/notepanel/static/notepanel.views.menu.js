@@ -34,6 +34,7 @@ notepanel.views.menu = function (me) {
     me.enable = function () {
         if (!enabled) {
             $('#a_invite_user').on('click', onInviteUser);
+            $('#a_board_settings').on('click', onBoardSettings);
             $('#a_export_board').on('click', onExportBoard);
             $('#a_delete_board').on('click', onDeleteBoard);
             $('#a_close_board').on('click', onCloseBoard);
@@ -46,6 +47,7 @@ notepanel.views.menu = function (me) {
     me.disable = function () {
         if (enabled) {
             $('#a_invite_user').off('click');
+            $('#a_board_settings').off('click');
             $('#a_export_board').off('click');
             $('#a_delete_board').off('click');
             $('#a_close_board').off('click');
@@ -61,17 +63,6 @@ notepanel.views.menu = function (me) {
             me.disable();
         }
     }
-
-    var onLogout = function (e) {
-        $.ajax({type: 'GET',
-                url: '/users/logout',
-                dataType: 'json'})
-            .done(function (data) {
-                notepanel.reset();
-            })
-            .fail(notepanel.ajaxErrorHandler);
-        return false;
-    };
 
     var onInviteUser = function(e) {
         var boardId = $('#sel_choose_board').val();
@@ -124,6 +115,10 @@ notepanel.views.menu = function (me) {
             downloadURL(url);
         }
         return false;
+    }
+
+    var onBoardSettings = function(e) {
+        notepanel.views.boardsettings.enable();
     }
 
     var downloadURL = function downloadURL(url) {

@@ -3,3 +3,23 @@
         <label for="i_{{ name }}"> {{ label }} </label><input type="{{ type }}" name="{{ name }}" id="i_{{ name }}" size="{{ size }}"/>
     </div>
 {% endmacro %}
+
+{% macro permissions_input_form(permission, UserGroup) %}
+    <ul id="ul_{{ permission.id }}">
+        <li><span>{{ permission.label }}</span></li>
+        <li><input type="checkbox" value="{{ UserGroup.VIEWER }}" /></li>
+        <li><input type="checkbox" value="{{ UserGroup.CONTRIBUTOR }}" /></li>
+        <li><input type="checkbox" value="{{ UserGroup.ADMIN }}" /></li>
+        <li><input type="checkbox" value="{{ UserGroup.OWNER }}" /></li>
+    </ul>
+{% endmacro %}
+
+{% macro permissions_form(permissions, UserGroup) %}
+    <ul>
+    {% for permission in permissions %}
+        <li>
+        permissions_input_form(permission, UserGroup)
+        </li>
+    {% endfor %}
+    </ul>
+{% endmacro %}

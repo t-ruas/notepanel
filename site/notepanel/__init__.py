@@ -79,7 +79,8 @@ azure_logging.configure(settings["azaccount"], settings["azkey"])
 if "proxy_host" in settings:
     azure_logging.set_proxy(settings["proxy_host"], settings["proxy_port"])
 
-azure_logging.init_storage()
+if "WeAreInTheCloud" in os.environ:
+    azure_logging.init_storage()
 
 azure_log_handler = azure_logging.get_handler()
 azure_log_handler.setLevel(logging.WARN)

@@ -1,0 +1,11 @@
+{% import 'macros.html' as macros %}
+{% extends "partials/box_base.html" %} 
+{% block id %}board_settings{% endblock %} 
+{% block title %}Board settings{% endblock %}
+{% block content %}
+    <p><strong>Basic settings</strong></p>
+    <div id="ph_board_settings"></div>
+    <p><strong>Permissions</strong></p>
+    <a href="#" id="a_save_board_settings" class="btn">Save settings</a>
+    <div id="a_save_board_settings"></div>
+{% endblock %}
