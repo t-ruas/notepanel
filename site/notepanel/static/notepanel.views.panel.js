@@ -176,7 +176,10 @@ notepanel.views.panel = function (me) {
         var prevMode = mode;
         for (var i = notes.length - 1; i >= 0; i--) {
             var note = notes[i];
-            if (note.isMouseOver(pt)) {
+            if (note.isMouseOverMenu(pt)) {
+                mode = modes.STILL;
+                note.activateMenu(pt);
+            } else if (note.isMouseOver(pt)) {
                 if (mode === modes.AWAIT_RESIZE && note.resizing) {
                     mode = modes.RESIZE;
                 } else {
@@ -184,9 +187,6 @@ notepanel.views.panel = function (me) {
                     note.moving = true;
                     movingNote = note;
                 }
-            } else if (note.isMouseOverMenu(pt)) {
-                mode = modes.STILL;
-                note.activateMenu(pt);
             } else {
                 continue;
             }
@@ -205,6 +205,7 @@ notepanel.views.panel = function (me) {
                 }
             }
         }
+        return false;
     };
 
     var onMouseUp = function (e) {

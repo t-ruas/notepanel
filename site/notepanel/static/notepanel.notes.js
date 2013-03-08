@@ -76,6 +76,7 @@ notepanel.notes.designers = {
     'default': {
         title: 'Simple note',
         shapes: [
+            // Base.
             {
                 type: notepanel.notes.ShapeType.RECTANGLE,
                 x: 0,
@@ -83,11 +84,6 @@ notepanel.notes.designers = {
                 width: 100,
                 height: 100,
                 stroke: 0xA0A0A0,
-                text: {
-                    type: notepanel.notes.editorType.TEXTAREA,
-                    title: 'Note text',
-                    name: 'contents'
-                },
                 fill: {
                     type: notepanel.notes.editorType.COLORPICKER,
                     title: 'Background color',
@@ -95,6 +91,19 @@ notepanel.notes.designers = {
                     def: 0xFFFFFF,
                 },
                 base: true
+            },
+            // Text padding.
+            {
+                type: notepanel.notes.ShapeType.RECTANGLE,
+                x: 4,
+                y: 4,
+                width: 92,
+                height: 92,
+                text: {
+                    type: notepanel.notes.editorType.TEXTAREA,
+                    title: 'Note text',
+                    name: 'contents'
+                }
             }
         ]
     },
@@ -200,10 +209,10 @@ notepanel.notes.baseElev = 4;
 notepanel.notes.Note.prototype.draw = function (ctx) {
 
     var shapes = notepanel.notes.designers[this.template].shapes;
-    
+
     var movingElev = this.scale(notepanel.notes.movingElev);
     var baseElev = this.scale(notepanel.notes.baseElev);
-    
+
     for (var i = 0, imax = shapes.length; i < imax; i++) {
 
         var shape = shapes[i];
@@ -211,18 +220,14 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         if (shape.type === notepanel.notes.ShapeType.RECTANGLE
                 || shape.type === notepanel.notes.ShapeType.PHOTO) {
 
-            var x1 = this.location.x + (this.location.width * shape.x / 100);
+            var x = this.location.x + (this.location.width * shape.x / 100);
             var w = (this.location.width * shape.width / 100);
-            var x2 = x1 + w;
-            var y1 = this.location.y + (this.location.height * shape.y / 100);
+            var y = this.location.y + (this.location.height * shape.y / 100);
             var h = (this.location.height * shape.height / 100);
-            var y2 = y1 + h;
 
             if (this.moving) {
-                x1 -= movingElev;
-                x2 -= movingElev;
-                y1 -= movingElev;
-                y2 -= movingElev;
+                x -= movingElev;
+                y -= movingElev;
             }
 
             if (shape.base) {
@@ -230,22 +235,12 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
                 if (this.moving) {
                     dist += movingElev;
                 }
-                ctx.beginPath();
-                ctx.moveTo(x1 + dist, y1 + dist);
-                ctx.lineTo(x2 + dist, y1 + dist);
-                ctx.lineTo(x2 + dist, y2 + dist);
-                ctx.lineTo(x1 + dist, y2 + dist);
-                ctx.closePath();
+                notepanel.drawing.drawRectangle(ctx, x + dist, y + dist, w + dist, h + dist);
                 ctx.fillStyle = notepanel.colors.toCssString({r: 0, g: 0, b: 0, a: 64});
                 ctx.fill();
             }
 
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y1);
-            ctx.lineTo(x2, y2);
-            ctx.lineTo(x1, y2);
-            ctx.closePath();
+            notepanel.drawing.drawRectangle(ctx, x, y, w, h);
         }
 
         if ('stroke' in shape) {
@@ -317,7 +312,7 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             if (url) {
                 if (url in notepanel.notes.imageCache) {
                     if (notepanel.notes.imageCache[url].loaded) {
-                        ctx.drawImage(notepanel.notes.imageCache[url].image, x1, y1, w, h);
+                        ctx.drawImage(notepanel.notes.imageCache[url].image, x, y, w, h);
                     }
                 } else {
                     var img = new Image();
@@ -338,8 +333,8 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             notepanel.template.canvasText.lineHeight = lh + 'px';
             notepanel.template.canvasText.fontSize = this.scale(36) + 'px';
             var options = {
-                x: x1,
-                y: y1 + lh,
+                x: x,
+                y: y + lh,
                 boxWidth: w
             };
             switch (typeof shape.text) {
@@ -357,28 +352,39 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             }
         }
     }
-    
+
     if (this.hovered) {
-        // draw note menu on the hovered note
+
+        var pad = 4;
+
+        this.menu.x = this.location.x + this.location.width - this.menu.width / 2;
+
+        if (this.moving) {
+            this.menu.x -= movingElev;
+        }
+
+        this.menu.y = this.location.y - this.menu.height / 2;
+
+        if (this.moving) {
+            this.menu.y -= movingElev;
+        }
+
+        // Menu box.
+
+        notepanel.drawing.drawRectangleRounded(ctx,
+            this.menu.x - pad, this.menu.y - pad, this.menu.width + 2 * pad, this.menu.height + 2 * pad, 4);
+        ctx.fillStyle = notepanel.colors.toCssString({r: 255, g: 255, b: 255, a: 128});
+        ctx.fill();
+        ctx.strokeStyle = notepanel.colors.toCssString({r: 64, g: 64, b: 64, a: 255});
+        ctx.stroke();
+
+        // Menu text.
+
         ctx.font = '14 px "FontAwesome"';
         ctx.fillStyle = "#000000";
         ctx.textBaseline = 'bottom';
         ctx.textAlign = 'start';
-        // TODO : manage template with menu starting either from left and right
-        var startX = this.location.x + this.location.width;
-        if (this.moving) {
-            startX -= movingElev;
-        }
-        this.menu.x = startX - this.menu.width;
-        //this.menu.items.reverse();
-        // menu starting from left
-        //startX = boardX + this.x
-        //menu.x = startX
-        // drawing menu from left
-        this.menu.y = this.location.y - this.menu.height;
-        if (this.moving) {
-            this.menu.y -= movingElev;
-        }
+
         for (var i = 0, imax = this.menu.items.length; i < imax; i++) {
             var item = this.menu.items[i];
             item.y = this.menu.y;

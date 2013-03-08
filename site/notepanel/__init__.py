@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 import os
 import inspect
 import flask
@@ -65,22 +65,20 @@ if "packages_path" in settings:
 from utils import file_monitor
 log_monitor = file_monitor.getAzureFileMonitor("log_monitor")
 log_monitor.configure(settings["azaccount"], settings["azkey"], "logs")
-log_monitor.add_directory(os.path.join(root_path, settings["logs_path"]))
 if "proxy_host" in settings:
     log_monitor.set_proxy(settings["proxy_host"], settings["proxy_port"])
+if "WeAreInTheCloud" in os.environ:
+    log_monitor.add_directory(os.path.join(root_path, settings["logs_path"]))
 
 # ================================================================
 # azure log handler
 
 from utils import azure_logging
-
 azure_logging.configure(settings["azaccount"], settings["azkey"])
-
 if "proxy_host" in settings:
     azure_logging.set_proxy(settings["proxy_host"], settings["proxy_port"])
-
-azure_logging.init_storage()
-
+if "WeAreInTheCloud" in os.environ:
+    azure_logging.init_storage()
 azure_log_handler = azure_logging.get_handler()
 azure_log_handler.setLevel(logging.WARN)
 
@@ -104,7 +102,8 @@ file_log_handler.setLevel(logging.DEBUG)
 logger = logging.getLogger('sqlalchemy')
 logger.setLevel(logging.ERROR)
 
-logger.addHandler(azure_log_handler)
+if "WeAreInTheCloud" in os.environ:
+    logger.addHandler(azure_log_handler)
 logger.addHandler(file_log_handler)
 
 logger = logging.getLogger("notepanel")
