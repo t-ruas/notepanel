@@ -1,8 +1,7 @@
 ﻿
 var notepanel = {
     user: null,
-    views: {},
-    servicesUrl: '{{services_url}}',
+    views: {}
 };
 
 notepanel.ajaxErrorHandler = function (xhr) {

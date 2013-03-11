@@ -17,6 +17,7 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.utils.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.colors.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.drawing.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.windowManager.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.notes.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.template.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.template.templates.js')}}"></script>
@@ -25,18 +26,25 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.register.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.boardsettings.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.newboard.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.myboards.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.publicboards.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.importboard.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.mainmenu.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.newBoard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.myBoards.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.publicBoards.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.importBoard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.menus.main.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.menus.board.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.wait.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.edit.js')}}"></script>
         <script type="text/javascript">
             notepanel.template.templates.templatesFile = "{{url_for('static', filename='templates.html')}}";
             notepanel.servicesUrl = '{{services_url}}';
-            notepanel.reset();
+            $(document).ready(function () {
+                notepanel.windowManager.menus = notepanel.menus;
+                notepanel.windowManager.dialogs = notepanel.dialogs;
+                notepanel.windowManager.init();
+                // This menu is only active when a board is selected.
+                notepanel.menus.board.locked = true;
+                notepanel.reset();
+            });
         </script>
     </head>
     <body>

@@ -83,7 +83,6 @@ notepanel.views.panel = function (me) {
             me.unlock();
             //$('#a_close_edit').on('click.notepanel', onCloseEdit);
             $('#div_panel').show();
-            notepanel.views.mainmenu.activate();
             enabled = true;
         }
     };
