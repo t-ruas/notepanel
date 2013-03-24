@@ -1,5 +1,6 @@
 ﻿import sys
 import os
+from os import path
 import inspect
 import flask
 import logging
@@ -13,7 +14,7 @@ app = flask.Flask(__name__)
 # ================================================================
 # get root directory
 
-root_path = app.root_path + "\\"
+root_path = app.root_path
 
 # ================================================================
 # set the environment
@@ -92,7 +93,7 @@ logs_path = os.path.join(root_path, settings["logs_path"])
 if not os.path.exists(logs_path):
     os.makedirs(logs_path)
 
-file_log_handler = TimedRotatingFileHandler(filename=logs_path+"site.log", when="midnight", interval=1, backupCount=2, encoding=None, delay=False, utc=False)
+file_log_handler = TimedRotatingFileHandler(filename=path.join(logs_path,"site.log"), when="midnight", interval=1, backupCount=2, encoding=None, delay=False, utc=False)
 file_log_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 file_log_handler.setLevel(logging.DEBUG)
 
