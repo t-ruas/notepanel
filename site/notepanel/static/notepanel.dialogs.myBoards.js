@@ -14,7 +14,7 @@ notepanel.dialogs.myBoards = function (me) {
                         boards: data.boards
                     };
                     callback(notepanel.template.templates.loadDialogMyBoards(list));
-                    $('li').on('click', onChooseBoard);
+                    $('#ph_private_board_list li').on('click', onChooseBoard);
                 } else {
                     callback(notepanel.template.templates.loadDialogMyBoards());
                 }
@@ -46,6 +46,6 @@ notepanel.dialogs.myBoards = function (me) {
     var onNewBoard = function (e) {
         notepanel.windowManager.openDialog(notepanel.dialogs.newboard);
     };
-    
+
     return me;
 }(notepanel.dialogs.myBoards || {});

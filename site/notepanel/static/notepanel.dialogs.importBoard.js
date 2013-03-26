@@ -33,6 +33,6 @@ notepanel.dialogs.importBoard = function (me) {
         $('#i_import_board').replaceWith( $('#i_import_board').val('').clone( true ) );
         return false;
     }
-    
+
     return me;
 }(notepanel.dialogs.importBoard || {});

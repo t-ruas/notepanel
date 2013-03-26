@@ -1,6 +1,8 @@
 ﻿import sys
+from os import path
 
-sys.path.append("..\\site-packages\\")
+packages_path = path.join("..", "site-packages")
+sys.path.append(packages_path)
 
 from notepanel import app
 

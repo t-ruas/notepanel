@@ -28,7 +28,7 @@ notepanel.template.templates = function(me) {
             render: true
         });
     };
-    
+
     me.loadDialogLogin = function () {
         return loadTemplate({
             name: 'hogan-tpl-dlg-login',
@@ -55,21 +55,21 @@ notepanel.template.templates = function(me) {
             partials: {boardList: loadTemplate({name: 'hogan-tpl-board-list'})}
         });
     };
-    
+
     me.loadDialogImportBoard = function (list) {
         return loadTemplate({
             name: 'hogan-tpl-dlg-import-board',
             render: true
         });
     };
-    
+
     me.loadDialogNewBoard = function (list) {
         return loadTemplate({
             name: 'hogan-tpl-dlg-new-board',
             render: true
         });
     };
-    
+
     me.loadColorPicker = function () {
         return loadTemplate({
             name: 'hogan-tpl-color-picker',

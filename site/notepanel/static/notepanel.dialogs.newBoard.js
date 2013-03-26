@@ -35,14 +35,14 @@ notepanel.dialogs.newBoard = function (me) {
         }
         return false;
     };
-    
+
     var onChoosePrivateBoard = function (e) {
         $('#l_public_add_note').hide();
     }
-    
+
     var onChoosePublicBoard = function (e) {
         $('#l_public_add_note').show();
     }
-    
+
     return me;
 }(notepanel.dialogs.newBoard || {});

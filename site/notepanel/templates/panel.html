@@ -41,11 +41,11 @@
                 notepanel.windowManager.menus = notepanel.menus;
                 notepanel.windowManager.dialogs = notepanel.dialogs;
                 notepanel.windowManager.init();
-                
+
                 // This menu is only active when a board is selected.
                 notepanel.menus.board.locked = true;
                 notepanel.identify();
-                
+
                 var loading = function () {
                     if (notepanel.template.templates.loaded) {
                         notepanel.windowManager.setWindow(notepanel.views.panel);
@@ -55,7 +55,7 @@
                         }, 100);
                     }
                 };
-                
+
                 loading();
             });
         </script>

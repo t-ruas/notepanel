@@ -3,13 +3,13 @@ notepanel.windowManager = function (me) {
     var currentWindow = null;
     var currentDialog = null;
     var menuAnimDuration = 200;
-    
+
     me.menus = null;
     me.dialogs = null;
-        
+
     var $dialogPlaceholder = null;
     var $windowPlaceholder = null;
-    
+
     me.menuPositions = {
         TOP: 'top',
         BOTTOM: 'bottom',
@@ -90,7 +90,7 @@ notepanel.windowManager = function (me) {
     }
 
     me.init = function () {
-    
+
         for (var n in me.menus) {
             (function (menu) {
                 var settings = menuSettings[menu.position];
@@ -117,14 +117,14 @@ notepanel.windowManager = function (me) {
                 }
             })(me.menus[n]);
         }
-        
+
         for (var n in me.dialogs) {
             (function (dialog) {
                 dialog.$container = $(dialog.container);
                 dialog.$container.hide();
             })(me.dialogs[n]);
         }
-        
+
         $dialogPlaceholder = $('<div>').appendTo($('body')).css({
                 'z-index': '10',
                 'position': 'absolute',
@@ -134,7 +134,7 @@ notepanel.windowManager = function (me) {
                 'bottom': '0px',
                 'background-color': 'rgba(0, 0, 0, 0.4)'
             }).hide();
-        
+
         $windowPlaceholder = $('<div>').appendTo($('body')).css({
                 'z-index': '0',
                 'position': 'absolute',

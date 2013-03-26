@@ -116,6 +116,6 @@ notepanel.menus.board = function (me) {
     me.setBoardUsers = function (users) {
         $("#ph_board_user_list").html(notepanel.template.templates.loadBoardUserList(users));
     };
-    
+
     return me;
 }(notepanel.menus.board || {});

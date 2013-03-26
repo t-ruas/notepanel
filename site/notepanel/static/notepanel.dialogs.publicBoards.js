@@ -8,13 +8,13 @@ notepanel.dialogs.publicBoards = function (me) {
                 url: '/board/public',
                 dataType: 'json'})
             .done(function (data) {
-                if (data.boards.length) {
+               if (data.boards.length) {
                     var list = {
                         id: 'public_boards',
                         boards: data.boards
                     };
                     callback(notepanel.template.templates.loadDialogPublicBoards(list));
-                    $('li').on('click', onChooseBoard);
+                    $('#ph_public_board_list li').on('click', onpublicboards);
                 } else {
                     callback(notepanel.template.templates.loadDialogPublicBoards());
                 }
@@ -34,10 +34,10 @@ notepanel.dialogs.publicBoards = function (me) {
                 dataType: 'json'})
             .done(function (data) {
                 notepanel.views.panel.setBoard(data.board, data.user_group);
-                notepanel.template.templates.loadBoardUserList(data.boardUsers);
-                notepanel.views.menu.activate();
-                notepanel.views.menu.setBoardName(data.board.name);
-                me.disable();
+                notepanel.menus.board.setBoardUsers(data.boardUsers);
+                notepanel.menus.board.setBoardName(data.board.name);
+                notepanel.menus.board.locked = false;
+                notepanel.windowManager.closeDialog(me);
             })
             .fail(notepanel.ajaxErrorHandler);
     };
