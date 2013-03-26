@@ -1,10 +1,29 @@
 ﻿
-notepanel.views.menu = function (me) {
+notepanel.menus = notepanel.menus || {};
 
-    var enabled = false;
+notepanel.menus.board = function (me) {
+
+    me.hide = true;
+    me.position = notepanel.windowManager.menuPositions.RIGHT;
+    me.container = '#div_menu';
+
+    me.enable = function () {
+        $('#a_invite_user').on('click', onInviteUser);
+        $('#a_board_settings').on('click', onBoardSettings);
+        $('#a_export_board').on('click', onExportBoard);
+        $('#a_delete_board').on('click', onDeleteBoard);
+        $('#a_close_board').on('click', onCloseBoard);
+    };
+
+    me.disable = function () {
+        $('#a_invite_user').off('click');
+        $('#a_board_settings').off('click');
+        $('#a_export_board').off('click');
+        $('#a_delete_board').off('click');
+        $('#a_close_board').off('click');
+    };
 
     $(document).ready(function () {
-        $('#div_menu').hide();
         var $templates = $('#ul_node_templates');
         for (var n in notepanel.notes.designers) {
             (function (n) {
@@ -13,7 +32,7 @@ notepanel.views.menu = function (me) {
                         $('<a href="#">' + notepanel.notes.designers[n].title + '</a>')
                             .on('click', function (e) {
                                 notepanel.views.panel.addNote(n);
-                                me.disable();
+                                notepanel.windowManager.hideMenu(me);
                                 return false;
                             })
                     )
@@ -22,59 +41,8 @@ notepanel.views.menu = function (me) {
         }
     });
 
-    me.activate = function () {
-        $(window).on('mousemove.menu', onWindowMouseMove);
-    };
-
-    me.disactivate = function () {
-        $(window).off('mousemove.menu');
-    };
-
-    // Enable this view
-    me.enable = function () {
-        if (!enabled) {
-            $('#a_invite_user').on('click', onInviteUser);
-            $('#a_export_board').on('click', onExportBoard);
-            $('#a_delete_board').on('click', onDeleteBoard);
-            $('#a_close_board').on('click', onCloseBoard);
-            $('#div_menu').show();
-            enabled = true;
-        }
-    };
-
-    // Disable this view
-    me.disable = function () {
-        if (enabled) {
-            $('#a_invite_user').off('click');
-            $('#a_export_board').off('click');
-            $('#a_delete_board').off('click');
-            $('#a_close_board').off('click');
-            $('#div_menu').hide();
-            enabled = false;
-        }
-    };
-
-    var onWindowMouseMove = function (e) {
-        if (e.clientX > window.innerWidth - 10) {
-            me.enable();
-        } else if (e.clientX < window.innerWidth - 10 - $('#div_menu').width()) {
-            me.disable();
-        }
-    }
-
-    var onLogout = function (e) {
-        $.ajax({type: 'GET',
-                url: '/users/logout',
-                dataType: 'json'})
-            .done(function (data) {
-                notepanel.reset();
-            })
-            .fail(notepanel.ajaxErrorHandler);
-        return false;
-    };
-
     var onInviteUser = function(e) {
-        var boardId = $('#sel_choose_board').val();
+        var boardId = notepanel.views.panel.getBoardId();
         var userName = $('#i_invite_user').val();
         var userGroup = $('#sel_choose_user_group').val();
         if(userName.length>0) {
@@ -91,7 +59,8 @@ notepanel.views.menu = function (me) {
     };
 
     var onDeleteBoard = function(e) {
-        me.disable();
+        notepanel.windowManager.hideMenu(me);
+        notepanel.menus.board.locked = true;
         var boardId = notepanel.views.panel.getBoardId();
         if (boardId) {
             $.ajax({type: 'DELETE',
@@ -99,21 +68,19 @@ notepanel.views.menu = function (me) {
                     dataType: 'json'})
                 .done(function (data) {
                     notepanel.views.panel.setBoard();
-                    notepanel.views.menu.disactivate();
                 })
                 .fail(notepanel.ajaxErrorHandler);
         } else {
             // Shouldn't be here.
             notepanel.views.panel.setBoard();
-            notepanel.views.menu.disactivate();
         }
         return false;
     };
 
     var onCloseBoard = function(e) {
-        me.disable();
+        notepanel.windowManager.hideMenu(me);
+        notepanel.menus.board.locked = true;
         notepanel.views.panel.setBoard();
-        notepanel.views.menu.disactivate();
         return false;
     };
 
@@ -124,6 +91,10 @@ notepanel.views.menu = function (me) {
             downloadURL(url);
         }
         return false;
+    }
+
+    var onBoardSettings = function(e) {
+        notepanel.views.boardsettings.enable();
     }
 
     var downloadURL = function downloadURL(url) {
@@ -142,5 +113,9 @@ notepanel.views.menu = function (me) {
         $('#div_menu_board_name').html(name);
     };
 
+    me.setBoardUsers = function (users) {
+        $("#ph_board_user_list").html(notepanel.template.templates.loadBoardUserList(users));
+    };
+    
     return me;
-}(notepanel.views.menu || {});
+}(notepanel.menus.board || {});

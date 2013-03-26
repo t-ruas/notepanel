@@ -1,10 +1,10 @@
 ﻿
-notepanel.views.newboard = function (me) {
+notepanel.views.boardsettings = function (me) {
 
     var enabled = false;
 
     $(document).ready(function () {
-        $('#div_new_board').hide();
+        $('#div_board_settings').hide();
     });
 
     // Enable this view
@@ -13,18 +13,13 @@ notepanel.views.newboard = function (me) {
             notepanel.views.mainmenu.disactivate();
             notepanel.views.menu.disactivate();
             notepanel.views.panel.lock();
+            var currentBoard = notepanel.views.panel.getBoard();
+            loadBoardSettingsForm(currentBoard);
             // reset form
-            $('#i_board_name').val('');
-            $('#i_board_privacy_private').attr('checked', true);
-            $('#i_board_privacy_public').attr('checked', false);
-            $('#i_public_add_note').attr('checked', false);
-            $('#l_public_add_note').hide();
+            
             // events
-            $('#a_create_board').on('click', onCreateBoard);
-            $('#i_board_privacy_private').on('click', onChoosePrivateBoard);
-            $('#i_board_privacy_public').on('click', onChoosePublicBoard);
-            $('#div_new_board #s_close').on('click', onClose);
-            $('#div_new_board').show();
+            $('#div_board_settings #s_close').on('click', onClose);
+            $('#div_board_settings').show();
             enabled = true;
         }
     };
@@ -35,15 +30,17 @@ notepanel.views.newboard = function (me) {
             notepanel.views.mainmenu.activate();
             notepanel.views.menu.activate();
             notepanel.views.panel.unlock();
-            $('#a_create_board').off('click');
-            $('#i_board_privacy_private').off('click');
-            $('#i_board_privacy_public').off('click');
-            $('#div_new_board #s_close').off('click');
-            $('#div_new_board').hide();
+            $('#div_board_settings #s_close').off('click');
+            $('#div_board_settings').hide();
             enabled = false;
         }
     };
-
+    
+    var loadBoardSettingsForm = function(board) {
+        notepanel.template.templates.loadBoardSettingsForm(board);
+    };
+    
+    /*
     var onCreateBoard = function (e) {
         if($('#i_board_name').val() != '') {
             var postData = new Object();
@@ -69,18 +66,10 @@ notepanel.views.newboard = function (me) {
         }
         return false;
     };
-    
-    var onChoosePrivateBoard = function(e) {
-        $('#l_public_add_note').hide();  
-    }
-    
-    var onChoosePublicBoard = function(e) {
-        $('#l_public_add_note').show();  
-    }
-    
+    */
     var onClose = function (e) {
         me.disable();
     };
     
     return me;
-}(notepanel.views.newboard || {});
+}(notepanel.views.boardsettings || {});

@@ -51,17 +51,6 @@ notepanel.views.panel = function (me) {
         y: 0
     };
 
-    var enabled = false;
-
-    $(document).ready(function () {
-        $canvas = $('#canvas_board');
-        context = $canvas.get(0).getContext('2d');
-        adjustCanvas();
-        notepanel.notes.adapter.scale.x = $canvas.width() / 2;
-        notepanel.notes.adapter.scale.y = $canvas.height() / 2;
-        $('#div_panel').hide();
-    });
-
     me.lock = function () {
         mode === modes.STILL;
         $canvas.off('mousedown');
@@ -77,28 +66,20 @@ notepanel.views.panel = function (me) {
         $canvas.on('mousewheel', onMouseWheel);
     };
 
-    // Enable this view
-    me.enable = function () {
-        if (!enabled) {
-            me.unlock();
-            //$('#a_close_edit').on('click.notepanel', onCloseEdit);
-            $('#div_panel').show();
-            notepanel.views.mainmenu.activate();
-            enabled = true;
-        }
+    me.open = function (callback) {
+        callback(notepanel.template.templates.loadWindowPanel());
+        $canvas = $('#canvas_board');
+        context = $canvas.get(0).getContext('2d');
+        adjustCanvas();
+        notepanel.notes.adapter.scale.x = $canvas.width() / 2;
+        notepanel.notes.adapter.scale.y = $canvas.height() / 2;
+        me.unlock();
     };
 
-    // Disable this view
-    me.disable = function () {
-        if (enabled) {
-            notepanel.views.mainmenu.disactivate();
-            notepanel.views.menu.disactivate();
-            me.lock();
-            $('#div_panel').hide();
-            interruptPolling();
-            interruptDrawing();
-            enabled = false;
-        }
+    me.close = function () {
+        //notepanel.menus.board.disactivate();
+        interruptPolling();
+        interruptDrawing();
     };
 
     var onMouseWheel = function (e, delta, deltaX, deltaY) {
@@ -176,7 +157,10 @@ notepanel.views.panel = function (me) {
         var prevMode = mode;
         for (var i = notes.length - 1; i >= 0; i--) {
             var note = notes[i];
-            if (note.isMouseOver(pt)) {
+            if (note.isMouseOverMenu(pt)) {
+                mode = modes.STILL;
+                note.activateMenu(pt);
+            } else if (note.isMouseOver(pt)) {
                 if (mode === modes.AWAIT_RESIZE && note.resizing) {
                     mode = modes.RESIZE;
                 } else {
@@ -184,9 +168,6 @@ notepanel.views.panel = function (me) {
                     note.moving = true;
                     movingNote = note;
                 }
-            } else if (note.isMouseOverMenu(pt)) {
-                mode = modes.STILL;
-                note.activateMenu(pt);
             } else {
                 continue;
             }
@@ -205,6 +186,7 @@ notepanel.views.panel = function (me) {
                 }
             }
         }
+        return false;
     };
 
     var onMouseUp = function (e) {
@@ -357,6 +339,11 @@ notepanel.views.panel = function (me) {
     me.getBoardId = function () {
         return currentBoard ? currentBoard.id : 0;
     };
+    
+    me.getBoard = function () {
+        return currentBoard;
+    };
+    
 
     me.resize = function () {
         mode = modes.AWAIT_RESIZE;

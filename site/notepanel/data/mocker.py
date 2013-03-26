@@ -1,4 +1,4 @@
-from . import db
+﻿from . import db
 from model import User, Board, Note, BoardUser, UserGroup
 from sqlalchemy import func
 

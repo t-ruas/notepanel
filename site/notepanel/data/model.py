@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, DateTime, Integer, String, Boolean, ForeignKey, func
+﻿from sqlalchemy import Table, Column, DateTime, Integer, String, Boolean, ForeignKey, func
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy
 from db import Entity
@@ -20,6 +20,7 @@ class BoardOptions:
     ZOOMABLE = 2
     COLORABLE = 4
     ALL = ADDNOTE | ZOOMABLE | COLORABLE
+
 
 class NoteOptions:
     NONE = 0
@@ -84,9 +85,9 @@ class Board(Entity):
     privacy = Column(Integer, default=BoardPrivacy.PRIVATE)
     color = Column(String(7))
     default_options = Column(Integer, default=BoardOptions.NONE)
-    owner_options = Column(Integer, default=BoardOptions.ALL)
-    admin_options = Column(Integer, default=BoardOptions.ALL)
     contributor_options = Column(Integer, default=BoardOptions.ADDNOTE)
+    admin_options = Column(Integer, default=BoardOptions.ALL)
+    owner_options = Column(Integer, default=BoardOptions.ALL)        
     comments = Column(String(500))
     creation_date = Column(DateTime, default=func.now())
     edition_date = Column(DateTime, default=func.now())
@@ -99,8 +100,14 @@ class Board(Entity):
         return {
             "id": self.id, 
             "name": self.name,
+            "width": self.width,
+            "height": self.height,
             "privacy": self.privacy,
             "color": self.color,
+            "default_options": self.default_options,
+            "contributor_options": self.contributor_options,
+            "admin_options": self.admin_options,
+            "owner_options": self.owner_options,
             "comments": self.comments
         }
     
@@ -110,7 +117,12 @@ class Board(Entity):
             "width": self.width,
             "height": self.height,
             "privacy": self.privacy,
-            "color": self.color
+            "color": self.color,
+            "default_options": self.default_options,
+            "contributor_options": self.contributor_options,
+            "admin_options": self.admin_options,
+            "owner_options": self.owner_options,
+            "comments": self.comments
         }
     
     def from_export(self, dic):

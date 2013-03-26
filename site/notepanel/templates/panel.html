@@ -16,35 +16,55 @@
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.labels.en.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.utils.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.colors.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.drawing.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.windowManager.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.notes.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.template.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.template.templates.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.panel.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.login.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.register.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.error.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.newboard.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.myboards.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.publicboards.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.importboard.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.mainmenu.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.menu.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.boardsettings.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.login.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.register.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.newBoard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.myBoards.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.publicBoards.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.dialogs.importBoard.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.menus.main.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='notepanel.menus.board.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.wait.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.views.edit.js')}}"></script>
         <script type="text/javascript">
             notepanel.template.templates.templatesFile = "{{url_for('static', filename='templates.html')}}";
             notepanel.servicesUrl = '{{services_url}}';
-            notepanel.reset();
+            $(document).ready(function () {
+                notepanel.windowManager.menus = notepanel.menus;
+                notepanel.windowManager.dialogs = notepanel.dialogs;
+                notepanel.windowManager.init();
+                
+                // This menu is only active when a board is selected.
+                notepanel.menus.board.locked = true;
+                notepanel.identify();
+                
+                var loading = function () {
+                    if (notepanel.template.templates.loaded) {
+                        notepanel.windowManager.setWindow(notepanel.views.panel);
+                    } else {
+                        window.setTimeout(function () {
+                            loading();
+                        }, 100);
+                    }
+                };
+                
+                loading();
+            });
         </script>
     </head>
     <body>
-        <div id="div_panel">
-            <canvas id="canvas_board"></canvas>
-        </div>
-        <div id="div_main_menu">
+        <div id="div_main_menu" style="z-index: 5;">
             {% include "partials/main_menu.html" %}
         </div>
-        <div id="div_menu">
+        <div id="div_menu" style="z-index: 5;">
             <div id="div_menu_board_name" style="font-weight: bold;"></div>
             <div>Add a new note :</div>
             <ul id="ul_node_templates"></ul>
@@ -55,11 +75,11 @@
                 <option value="3">Contributor</option>
                 <option value="2">Admin</option>
             </select>
+            <a href="#" id="a_board_settings">Board settings</a><br />
             <a href="#" id="a_export_board">Export board</a><br />
             <a href="#" id="a_close_board">Close board</a><br />
             <a href="#" id="a_delete_board">Delete board</a><br />
         </div>
-        {% include "partials/login.html" %}
         {% include "partials/register.html" %}
         <div id="div_wait">
             <div id="div_wait_centered_content">
@@ -73,11 +93,6 @@
         <div id="div_fatal">
             Error
         </div>
-        
-        {% include "partials/new_board.html" %}
-        {% include "partials/import_board.html" %}
-        {% include "partials/my_boards.html" %}
-        {% include "partials/public_boards.html" %}
-
+        {% include "partials/board_settings.html" %}
     </body>
 </html>
