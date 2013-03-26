@@ -33,8 +33,9 @@ notepanel.views.edit = function (me) {
                                     $fields.append($ta);
                                     break;
                                 case notepanel.notes.editorType.COLORPICKER:
-                                    var $picker = notepanel.template.templates.loadColorPicker(function () {
-                                        note.value[property.name] = notepanel.colors.toRgbInt(notepanel.colors.fromHexString(this.id));
+                                    var $picker = notepanel.template.templates.loadColorPicker();
+                                    $('div', $picker).on('click', function () {
+                                        note.value[property.name] = notepanel.colors.toRgbInt(notepanel.colors.fromHexString($(this).attr('value')));
                                     });
                                     $fields.append($picker);
                                     break;

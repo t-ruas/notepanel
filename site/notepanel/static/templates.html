@@ -106,18 +106,9 @@
 </script>
 
 <script id="hogan-tpl-color-picker" type="text">
-    <p><strong>Choose the board you want to go</strong></p>
-    <div id="ph_private_board_list"></div>
-    <p><strong>Or create a new board</strong></p>
-    <div>
-        <a href="#" id="a_new_board" class="btn">New board</a>
-    </div>
-</script>
-
-<script id="hogan-tpl-color-picker" type="text">
     <div id="color_picker">
         {{#colors}}
-        <div id="{{code}}" style="background-color:{{css}};cursor:pointer;width:20px;border-color:#000;border-width:1px;border-style:solid;float:left;">&nbsp;</div>
+        <div value="{{code}}" style="background-color:{{css}};cursor:pointer;width:20px;border-color:#000;border-width:1px;border-style:solid;float:left;">&nbsp;</div>
         {{/colors}}
         <div style="clear:both;"></div>
     </div>
