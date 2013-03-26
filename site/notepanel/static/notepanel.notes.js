@@ -14,9 +14,16 @@ notepanel.notes.editorType = {
     COLORPICKER: 1
 };
 
-notepanel.notes.ShapeType = {
+notepanel.notes.shapeType = {
     RECTANGLE: 0,
     PHOTO: 1
+};
+
+notepanel.notes.resizeZone = {
+    TOP: 0,
+    RIGHT: 1,
+    BOTTOM: 2,
+    LEFT: 3
 };
 
 notepanel.notes.adapter = {
@@ -66,7 +73,7 @@ notepanel.notes.menuButtons = {
         width: 16,
         height: 16,
         onClick: function () {
-            notepanel.views.panel.resize();
+            notepanel.views.panel.resize(this);
             this.resizing = true;
         }
     }
@@ -78,7 +85,7 @@ notepanel.notes.designers = {
         shapes: [
             // Base.
             {
-                type: notepanel.notes.ShapeType.RECTANGLE,
+                type: notepanel.notes.shapeType.RECTANGLE,
                 x: 0,
                 y: 0,
                 width: 100,
@@ -94,7 +101,7 @@ notepanel.notes.designers = {
             },
             // Text padding.
             {
-                type: notepanel.notes.ShapeType.RECTANGLE,
+                type: notepanel.notes.shapeType.RECTANGLE,
                 x: 4,
                 y: 4,
                 width: 92,
@@ -111,7 +118,7 @@ notepanel.notes.designers = {
         title: 'Note with photo',
         shapes: [
             {
-                type: notepanel.notes.ShapeType.RECTANGLE,
+                type: notepanel.notes.shapeType.RECTANGLE,
                 x: 0,
                 y: 0,
                 width: 100,
@@ -121,7 +128,7 @@ notepanel.notes.designers = {
                 base: true
             },
             {
-                type: notepanel.notes.ShapeType.PHOTO,
+                type: notepanel.notes.shapeType.PHOTO,
                 x: 10,
                 y: 10,
                 width: 80,
@@ -133,7 +140,7 @@ notepanel.notes.designers = {
                 }
             },
             {
-                type: notepanel.notes.ShapeType.RECTANGLE,
+                type: notepanel.notes.shapeType.RECTANGLE,
                 x: 10,
                 y: 80,
                 width: 80,
@@ -217,8 +224,8 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
 
         var shape = shapes[i];
 
-        if (shape.type === notepanel.notes.ShapeType.RECTANGLE
-                || shape.type === notepanel.notes.ShapeType.PHOTO) {
+        if (shape.type === notepanel.notes.shapeType.RECTANGLE
+                || shape.type === notepanel.notes.shapeType.PHOTO) {
 
             var x = this.location.x + (this.location.width * shape.x / 100);
             var w = (this.location.width * shape.width / 100);
@@ -297,7 +304,7 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
             }
         }
 
-        if (shape.type === notepanel.notes.ShapeType.PHOTO) {
+        if (shape.type === notepanel.notes.shapeType.PHOTO) {
             var url;
             switch (typeof shape.url) {
                 case 'object':
@@ -400,6 +407,30 @@ notepanel.notes.Note.prototype.isMouseOverMenu = function (pt) {
 
 notepanel.notes.Note.prototype.isMouseOver = function (pt) {
     return notepanel.utils.isInRectangle(pt, this.location);
+};
+
+
+// return the closest border as a notepanel.notes.resizeZone
+notepanel.notes.Note.prototype.getResizeZone = function (pt) {
+    var d = function (a, b) {
+        return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+    };
+    var m = [
+        {x: this.location.x + this.location.width / 2, y: this.location.y},
+        {x: this.location.x + this.location.width, y: this.location.y + this.location.height / 2},
+        {x: this.location.x + this.location.width / 2, y: this.location.y + this.location.height},
+        {x: this.location.x, y: this.location.y + this.location.height / 2}
+    ];
+    var v = Number.MAX_VALUE;
+    var n = 0;
+    for (var i = 0; i < 4; i++) {
+        var u = d(pt, m[i]);
+        if (u < v) {
+            v = u;
+            n = i;
+        }
+    }
+    return n;
 };
 
 notepanel.notes.Note.prototype.scale = function (len) {

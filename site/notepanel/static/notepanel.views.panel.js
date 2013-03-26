@@ -39,12 +39,17 @@ notepanel.views.panel = function (me) {
     // Currently dragged note
     var movingNote = null;
 
+    var resizingNote = null;
+    
     // Currently hovered note
     var hoveredNote = null;
 
     // Loop timer so we can stop drawing during an update
     var currentTimer = null;
 
+    // the border to move during a modes.RESIZE
+    var resizeDirection = notepanel.notes.resizeZone.TOP;
+    
     // Last mouse coordinates.
     var mouse = {
         x: 0,
@@ -94,7 +99,23 @@ notepanel.views.panel = function (me) {
 
     var onMouseMove = function (e) {
         var pt = {x: e.offsetX, y: e.offsetY};
-        if (mode !== modes.STILL) {
+        if (mode === modes.STILL) {
+            hoveredNote = null;
+            for (var i = notes.length - 1; i >= 0; i--) {
+                var note = notes[i];
+                if (hoveredNote === null && (note.isMouseOver(pt) || note.isMouseOverMenu(pt))) {
+                    note.hovered = true;
+                    hoveredNote = note;
+                } else {
+                    note.hovered = false;
+                }
+            }
+            if (hoveredNote === null) {
+                $canvas.css('cursor', 'default');
+            } else {
+                $canvas.css('cursor', 'pointer');
+            }
+        } else {
             $canvas.css('cursor', 'pointer');
             var mvmnt = {
                 x: pt.x - mouse.x,
@@ -115,42 +136,30 @@ notepanel.views.panel = function (me) {
                 movingNote.y += mvmnt.y * notepanel.notes.adapter.scale.ratio;
                 movingNote.location.x += mvmnt.x;
                 movingNote.location.y += mvmnt.y;
-            } else if (mode === modes.SIZE) {
-                
-            }
-        } else {
-            hoveredNote = null;
-            for (var i = notes.length - 1; i >= 0; i--) {
-                var note = notes[i];
-                if (hoveredNote === null && (note.isMouseOver(pt) || note.isMouseOverMenu(pt))) {
-                    note.hovered = true;
-                    hoveredNote = note;
-                } else {
-                    note.hovered = false;
+            } else if (mode === modes.RESIZE) {
+                switch (resizeDirection) {
+                    case notepanel.notes.resizeZone.TOP:
+                        resizingNote.y += mvmnt.y;
+                        resizingNote.height -= mvmnt.y;
+                        break;
+                    case notepanel.notes.resizeZone.RIGHT:
+                        resizingNote.width += mvmnt.x;
+                        break;
+                    case notepanel.notes.resizeZone.BOTTOM:
+                        resizingNote.height += mvmnt.y;
+                        break;
+                    case notepanel.notes.resizeZone.LEFT:
+                        resizingNote.x += mvmnt.x;
+                        resizingNote.width -= mvmnt.x;
+                        break;
                 }
-            }
-            if (hoveredNote === null) {
-                $canvas.css('cursor', 'default');
-            } else {
-                $canvas.css('cursor', 'pointer');
+                resizingNote.relocate();
             }
         }
         mouse.x = pt.x;
         mouse.y = pt.y;
     };
-
-    var moveNoteToTop = function (z) {
-        var noteOnTheTop = notes.splice(z, 1)[0];
-        notes.push(noteOnTheTop);
-        setZNotes(0);
-    };
     
-    var setZNotes = function(startIndex) {
-        for(var i=startIndex; i<notes.length; i++) {
-            notes[i].z = i;
-        }
-    }
-
     var onMouseDown = function (e) {
         var pt = {x: e.offsetX, y: e.offsetY};
         var noteFound = false;
@@ -163,6 +172,7 @@ notepanel.views.panel = function (me) {
             } else if (note.isMouseOver(pt)) {
                 if (mode === modes.AWAIT_RESIZE && note.resizing) {
                     mode = modes.RESIZE;
+                    resizeDirection = note.getResizeZone(pt);
                 } else {
                     mode = modes.NOTE;
                     note.moving = true;
@@ -185,6 +195,7 @@ notepanel.views.panel = function (me) {
                     break;
                 }
             }
+            resizingNote = null;
         }
         return false;
     };
@@ -222,6 +233,18 @@ notepanel.views.panel = function (me) {
         }
         $canvas.css('cursor', 'default');
     };
+    
+    var moveNoteToTop = function (z) {
+        var noteOnTheTop = notes.splice(z, 1)[0];
+        notes.push(noteOnTheTop);
+        setZNotes(0);
+    };
+    
+    var setZNotes = function(startIndex) {
+        for(var i=startIndex; i<notes.length; i++) {
+            notes[i].z = i;
+        }
+    }
 
     var onCloseEdit = function (e) {
         closeEditNote();
@@ -345,8 +368,9 @@ notepanel.views.panel = function (me) {
     };
     
 
-    me.resize = function () {
+    me.resize = function (note) {
         mode = modes.AWAIT_RESIZE;
+        resizingNote = note;
     };
 
     // Refresh the current board's note list

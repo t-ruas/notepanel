@@ -29,6 +29,13 @@ notepanel.template.templates = function(me) {
         });
     };
 
+    me.loadNoteEditor = function () {
+        return loadTemplate({
+            name: 'hogan-tpl-note_editor',
+            render: true
+        });
+    };
+
     me.loadDialogLogin = function () {
         return loadTemplate({
             name: 'hogan-tpl-dlg-login',

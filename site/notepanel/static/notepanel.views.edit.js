@@ -1,23 +1,15 @@
 
 notepanel.views.edit = function (me) {
 
-    var context = null;
-
-    var enabled = false;
-
     var note = null;
+    var $divEdit = null;
 
-    $(document).ready(function () {
-        $('#div_edit').hide();
-    });
-
-    // Enable this view
     me.enable = function (n) {
         note = n;
-        if (!enabled) {
+        if (!$divEdit) {
             var shapes = notepanel.notes.designers[note.template].shapes;
-            var $divEdit = $("#div_edit");
-            var $fields = $('#div_edit_fields');
+            $divEdit = $(notepanel.template.templates.loadNoteEditor());
+            var $fields = $('#div_edit_fields', $divEdit);
             for (var i = 0, imax = shapes.length; i < imax; i++) {
                 for (var m in shapes[i]) {
                     var property = shapes[i][m];
@@ -45,20 +37,16 @@ notepanel.views.edit = function (me) {
                 }
             }
             notepanel.utils.positionNearNote($divEdit, note);
-            $('#a_close_edit').on('click', onClose);
-            $divEdit.show();
-            enabled = true;
+            $('#a_close_edit', $divEdit).on('click', onClose);
+            $('body').append($divEdit);
         }
     };
 
-    // Disable this view
     me.disable = function () {
-        if (enabled) {
+        if ($divEdit) {
             note = null;
-            $('#a_close_edit').off('click');
-            $('#div_edit').hide();
-            $('#div_edit_fields').empty();
-            enabled = false;
+            $divEdit.remove();
+            $divEdit = null;
         }
     };
 
