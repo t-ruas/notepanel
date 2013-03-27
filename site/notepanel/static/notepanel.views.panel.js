@@ -139,18 +139,18 @@ notepanel.views.panel = function (me) {
             } else if (mode === modes.RESIZE) {
                 switch (resizeDirection) {
                     case notepanel.notes.resizeZone.TOP:
-                        resizingNote.y += mvmnt.y;
-                        resizingNote.height -= mvmnt.y;
+                        resizingNote.y += mvmnt.y * notepanel.notes.adapter.scale.ratio;
+                        resizingNote.height -= mvmnt.y * notepanel.notes.adapter.scale.ratio;
                         break;
                     case notepanel.notes.resizeZone.RIGHT:
-                        resizingNote.width += mvmnt.x;
+                        resizingNote.width += mvmnt.x * notepanel.notes.adapter.scale.ratio;
                         break;
                     case notepanel.notes.resizeZone.BOTTOM:
-                        resizingNote.height += mvmnt.y;
+                        resizingNote.height += mvmnt.y * notepanel.notes.adapter.scale.ratio;
                         break;
                     case notepanel.notes.resizeZone.LEFT:
-                        resizingNote.x += mvmnt.x;
-                        resizingNote.width -= mvmnt.x;
+                        resizingNote.x += mvmnt.x * notepanel.notes.adapter.scale.ratio;
+                        resizingNote.width -= mvmnt.x * notepanel.notes.adapter.scale.ratio;
                         break;
                 }
                 resizingNote.relocate();
@@ -195,6 +195,21 @@ notepanel.views.panel = function (me) {
                     break;
                 }
             }
+            var data = {
+                id: resizingNote.id,
+                x: resizingNote.x,
+                y: resizingNote.y,
+                z: resizingNote.z,
+                width: resizingNote.width,
+                height: resizingNote.height,
+                update: notepanel.notes.updateType.POSITION
+            };
+            $.ajax({type: 'POST',
+                    url: notepanel.servicesUrl + '/notes/' + resizingNote.id,
+                    xhrFields: {withCredentials: true},
+                    dataType: 'json',
+                    data: JSON.stringify(data)})
+                .fail(notepanel.globalErrorHandler);
             resizingNote = null;
         }
         return false;
