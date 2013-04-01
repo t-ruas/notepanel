@@ -152,30 +152,84 @@
 </script>
 
 <script id="hogan-tpl-board-permissions-form" type="text">
+	<fieldset>
+		<legend>Permissions:</legend>
+		<div id="frm_permissions">
+			<ul>
+				<li class="name">&nbsp;</li>
+				{{#roles}}
+					{{#viewer}}<li>Viewer</li>{{/viewer}}
+					{{#contributor}}<li>Contributor</li>{{/contributor}}
+					{{#administrator}}<li>Administrator</li>{{/administrator}}
+					{{#owner}}<li>Owner</li>{{/owner}}
+				{{/roles}}
+			</ul>
+			<div class="clear"></div>
+			{{#permissions}}
+				{{> permissionLineForm }}
+			{{/permissions}}
+		</div>
+	</fieldset>
 </script>
 
 <script id="hogan-tpl-board-permissions-line-form" type="text">
+	<ul id="ul_{{ id }}">
+        <li class="name">{{ label }}</li>
+			{{#roles}}
+				{{> permissionColumnForm }}
+			{{/roles}}
+    </ul>
+    <div class="clear"></div>
+</script>
+
+<script id="hogan-tpl-board-permissions-column-form" type="text">
+		{{#viewer}}
+        <li><input type="checkbox" value="{{ UserGroup.VIEWER }}" /></li>
+        {{/viewer}}
+        {{#contributor}}
+        <li><input type="checkbox" value="{{ UserGroup.CONTRIBUTOR }}" /></li>
+        {{/contributor}}
+        {{#administrator}}
+        <li><input type="checkbox" value="{{ UserGroup.ADMIN }}" /></li>
+        {{/administrator}}
+        {{#owner}}
+        <li><input type="checkbox" value="{{ UserGroup.OWNER }}" /></li>
+        {{/owner}}
+</script>
+
+<script id="hogan-tpl-board-permissions-checkbox-form" type="text">
+		{{#profile}}
+        <li><input type="checkbox" value="{{ id }}" {{ checked }}/></li>
+        {{/profile}}
 </script>
 
 <script id="hogan-tpl-inline-input-form" type="text">
-    <span>in the partial</span>
     <div class="inline">
-        <label for="i_{{ name }}"> {{ label }} </label><input type="{{ type }}" name="{{ name }}" id="i_{{ name }}" size="{{ size }}"/>
+        <label for="i_{{ name }}"> {{ label }} </label>
+        <input type="{{ type }}" name="{{ name }}" id="i_{{ name }}" size="{{ size }}" value="{{ value }}"/>
     </div>
 </script>
 
 <script id="hogan-tpl-board-settings-form" type="text">
-    <span>in the template</span>
-    {{#board}}
-        <span>in the board</span>
-        {{#color}}
-            <span>in the color</span>
-            {{> textInput }}
-        {{/color}}
-        {{^color}}
-          No color :(
-        {{/color}}
-    {{/board}}
+	<div id="div_new_board" class="box large">
+        <div><span id="s_close" class="close">&#xf00d;</span></div>
+        <div class="clear"></div>
+        <div class="innerbox">
+            <div><span class="title">Board settings</span></div><div class="clear"></div>
+			<div>
+			{{#board}}
+				{{#inputs}}
+					{{> textInput }}
+				{{/inputs}}
+				<label for="ta_comments"> Comments </label>
+				<textarea rows="4" cols="30" name="comments" id="ta_comments">
+					{{ comments }}
+				</textarea>
+				{{> permissionForm }}
+			{{/board}}
+			</div>
+        </div>
+    </div>
 </script>
 
 

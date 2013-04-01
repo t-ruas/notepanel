@@ -113,6 +113,39 @@ notepanel.template.templates = function(me) {
             data: {providers: providers}
         });
     };
+    
+    me.loadBoardSettingsForm = function (board) {
+		// set inputs according to user permissions on the board
+		// basic settings
+		board.inputs = [];
+		board.inputs.push(me.Form.toTextInput('Name: ', 'name', board.name));
+		board.inputs.push(me.Form.toTextInput('Color: ', 'color', board.color));
+		board.inputs.push(me.Form.toTextInput('Width: ', 'Width', board.width));
+		board.inputs.push(me.Form.toTextInput('Height: ', 'height', board.height));
+		// permissions
+		var roles = {viewer : true, contributor : true};
+		// TODO : a function which convert permissions in profiles
+		var profiles = [
+			viewer : {checked: true};
+		]
+		// TODO : set checked or not in roles foreach 
+		board.permissions = [];
+		board.permissions.push({id: notepanel.enums.boardOptions.ADDNOTE, label : 'Add notes', roles : roles});
+		board.permissions.push({id: notepanel.enums.boardOptions.ZOOMABLE, label : 'Zoom', roles : roles});
+		board.permissions.push({id: notepanel.enums.boardOptions.COLORABLE, label : 'Change background', roles : roles});
+		board.permissions.push({id: notepanel.enums.boardOptions.RESIZABLE, label : 'Resize', roles : roles});
+        return loadTemplate({
+            name: 'hogan-tpl-board-settings-form',
+            render: true,
+            data: {board: board, roles: roles},
+            partials: {
+				textInput: loadTemplate({name: 'hogan-tpl-inline-input-form'}),
+				permissionLineForm: loadTemplate({name: 'hogan-tpl-board-permissions-line-form'}),
+				permissionColumnForm: loadTemplate({name: 'hogan-tpl-board-permissions-column-form'}),
+				permissionForm: loadTemplate({name: 'hogan-tpl-board-permissions-form'})
+				}
+        });
+    };
 
     var loadTemplates = function () {
         if(me.templatesFile && !me.loaded) {
@@ -130,7 +163,8 @@ notepanel.template.templates = function(me) {
             console.log('no template file defined');
         }
     }
-
+	
+	/*
     me.loadBoardSettingsForm = function(board) {
         if(loaded) {
             var template = compiledTemplates['hogan-tpl-board-settings-form'];
@@ -150,7 +184,25 @@ notepanel.template.templates = function(me) {
             loadTemplates(me.loadBoardSettingsForm, [board]);
         }
     }
-
+	*/
+	me.Form = {
+		
+		toTextInput: function(label, name, value) {
+			return this.toInput(label, name, 'text', '30', value);
+		},
+		
+		toInput: function(label, name, type, size, value) {
+			return {
+				label: label,
+				name: name,
+				type: type,
+				size: size,
+				value: value
+			};
+		}
+		
+	}
+	
     var boardSettingsForm = {
         name: {
             label: 'Name:',

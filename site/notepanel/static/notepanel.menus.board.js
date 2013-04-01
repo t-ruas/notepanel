@@ -94,7 +94,8 @@ notepanel.menus.board = function (me) {
     }
 
     var onBoardSettings = function(e) {
-        notepanel.views.boardsettings.enable();
+        notepanel.windowManager.hideMenu(me);
+        notepanel.windowManager.openDialog(notepanel.dialogs.boardSettings);
     }
 
     var downloadURL = function downloadURL(url) {

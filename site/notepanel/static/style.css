@@ -141,3 +141,22 @@ body {
     background-color: #d14836;
     background-image: -webkit-linear-gradient(top,#dd4b39,#d14836);
 }
+
+#frm_permissions ul {
+	margin: 0 auto;
+    padding: 0;
+}
+
+#frm_permissions ul li.name {
+	text-align: left;
+	width: 140px;
+	font-size: 14px;
+}
+
+#frm_permissions ul li {
+	text-align: center;
+	float: left;
+	list-style: none;
+	height: 20px;
+	width: 110px;
+}

@@ -33,6 +33,7 @@ notepanel.enums = {
         ADDNOTE : 1,
         ZOOMABLE : 2,
         COLORABLE : 4,
-        ALL : (1 | 2 | 4)
+        RESISZEABLE : 8,
+        ALL : (1 | 2 | 4 | 8)
     }
 };

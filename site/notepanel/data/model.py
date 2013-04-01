@@ -19,7 +19,8 @@ class BoardOptions:
     ADDNOTE = 1
     ZOOMABLE = 2
     COLORABLE = 4
-    ALL = ADDNOTE | ZOOMABLE | COLORABLE
+    RESIZABLE = 8
+    ALL = ADDNOTE | ZOOMABLE | COLORABLE | RESIZABLE
 
 
 class NoteOptions:
