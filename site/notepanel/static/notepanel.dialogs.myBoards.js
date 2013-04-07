@@ -44,7 +44,7 @@ notepanel.dialogs.myBoards = function (me) {
     };
 
     var onNewBoard = function (e) {
-        notepanel.windowManager.openDialog(notepanel.dialogs.newboard);
+        notepanel.windowManager.openDialog(notepanel.dialogs.newBoard);
     };
 
     return me;

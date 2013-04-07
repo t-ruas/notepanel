@@ -1,4 +1,5 @@
-﻿from . import db
+﻿import os
+from . import db
 from model import User, Board, Note, BoardUser, UserGroup
 from sqlalchemy import func
 
@@ -26,3 +27,11 @@ def fill_db():
     session.add(board_user1)
     session.add(board_user2)    
     session.commit()
+
+'''
+#load site pages as boards from files
+def load_site_boards(path):
+	for file in os.listdir(path):
+		import_content = file.read()
+        board = BoardService().import_board(1, import_content)
+'''

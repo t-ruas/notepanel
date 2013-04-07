@@ -120,6 +120,12 @@ class BoardService(object):
     # export board to a file
     def export_board(self, board_id):
         board = self.get(board_id)
+        # TODO : optimize
+        '''
+        for user in board.users:
+			assoc = self.get_user(board.id, user.id)
+			user.user_group = assoc.user_group
+		'''
         return JsonSerializer().serialize(board)
     
     # delete board

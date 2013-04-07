@@ -174,7 +174,10 @@ class Note(Entity):
             "z": self.z,
             #"color": self.color,
             "template": self.template,
-            "level": self.access_level,
+            "default_options": self.default_options,
+            "admin_options": self.admin_options,
+            "owner_options": self.owner_options,
+            "contributor_options": self.contributor_options
         }
     
     def to_export(self):
@@ -187,7 +190,10 @@ class Note(Entity):
             "z": self.z,
             #"color": self.color,
             "template": self.template,
-            "access_level": self.access_level
+            "default_options": self.default_options,
+            "admin_options": self.admin_options,
+            "owner_options": self.owner_options,
+            "contributor_options": self.contributor_options
         }
     
     def from_export(self, dic):

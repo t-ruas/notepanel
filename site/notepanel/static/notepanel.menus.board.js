@@ -85,7 +85,7 @@ notepanel.menus.board = function (me) {
     };
 
     var onExportBoard = function(e) {
-        var boardId = $('#sel_choose_board').val();
+        var boardId = notepanel.views.panel.getBoardId();
         if(boardId>0) {
             url = '/board/' + boardId + '/export';
             downloadURL(url);

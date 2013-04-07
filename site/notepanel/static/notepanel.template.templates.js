@@ -125,9 +125,12 @@ notepanel.template.templates = function(me) {
 		// permissions
 		var roles = {viewer : true, contributor : true};
 		// TODO : a function which convert permissions in profiles
+		/*
 		var profiles = [
-			viewer : {checked: true};
+			viewer : 
+				checked: true,
 		]
+		*/
 		// TODO : set checked or not in roles foreach 
 		board.permissions = [];
 		board.permissions.push({id: notepanel.enums.boardOptions.ADDNOTE, label : 'Add notes', roles : roles});

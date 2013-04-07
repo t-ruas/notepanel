@@ -12,6 +12,8 @@ class StringSerializer(object):
         return pickle.loads(string)
 
 
+
+
 class JsonSerializer(object):
     
     def serialize(self, board):
@@ -22,7 +24,7 @@ class JsonSerializer(object):
         board_export['users'] = users_export
         notes_export = []
         for note in board.notes:
-            notes_export.append(note.to_export())
+			notes_export.append(note.to_export())
         board_export['notes'] = notes_export
         return json.dumps(board_export)
     
