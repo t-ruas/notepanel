@@ -1,4 +1,54 @@
 
+notepanel.templating = (function (me) {
+    var compiledTemplates = {};
+    var get = function (name, tmpl, def) {
+        if (!(name in compiledTemplates)) {
+            compiledTemplates[name] = doT.template(tmpl, null, def);
+        }
+        return compiledTemplates[name];
+    };
+    me.get = get;
+    return me;
+})(notepanel.templating || {});
+
+notepanel.templates = {
+    loginDialog: function () {
+            return notepanel.templating.get(
+                'dlg_login',
+                $('#tmpl_dlg_login').text(),
+                {dialog: $('#tmpl_dlg').text(), openIdProviders: $('#tmpl_openid_providers').text()}
+            )();
+        },
+    importBoardDialog: function () {
+            return notepanel.templating.get(
+                'dlg_import_board',
+                $('#tmpl_dlg_import_board').text(),
+                {dialog: $('#tmpl_dlg').text()}
+            )();
+        },
+    myBoardsDialog: function (list) {
+            return notepanel.templating.get(
+                'dlg_my_boards',
+                $('#tmpl_dlg_my_boards').text(),
+                {dialog: $('#tmpl_dlg').text(), boardList: $('#tmpl_board_list').text()}
+            )({list: list});
+        },
+    publicBoardsDialog: function (list) {
+            return notepanel.templating.get(
+                'dlg_public_boards',
+                $('#tmpl_dlg_public_boards').text(),
+                {dialog: $('#tmpl_dlg').text(), boardList: $('#tmpl_board_list').text()}
+            )({list: list});
+        },
+    newBoardDialog: function () {
+            return notepanel.templating.get(
+                'dlg_new_board',
+                $('#tmpl_dlg_new_board').text(),
+                {dialog: $('#tmpl_dlg').text()}
+            )();
+        },
+};
+
 notepanel.template.templates = function(me) {
 
     templatesFile = '';
@@ -36,47 +86,6 @@ notepanel.template.templates = function(me) {
         });
     };
 
-    me.loadDialogLogin = function () {
-        return loadTemplate({
-            name: 'hogan-tpl-dlg-login',
-            render: true,
-            data: {providers: notepanel.openidProviders},
-            partials: {openIdProviders: loadTemplate({name: 'hogan-tpl-provider-list'})}
-        });
-    };
-
-    me.loadDialogMyBoards = function (list) {
-        return loadTemplate({
-            name: 'hogan-tpl-dlg-my-boards',
-            render: true,
-            data: {list: list},
-            partials: {boardList: loadTemplate({name: 'hogan-tpl-board-list'})}
-        });
-    };
-
-    me.loadDialogPublicBoards = function (list) {
-        return loadTemplate({
-            name: 'hogan-tpl-dlg-public-boards',
-            render: true,
-            data: {list: list},
-            partials: {boardList: loadTemplate({name: 'hogan-tpl-board-list'})}
-        });
-    };
-
-    me.loadDialogImportBoard = function (list) {
-        return loadTemplate({
-            name: 'hogan-tpl-dlg-import-board',
-            render: true
-        });
-    };
-
-    me.loadDialogNewBoard = function (list) {
-        return loadTemplate({
-            name: 'hogan-tpl-dlg-new-board',
-            render: true
-        });
-    };
-
     me.loadColorPicker = function () {
         return loadTemplate({
             name: 'hogan-tpl-color-picker',
@@ -106,14 +115,6 @@ notepanel.template.templates = function(me) {
         });
     }
 
-    me.loadOpenidProviders = function (providers) {
-        return loadTemplate({
-            name: 'hogan-tpl-provider-list',
-            render: true,
-            data: {providers: providers}
-        });
-    };
-    
     me.loadBoardSettingsForm = function (board) {
 		// set inputs according to user permissions on the board
 		// basic settings
@@ -127,11 +128,11 @@ notepanel.template.templates = function(me) {
 		// TODO : a function which convert permissions in profiles
 		/*
 		var profiles = [
-			viewer : 
+			viewer :
 				checked: true,
 		]
 		*/
-		// TODO : set checked or not in roles foreach 
+		// TODO : set checked or not in roles foreach
 		board.permissions = [];
 		board.permissions.push({id: notepanel.enums.boardOptions.ADDNOTE, label : 'Add notes', roles : roles});
 		board.permissions.push({id: notepanel.enums.boardOptions.ZOOMABLE, label : 'Zoom', roles : roles});
@@ -166,7 +167,7 @@ notepanel.template.templates = function(me) {
             console.log('no template file defined');
         }
     }
-	
+
 	/*
     me.loadBoardSettingsForm = function(board) {
         if(loaded) {
@@ -189,11 +190,11 @@ notepanel.template.templates = function(me) {
     }
 	*/
 	me.Form = {
-		
+
 		toTextInput: function(label, name, value) {
 			return this.toInput(label, name, 'text', '30', value);
 		},
-		
+
 		toInput: function(label, name, type, size, value) {
 			return {
 				label: label,
@@ -203,9 +204,9 @@ notepanel.template.templates = function(me) {
 				value: value
 			};
 		}
-		
+
 	}
-	
+
     var boardSettingsForm = {
         name: {
             label: 'Name:',

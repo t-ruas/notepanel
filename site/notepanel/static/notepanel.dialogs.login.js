@@ -4,7 +4,7 @@ notepanel.dialogs = notepanel.dialogs || {};
 notepanel.dialogs.login = function (me) {
 
     me.open = function (callback) {
-        callback(notepanel.template.templates.loadDialogLogin());
+        callback(notepanel.templates.loginDialog());
         $('#a_login').on('click', onLogin);
         $('#a_to_register').on('click', onToRegister);
     };
@@ -20,19 +20,19 @@ notepanel.dialogs.login = function (me) {
                 dataType: 'json',
                 data: data})
             .done(function (data) {
-                notepanel.setUser(data);
-                notepanel.windowManager.closeDialog(me);
-            })
+                    notepanel.setUser(data);
+                    notepanel.windowManager.closeDialog(me);
+                })
             .fail(function (xhr) {
-                if (xhr.status === 403) {
-                    $('#div_login_result').text('Wrong user name/password.');
-                } else {
-                    notepanel.ajaxErrorHandler.apply(this, arguments);
-                }
-            })
+                    if (xhr.status === 403) {
+                        $('#div_login_result').text('Wrong user name/password.');
+                    } else {
+                        notepanel.ajaxErrorHandler.apply(this, arguments);
+                    }
+                })
             .always(function () {
-                notepanel.views.wait.disable();
-            });
+                    notepanel.views.wait.disable();
+                });
         return false;
     };
 

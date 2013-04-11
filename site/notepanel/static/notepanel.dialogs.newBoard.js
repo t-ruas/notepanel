@@ -4,7 +4,7 @@ notepanel.dialogs = notepanel.dialogs || {};
 notepanel.dialogs.newBoard = function (me) {
 
     me.open = function (callback) {
-        callback(notepanel.template.templates.loadDialogNewBoard());
+        callback(notepanel.templates.newBoardDialog());
         $('#a_create_board').on('click', onCreateBoard);
         $('#i_board_privacy_private').on('click', onChoosePrivateBoard);
         $('#i_board_privacy_public').on('click', onChoosePublicBoard);

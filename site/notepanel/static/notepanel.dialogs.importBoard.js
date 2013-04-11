@@ -4,7 +4,7 @@ notepanel.dialogs = notepanel.dialogs || {};
 notepanel.dialogs.importBoard = function (me) {
 
     me.open = function (callback) {
-        callback(notepanel.template.templates.loadDialogImportBoard());
+        callback(notepanel.templates.importBoardDialog());
         $('#a_import_board').on('click', onImportBoard);
     };
 

@@ -8,15 +8,15 @@ notepanel.dialogs.publicBoards = function (me) {
                 url: '/board/public',
                 dataType: 'json'})
             .done(function (data) {
-               if (data.boards.length) {
+                if (data.boards.length) {
                     var list = {
                         id: 'public_boards',
                         boards: data.boards
                     };
-                    callback(notepanel.template.templates.loadDialogPublicBoards(list));
+                    callback(notepanel.templates.publicBoardsDialog(list));
                     $('#ph_public_board_list li').on('click', onpublicboards);
                 } else {
-                    callback(notepanel.template.templates.loadDialogPublicBoards());
+                    callback(notepanel.templates.publicBoardsDialog());
                 }
             })
             .fail(notepanel.ajaxErrorHandler);

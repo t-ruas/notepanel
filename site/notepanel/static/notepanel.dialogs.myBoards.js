@@ -13,10 +13,10 @@ notepanel.dialogs.myBoards = function (me) {
                         id: 'private_boards',
                         boards: data.boards
                     };
-                    callback(notepanel.template.templates.loadDialogMyBoards(list));
+                    callback(notepanel.templates.myBoardsDialog(list));
                     $('#ph_private_board_list li').on('click', onChooseBoard);
                 } else {
-                    callback(notepanel.template.templates.loadDialogMyBoards());
+                    callback(notepanel.templates.myBoardsDialog());
                 }
                 $('#a_new_board').on('click', onNewBoard);
             })

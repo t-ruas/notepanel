@@ -3,108 +3,6 @@
     <canvas id="canvas_board"></canvas>
 </script>
 
-<script id="hogan-tpl-dlg-login" type="text">
-    <div id="div_login" class="box medium">
-        <div><span id="s_close" class="close">&#xf00d;</span></div>
-        <div class="clear"></div>
-        <div class="innerbox">
-            <div><span class="title">Sign In</span></div><div class="clear"></div>
-            <div>
-                <p><strong>Use one of your existing account by clicking on a link:</strong></p>
-                <div id="ph_provider_list">{{>openIdProviders}}</div>
-            </div>
-            <div>
-                <p><strong>Or you can sign in with specific credentials:</strong></p>
-                <div class="inline">
-                    <label for="i_username">Your login : </label><input type="text" name="username" id="i_username" size="20"/>
-                </div>
-                <div class="inline">
-                    <label for="i_password">Your password : </label><input type="password" name="password" id="i_password" size="20"/>
-                </div>
-                <a href="#" id="a_login" class="btn">Sign in</a>
-                <br/><br/>
-                <strong>New?</strong> <a href="#" id="a_to_register">register</a>
-            </div>
-            <div id="div_login_result"></div>
-        </div>
-    </div>
-</script>
-
-<script id="hogan-tpl-dlg-my-boards" type="text">
-    <div id="div_my_boards" class="box medium">
-        <div><span id="s_close" class="close">&#xf00d;</span></div>
-        <div class="clear"></div>
-        <div class="innerbox">
-            <div><span class="title">My boards</span></div><div class="clear"></div>
-            <p><strong>Choose the board you want to go</strong></p>
-            {{#list}}
-            <div id="ph_private_board_list">{{>boardList}}</div>
-            {{/list}}
-            {{^list}}
-             <span>No boards...</span>
-            {{/list}}
-            <p><strong>Or create a new board</strong></p>
-            <div>
-                <a href="#" id="a_new_board" class="btn">New board</a>
-            </div>
-        </div>
-    </div>
-</script>
-
-<script id="hogan-tpl-dlg-public-boards" type="text">
-    <div id="div_public_boards" class="box medium">
-        <div><span id="s_close" class="close">&#xf00d;</span></div>
-        <div class="clear"></div>
-        <div class="innerbox">
-            <div><span class="title">Public boards</span></div><div class="clear"></div>
-            {{#list}}
-            <div id="ph_public_board_list">{{>boardList}}</div>
-            {{/list}}
-            {{^list}}
-             <span>No public boards...</span>
-            {{/list}}
-        </div>
-    </div>
-</script>
-
-<script id="hogan-tpl-dlg-import-board" type="text">
-    <div id="div_import_board" class="box medium">
-        <div><span id="s_close" class="close">&#xf00d;</span></div>
-        <div class="clear"></div>
-        <div class="innerbox">
-            <div><span class="title">Import a board</span></div><div class="clear"></div>
-            <form name="f_import_board" enctype="multipart/form-data">
-                <input type="file" id="i_import_board" name="i_import_board" />
-                <a href="#" id="a_import_board">Import board</a>
-                <span id="s_import_board" style="display: none"></span>
-            </form>
-        </div>
-    </div>
-</script>
-
-<script id="hogan-tpl-dlg-new-board" type="text">
-    <div id="div_new_board" class="box large">
-        <div><span id="s_close" class="close">&#xf00d;</span></div>
-        <div class="clear"></div>
-        <div class="innerbox">
-            <div><span class="title">Create a new board</span></div><div class="clear"></div>
-            <div class="inline">
-                <label for="i_board_name">Board name : </label><input type="text" name="password" id="i_board_name" size="20"/>
-            </div>
-            <label class="radio">
-                <input id="i_board_privacy_private" type="radio" name="i_board_privacy" value="1">
-                Private (only selected logged user can access it)</label>
-            <label class="radio">
-                <input id="i_board_privacy_public" type="radio" name="i_board_privacy" value="2">
-               Public (all people can view/edit it)</label>
-            <label id="l_public_add_note" class="checkbox"><input type="checkbox" id="i_public_add_note" value="1" />Logged users are allowed to add notes on your public board</label>
-            <div class="actions">
-                <a href="#" id="a_create_board" class="btn">Create board</a>
-            </div>
-        </div>
-    </div>
-</script>
-
 <script id="hogan-tpl-color-picker" type="text">
     <div id="color_picker">
         {{#colors}}
@@ -126,28 +24,6 @@
         {{#users}}
         <li id="{{id}}" style="">{{name}} as {{userGroupLabel}}</li>
         {{/users}}
-    </ul>
-</script>
-
-<script id="hogan-tpl-board-list" type="text">
-    {{#list}}
-    <ul id="ul_{{id}}_list">
-        {{#boards}}
-        <li value="{{id}}">{{name}}</li>
-        {{/boards}}
-    </ul>
-    {{/list}}
-</script>
-
-<script id="hogan-tpl-provider-list" type="text">
-    <ul id="ul_provider_list">
-        {{#providers}}
-        <li id="{{name}}" class="">
-            <a href="/users/openid?u={{url}}">
-                <img src="{{imageUrl}}" title="{{imageTitle}}" alt="{{imageTitle}}" style="width:16px;height" />
-            {{imageTitle}}</a>
-        </li>
-        {{/providers}}
     </ul>
 </script>
 

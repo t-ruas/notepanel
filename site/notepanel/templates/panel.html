@@ -6,11 +6,133 @@
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='fonts/GoodDog/stylesheet.css')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='fonts/Journal/stylesheet.css')}}" />
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='icons/css/font-awesome.min.css')}}" />
+        {% raw %}
+        <script type="text/x-dot-template" id="tmpl_dlg">
+            <div id="div_{{#def.id}}" class="box {{#def.size||''}}">
+                <div><span id="s_close" class="close">&#xf00d;</span></div>
+                <div class="clear"></div>
+                <div class="innerbox">
+                    <div><span class="title">{{#def.title||''}}</span></div>
+                    <div class="clear"></div>
+                    {{#def.content||''}}
+                </div>
+            </div>
+        </script>
+        <script type="text/x-dot-template" id="tmpl_openid_providers">
+            <ul id="ul_provider_list">
+                {{~notepanel.openidProviders:provider}}
+                <li id="{{=provider.name}}">
+                    <a href="/users/openid?u={{=provider.url}}">
+                        <img src="{{=provider.imageUrl}}" title="{{=provider.imageTitle}}" alt="{{=provider.imageTitle}}" style="width: 16px; height: 16px;" />
+                        {{=provider.imageTitle}}</a>
+                </li>
+                {{~}}
+            </ul>
+        </script>
+        <script type="text/x-dot-template" id="tmpl_dlg_new_board">
+            {{##def.id:new_board#}}
+            {{##def.size:large#}}
+            {{##def.title:Create a new board#}}
+            {{##def.content:
+                <div class="inline">
+                    <label for="i_board_name">Board name : </label><input type="text" name="password" id="i_board_name" size="20"/>
+                </div>
+                <label class="radio">
+                    <input id="i_board_privacy_private" type="radio" name="i_board_privacy" value="1">
+                    Private (only selected logged user can access it)</label>
+                <label class="radio">
+                    <input id="i_board_privacy_public" type="radio" name="i_board_privacy" value="2">
+                   Public (all people can view/edit it)</label>
+                <label id="l_public_add_note" class="checkbox"><input type="checkbox" id="i_public_add_note" value="1" />Logged users are allowed to add notes on your public board</label>
+                <div class="actions">
+                    <a href="#" id="a_create_board" class="btn">Create board</a>
+                </div>
+            #}}
+            {{# def.dialog }}
+        </script>
+        <script type="text/x-dot-template" id="tmpl_dlg_import_board">
+            {{##def.id:import_board#}}
+            {{##def.size:medium#}}
+            {{##def.title:Import a board#}}
+            {{##def.content:
+                <form name="f_import_board" enctype="multipart/form-data">
+                    <input type="file" id="i_import_board" name="i_import_board" />
+                    <a href="#" id="a_import_board">Import board</a>
+                    <span id="s_import_board" style="display: none"></span>
+                </form>
+            #}}
+            {{# def.dialog }}
+        </script>
+        <script type="text/x-dot-template" id="tmpl_board_list">
+            <ul id="ul_{{=it.list.id}}_list">
+                {{~it.list.boards:board}}
+                    <li value="{{=board.id}}">{{=board.name}}</li>
+                {{~}}
+            </ul>
+        </script>
+        <script type="text/x-dot-template" id="tmpl_dlg_my_boards">
+            {{##def.id:my_boards#}}
+            {{##def.size:medium#}}
+            {{##def.title:My boards#}}
+            {{##def.content:
+                <p><strong>Choose the board you want to go to :</strong></p>
+                {{?it.list}}
+                    <div id="ph_private_board_list">{{#def.boardList}}</div>
+                {{??}}
+                    <span>No boards yet...</span>
+                {{?}}
+                <p><strong>Or create a new board</strong></p>
+                <div>
+                    <a href="#" id="a_new_board" class="btn">New board</a>
+                </div>
+            #}}
+            {{#def.dialog}}
+        </script>
+        <script type="text/x-dot-template" id="tmpl_dlg_public_boards">
+            {{##def.id:public_boards#}}
+            {{##def.size:medium#}}
+            {{##def.title:Public boards#}}
+            {{##def.content:
+                {{?it.list}}
+                    <div id="ph_public_board_list">{{#def.boardList}}</div>
+                {{??}}
+                    <span>No public boards...</span>
+                {{?}}
+            #}}
+            {{#def.dialog}}
+        </script>
+        <script type="text/x-dot-template" id="tmpl_dlg_login">
+            {{##def.id:login#}}
+            {{##def.size:medium#}}
+            {{##def.title:Sign In#}}
+            {{##def.content:
+                <div>
+                    <p><strong>Use one of your existing account by clicking on a link:</strong></p>
+                    <div id="ph_provider_list">{{#def.openIdProviders}}</div>
+                </div>
+                <div>
+                    <p><strong>Or you can sign in with specific credentials:</strong></p>
+                    <div class="inline">
+                        <label for="i_username">Your login : </label><input type="text" name="username" id="i_username" size="20"/>
+                    </div>
+                    <div class="inline">
+                        <label for="i_password">Your password : </label><input type="password" name="password" id="i_password" size="20"/>
+                    </div>
+                    <a href="#" id="a_login" class="btn">Sign in</a>
+                    <br/><br/>
+                    <strong>New?</strong> <a href="#" id="a_to_register">register</a>
+                </div>
+                <div id="div_login_result"></div>
+            #}}
+            {{#def.dialog}}
+        </script>
+        {% endraw %}
         <script type="text/javascript" src="{{url_for('static', filename='jquery-1.8.3.min.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='jquery.mousewheel.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='jquery.serialize-object.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='CanvasText-0.4.1.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='hogan.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='doT.min.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.enums.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='notepanel.labels.en.js')}}"></script>
