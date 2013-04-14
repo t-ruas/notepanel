@@ -3,6 +3,14 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy
 from db import Entity
 
+class BoardPages:
+	HOME = 1
+	TODO = 2
+	FEATUREREQUEST = 3
+	WALLOFFAME = 4
+	ABOUTUS = 5
+	HELP = 6
+	pages = {HOME: 'TODO.nt'}
 
 class UserGroup:
     OWNER = 1 # creator of the board : allowed to modify the board, invite people, remove (?), export (?)
@@ -21,7 +29,6 @@ class BoardOptions:
     COLORABLE = 4
     RESIZABLE = 8
     ALL = ADDNOTE | ZOOMABLE | COLORABLE | RESIZABLE
-
 
 class NoteOptions:
     NONE = 0

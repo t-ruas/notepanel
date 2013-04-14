@@ -1,5 +1,6 @@
 ﻿import os
 from . import db
+#from services import BoardService
 from model import User, Board, Note, BoardUser, UserGroup
 from sqlalchemy import func
 
@@ -29,9 +30,22 @@ def fill_db():
     session.commit()
 
 '''
+class BoardPages:
+	HOME = 1
+	TODO = 2
+	FEATUREREQUEST = 3
+	WALLOFFAME = 4
+	ABOUTUS = 5
+	HELP = 6
+	pages = {HOME: 'TODO.nt'}
+	
+
 #load site pages as boards from files
 def load_site_boards(path):
-	for file in os.listdir(path):
+	#for file in os.listdir(path):
+	for id in BoardPages.pages:
+		file_path = os.path.join(path, BoardPages.pages[id])
+		file = open(file_path, "r")
 		import_content = file.read()
-        board = BoardService().import_board(1, import_content)
+		board = BoardService().import_board(id, import_content)
 '''

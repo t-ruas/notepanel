@@ -1,8 +1,10 @@
 ﻿from datetime import datetime
-from model import Board, User, BoardUser, Note, UserGroup, BoardPrivacy
+from model import Board, User, BoardUser, Note, UserGroup, BoardPrivacy, BoardPages
 from serializer import JsonSerializer
 from . import db
 from sqlalchemy import func, and_
+import os
+from os import path
 
 
 class UserService(object):
@@ -121,11 +123,11 @@ class BoardService(object):
     def export_board(self, board_id):
         board = self.get(board_id)
         # TODO : optimize
-        '''
-        for user in board.users:
-			assoc = self.get_user(board.id, user.id)
-			user.user_group = assoc.user_group
-		'''
+        
+        #for user in board.users:
+		#	assoc = self.get_user(board.id, user.id)
+		#	user.user_group = assoc.user_group
+		
         return JsonSerializer().serialize(board)
     
     # delete board
@@ -145,7 +147,7 @@ class BoardService(object):
     def add_user(self, board_id, user_name, user_group):
         board = self.get(board_id=board_id)
         user = UserService().get_by_name(name=user_name)
-        if user != None and not user in board.users:
+        if user != None and not user in board.user:
             board_user = BoardUser(user_id=user.id, board_id=board_id, user_group=user_group)        
             self.session.add(board_user)
             self.session.commit()
@@ -159,6 +161,16 @@ class BoardService(object):
             board.users.remove(user)
             self.session.commit()
         return board
+	
+	#load site pages as boards from files
+    def load_site_boards(self, path):
+		#for file in os.listdir(path):
+		for id in BoardPages.pages:
+			file_path = os.path.join(path, BoardPages.pages[id])
+			file = open(file_path, "r")
+			import_content = file.read()
+			board = self.import_board(id, import_content)
+		return True
     
     # retrieve the users of a board
     def get_users(self, board_id):
@@ -173,3 +185,6 @@ class BoardService(object):
             users.append(user)
         return users
 
+	
+
+	

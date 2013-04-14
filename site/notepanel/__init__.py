@@ -128,6 +128,7 @@ if env == 'local':
 
 # ================================================================
 
+
 try:
 
     logger.info("Application started")
@@ -145,10 +146,16 @@ try:
     db.create_model()
 
     mocker.fill_db()
+    
+    from data.services import BoardService
+    boards_path = os.path.join(root_path, settings['board_path'])
+    BoardService().load_site_boards(boards_path)
 
     # ================================================================
 
     import views
+    
+    
 
 except Exception, e:
     logger.error(str(e))
