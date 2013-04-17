@@ -8,7 +8,7 @@ notepanel.views.edit = function (me) {
         note = n;
         if (!$divEdit) {
             var shapes = notepanel.notes.designers[note.template].shapes;
-            $divEdit = $(notepanel.template.templates.loadNoteEditor());
+            $divEdit = $(notepanel.templates.noteEditor());
             var $fields = $('#div_edit_fields', $divEdit);
             for (var i = 0, imax = shapes.length; i < imax; i++) {
                 for (var m in shapes[i]) {
@@ -25,7 +25,7 @@ notepanel.views.edit = function (me) {
                                     $fields.append($ta);
                                     break;
                                 case notepanel.notes.editorType.COLORPICKER:
-                                    var $picker = notepanel.template.templates.loadColorPicker();
+                                    var $picker = $(notepanel.templates.colorPicker());
                                     $('div', $picker).on('click', function () {
                                         note.value[property.name] = notepanel.colors.toRgbInt(notepanel.colors.fromHexString($(this).attr('value')));
                                     });

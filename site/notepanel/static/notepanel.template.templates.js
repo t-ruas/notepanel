@@ -47,6 +47,33 @@ notepanel.templates = {
                 {dialog: $('#tmpl_dlg').text()}
             )();
         },
+    colorPicker: function () {
+            return notepanel.templating.get(
+                'color_picker',
+                $('#tmpl_color_picker').text()
+            )();
+        },
+    noteEditor: function () {
+            return notepanel.templating.get(
+                'note_editor',
+                $('#tmpl_note_editor').text()
+            )();
+        },
+    boarUsers: function (users) {
+            for (var i = 0, imax = users.length; i < imax; i++) {
+                users[i].userGroupLabel = notepanel.labels.userGroupLabels[users[i].group];
+            }
+            return notepanel.templating.get(
+                'board_users',
+                $('#tmpl_board_users').text()
+            )({users: users});
+        },
+    panelWindow: function (users) {
+            return notepanel.templating.get(
+                'wnd_panel',
+                $('#tmpl_wnd_panel').text()
+            )();
+        },
 };
 
 notepanel.template.templates = function(me) {
@@ -71,49 +98,6 @@ notepanel.template.templates = function(me) {
             console.log('Template not found');
         }
     };
-
-    me.loadWindowPanel = function () {
-        return loadTemplate({
-            name: 'hogan-tpl-wnd-panel',
-            render: true
-        });
-    };
-
-    me.loadNoteEditor = function () {
-        return loadTemplate({
-            name: 'hogan-tpl-note_editor',
-            render: true
-        });
-    };
-
-    me.loadColorPicker = function () {
-        return loadTemplate({
-            name: 'hogan-tpl-color-picker',
-            render: true,
-            data: {colors: notepanel.template.noteColors}
-        });
-        //$htmlColors.find('div').on('click', onClick);
-    }
-
-    me.loadBoardUserList = function (boardUsers) {
-        for (var i in boardUsers) {
-            user = boardUsers[i];
-            user.userGroupLabel = notepanel.labels.userGroupLabels[user.group];
-        }
-        return loadTemplate({
-            name: 'hogan-tpl-board-user-list',
-            render: true,
-            data: {users: boardUsers}
-        });
-    }
-
-    me.loadBoardList = function (list) {
-        return loadTemplate({
-            name: 'hogan-tpl-board-list',
-            render: true,
-            data: {id: list.id, boards: list.boards}
-        });
-    }
 
     me.loadBoardSettingsForm = function (board) {
 		// set inputs according to user permissions on the board

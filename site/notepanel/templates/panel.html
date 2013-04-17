@@ -126,6 +126,30 @@
             #}}
             {{#def.dialog}}
         </script>
+        <script type="text/x-dot-template" id="tmpl_color_picker">
+            <div id="color_picker">
+                {{~notepanel.template.noteColors:color}}
+                    <div value="{{=color.code}}" style="background-color:{{=color.css}};cursor:pointer;width:20px;border-color:#000;border-width:1px;border-style:solid;float:left;">&nbsp;</div>
+                {{~}}
+                <div style="clear:both;"></div>
+            </div>
+        </script>
+        <script type="text/x-dot-template" id="tmpl_note_editor">
+            <div id="div_edit" style="z-index:4;">
+                <div id="div_edit_fields"></div>
+                <a href="#" id="a_close_edit">Close</a>
+            </div>
+        </script>
+        <script type="text/x-dot-template" id="tmpl_board_users">
+            <ul id="board_user_list">
+                {{~it.users:user}}
+                    <li id="{{=user.id}}">{{=user.name}} as {{=user.userGroupLabel}}</li>
+                {{~}}
+            </ul>
+        </script>
+        <script type="text/x-dot-template" id="tmpl_wnd_panel">
+            <canvas id="canvas_board"></canvas>
+        </script>
         {% endraw %}
         <script type="text/javascript" src="{{url_for('static', filename='jquery-1.8.3.min.js')}}"></script>
         <script type="text/javascript" src="{{url_for('static', filename='jquery.mousewheel.js')}}"></script>

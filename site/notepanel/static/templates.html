@@ -1,32 +1,4 @@
 
-<script id="hogan-tpl-wnd-panel" type="text">
-    <canvas id="canvas_board"></canvas>
-</script>
-
-<script id="hogan-tpl-color-picker" type="text">
-    <div id="color_picker">
-        {{#colors}}
-        <div value="{{code}}" style="background-color:{{css}};cursor:pointer;width:20px;border-color:#000;border-width:1px;border-style:solid;float:left;">&nbsp;</div>
-        {{/colors}}
-        <div style="clear:both;"></div>
-    </div>
-</script>
-
-<script id="hogan-tpl-note_editor" type="text">
-    <div id="div_edit" style="z-index: 4;">
-        <div id="div_edit_fields"></div>
-        <a href="#" id="a_close_edit">Close</a>
-    </div>
-</script>
-
-<script id="hogan-tpl-board-user-list" type="text">
-    <ul id="board_user_list">
-        {{#users}}
-        <li id="{{id}}" style="">{{name}} as {{userGroupLabel}}</li>
-        {{/users}}
-    </ul>
-</script>
-
 <script id="hogan-tpl-board-permissions-form" type="text">
 	<fieldset>
 		<legend>Permissions:</legend>

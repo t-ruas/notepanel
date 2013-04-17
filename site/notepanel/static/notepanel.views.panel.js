@@ -72,7 +72,7 @@ notepanel.views.panel = function (me) {
     };
 
     me.open = function (callback) {
-        callback(notepanel.template.templates.loadWindowPanel());
+        callback(notepanel.templates.panelWindow());
         $canvas = $('#canvas_board');
         context = $canvas.get(0).getContext('2d');
         adjustCanvas();
