@@ -360,7 +360,7 @@ notepanel.notes.Note.prototype.draw = function (ctx) {
         }
     }
 
-    if (this.hovered) {
+    if (this.hovered && !this.resizing) {
 
         var pad = 4;
 
