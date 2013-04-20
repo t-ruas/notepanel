@@ -17,12 +17,12 @@ notepanel.template.makeColor = function (value) {
 };
 
 notepanel.template.noteColors = [
-    notepanel.template.makeColor(0x29A1F1),
-    notepanel.template.makeColor(0xFF5E99),
-    notepanel.template.makeColor(0xFF0000),
-    notepanel.template.makeColor(0xFFFF99),
-    notepanel.template.makeColor(0x66FF66),
-    notepanel.template.makeColor(0xFFFFFF)
+    notepanel.template.makeColor(0x29A1F1), // blue
+    notepanel.template.makeColor(0xFF5E99), // pink
+    notepanel.template.makeColor(0xFF0000), // red
+    notepanel.template.makeColor(0xFFFF99), // yellow
+    notepanel.template.makeColor(0x66FF66), // green
+    notepanel.template.makeColor(0xFFFFFF) // white
 ];
 
 notepanel.template.canvasText = new CanvasText();
@@ -37,41 +37,48 @@ notepanel.template.canvasText.config({
     lineHeight: "20"
 });
 
-/*
 
+
+/*
+* Defining several tags to use different fonts (family, color, size, weight) in note
+*/
 var CanvasTextFontFamily = [
+    ["J", "JournalRegular"],
     ["I", "Impact"],
     ["T", "Times new roman"]
 ];
 var CanvasTextFontColor = [
-    ["b", "#29a1f1"], 
-    ["p", "#ff5e99"]
+    ["b", notepanel.template.makeColor(0x29A1F1).code], 
+    ["p", notepanel.template.makeColor(0xFF5E99).code],
+    ["r", notepanel.template.makeColor(0xFF0000).code],
+    ["y", notepanel.template.makeColor(0xFFFF99).code],
+    ["g", notepanel.template.makeColor(0x66FF66).code],
+    ["w", notepanel.template.makeColor(0xFFFFFF).code]
 ];
 var CanvasTextFontWeight = [
     ["n", "normal"],
     ["b", "bold"]
 ];
 
-
-// TO USE for different fonts in a note
-for(var i=10; i<48;i++) { // loop on fontSize
+for(var i=20; i<48;i++) { // loop on fontSize
     for(var j=0; j<CanvasTextFontFamily.length;j++) { // loop on font family
         for(var k=0; k<CanvasTextFontColor.length;k++) { // long on font color
-            for(var l=0; l<CanvasTextFontWeight.length;l++) { // loop on font weght
+			console.log("color code for " + CanvasTextFontColor[k][0] + " is " + CanvasTextFontColor[k][1]);
+            for(var l=0; l<CanvasTextFontWeight.length;l++) { // loop on font weight
                 var className = CanvasTextFontFamily[j][0] + CanvasTextFontColor[k][0] + CanvasTextFontWeight[l][0] + i;
                 notepanel.template.canvasText.defineClass(className, {
                     fontSize: i + "px",
-                    fontColor: CanvasTextFontColor[k][1],
+                    fontColor: "#" + CanvasTextFontColor[k][1],
                     fontFamily: CanvasTextFontFamily[j][1],
                     fontWeight: CanvasTextFontWeight[l][1]
                 });
-                console.log("new class loaded : " + className);
+                //console.log("new class loaded : " + className);
             }
         }
     }    
 }
 
-
+/*
 
 CanvasText.defineClass("blue",{
     fontSize: "24px",
